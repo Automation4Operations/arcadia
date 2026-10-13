@@ -27,7 +27,12 @@ function toCard(r: any): GameCardData {
 }
 
 function check<T>(res: { data: T | null; error: { message: string } | null }): T {
-  if (res.error) throw new Error(res.error.message);
+  if (res.error) {
+    const e = res.error as { message?: string; code?: string; details?: string; hint?: string };
+    throw new Error(
+      `Supabase error | message=${e.message || "(empty)"} | code=${e.code ?? ""} | details=${e.details ?? ""} | hint=${e.hint ?? ""}`,
+    );
+  }
   return res.data as T;
 }
 

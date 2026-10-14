@@ -52,9 +52,14 @@ export default function GamePlayer({ game }: Props) {
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
 
-  function start() {
+function start() {
     setStarted(true);
     pushRecent({ slug: game.slug, title: game.title, thumbnailUrl: game.thumbnailUrl });
+    fetch("/api/play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: game.slug }),
+    }).catch(() => {});
   }
 
   function toggleLike() {

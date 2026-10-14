@@ -136,9 +136,7 @@ function start() {
               src={game.iframeUrl}
               title={game.title}
               className="absolute inset-0 h-full w-full border-0"
-              allow="fullscreen; autoplay; gamepad; clipboard-write"
-              sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms"
-              referrerPolicy="no-referrer"
+              allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; clipboard-write; encrypted-media" referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
             />
           ) : (

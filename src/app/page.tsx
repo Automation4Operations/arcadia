@@ -1,16 +1,35 @@
 import ContinuePlaying from "@/components/ContinuePlaying";
 import GameGrid from "@/components/GameGrid";
-import { getCategorySections, getTrending } from "@/lib/queries";
+import HeroSpotlight from "@/components/HeroSpotlight";
+import {
+  getCategorySections,
+  getFeaturedHero,
+  getNewReleases,
+  getTrending,
+} from "@/lib/queries";
 
-export const dynamic = "force-dynamic"; // always read fresh data from Supabase
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [trending, sections] = await Promise.all([getTrending(), getCategorySections()]);
+  const [hero, trending, fresh, sections] = await Promise.all([
+    getFeaturedHero(),
+    getTrending(),
+    getNewReleases(),
+    getCategorySections(),
+  ]);
 
   return (
-    <div className="mx-auto max-w-[1500px] px-4 pb-16">
+    <div className="mx-auto max-w-[1600px] px-4 pb-16">
+      <HeroSpotlight game={hero} />
       <ContinuePlaying />
-      <GameGrid title="Trending now" games={trending} href="/search" priorityFirst />
+      <GameGrid title="Trending in Lobby" icon="🔥" games={trending} href="/search" priorityFirst />
+      <GameGrid
+        title="Fresh Releases"
+        icon="✨"
+        games={fresh}
+        href="/search"
+        leadFeatured={false}
+      />
       {sections.map(({ category, games }) => (
         <GameGrid
           key={category.id}

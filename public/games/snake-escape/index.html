@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Snake Escape</title>
+<style>
+  :root{--ink:#0F0D1F;--panel:#1A1733;--edge:#2C2752;--fg:#ECEAFF;--mute:#9A94C7;--arc:#7C5CFF;--arc2:#A892FF;--sun:#FFC83D;--bad:#FF5C7A;--ok:#3DDC97}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--ink);color:var(--fg);font-family:"Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  [hidden]{display:none !important}
+  #app{display:flex;flex-direction:column;height:100%;max-width:640px;margin:0 auto}
+  #top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 6px}
+  .chip{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--edge);color:var(--fg);border-radius:999px;padding:7px 12px;font-weight:700;font-size:14px;cursor:pointer;min-height:36px}
+  .chip:active{transform:scale(.97)}
+  .coin{width:16px;height:16px;border-radius:50%;background:var(--sun);box-shadow:inset 0 0 0 3px #e0a800}
+  #leftBtns{display:flex;gap:6px}
+  #levelBox{display:flex;align-items:center;gap:6px}
+  #levelMid{text-align:center;min-width:92px}
+  #lvTitle{font-weight:800;font-size:17px;line-height:1.1}
+  .tier{display:inline-block;margin-top:3px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--edge);color:var(--arc2)}
+  .tier.Easy{color:var(--ok)}.tier.Medium{color:var(--sun)}.tier.Hard{color:#ff8a5c}.tier.Expert{color:var(--bad)}
+  .icon{width:30px;height:30px;border-radius:50%;border:1px solid var(--edge);background:var(--panel);color:var(--fg);font-size:18px;line-height:1;cursor:pointer}
+  .icon:disabled{opacity:.3;cursor:default}
+  #stage{position:relative;flex:1;min-height:0;margin:0 8px}
+  #board{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  #banner{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:var(--arc);color:#fff;font-weight:800;font-size:14px;padding:8px 16px;border-radius:999px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px #0008}
+  #banner button{background:#0003;color:#fff;border:0;border-radius:999px;padding:3px 10px;font-weight:800;cursor:pointer}
+  #toast{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:var(--fg);color:var(--ink);font-weight:800;font-size:14px;padding:9px 16px;border-radius:999px;max-width:92%;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s}
+  #toast.on{opacity:1}
+  #bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+  .tool{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--panel);border:1px solid var(--edge);color:var(--fg);border-radius:14px;padding:9px 4px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
+  .tool small{font-size:12px;color:var(--sun);font-weight:800}
+  .tool:active{transform:scale(.97)}
+  .tool.on{background:var(--arc);border-color:var(--arc)}
+  .tool.ad{border-color:var(--sun)}
+  .tool.pulse{animation:pulse .6s 2}
+  @keyframes pulse{50%{transform:scale(1.07);box-shadow:0 0 0 4px #ffc83d55}}
+  #modal{position:fixed;inset:0;background:#0F0D1Fcc;display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+  #sheet{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--edge);border-radius:20px;padding:22px 20px;text-align:center;box-shadow:0 20px 60px #000a}
+  #sheet h2{margin:0 0 6px;font-size:24px}
+  #sheet p{margin:6px 0;color:var(--mute);line-height:1.4}
+  #sheet p.big{font-size:30px;font-weight:900;color:var(--sun);margin:10px 0 2px}
+  #sheet p.tiny{font-size:12px}
+  #sheet ul{text-align:left;color:var(--fg);padding-left:20px;line-height:1.55;margin:10px 0}
+  .btn{display:block;width:100%;margin-top:10px;padding:13px;border-radius:14px;border:1px solid var(--edge);background:var(--edge);color:var(--fg);font-weight:800;font-size:16px;cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--sun);color:var(--ink);border-color:var(--sun)}
+  .btn.purple{background:var(--arc);border-color:var(--arc);color:#fff}
+  .btn.ghost{background:transparent}
+  .btn:disabled{opacity:.5}
+  .tabs{display:flex;gap:6px;margin:12px 0 4px}
+  .tab{flex:1;padding:9px;border-radius:12px;border:1px solid var(--edge);background:transparent;color:var(--mute);font-weight:800;cursor:pointer;font-family:inherit}
+  .tab.on{background:var(--arc);color:#fff;border-color:var(--arc)}
+  input{width:100%;margin-top:8px;padding:12px 14px;border-radius:12px;border:1px solid var(--edge);background:var(--ink);color:var(--fg);font-size:16px;font-family:inherit}
+  input:focus{outline:2px solid var(--arc)}
+  .err{color:var(--bad) !important;min-height:20px;font-size:14px}
+  .okmsg{color:var(--ok) !important}
+  .adbox{margin:12px 0;padding:26px 10px;border:2px dashed var(--edge);border-radius:14px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <div id="leftBtns">
+      <button id="btnProfile" class="chip" aria-label="Account">Sign in</button>
+      <button id="btnSound" class="chip" aria-label="Sound">&#128266;</button>
+    </div>
+    <div id="levelBox">
+      <button id="prevLv" class="icon" aria-label="Previous level">&#8249;</button>
+      <div id="levelMid"><div id="lvTitle">Level 1</div><span id="lvTier" class="tier Easy">Easy</span></div>
+      <button id="nextLv" class="icon" aria-label="Next level">&#8250;</button>
+    </div>
+    <div id="coins" class="chip" aria-label="Coins"><span class="coin"></span><b id="coinN">30</b></div>
+  </header>
+  <main id="stage">
+    <canvas id="board"></canvas>
+    <div id="banner" hidden><span>Tap a snake to erase it</span><button id="bannerX">Cancel</button></div>
+    <div id="toast" role="status"></div>
+  </main>
+  <footer id="bar">
+    <button id="bHint" class="tool">Hint<small id="cHint">15</small></button>
+    <button id="bErase" class="tool">Eraser<small id="cErase">40</small></button>
+    <button id="bSkip" class="tool">Skip<small id="cSkip">150</small></button>
+    <button id="bAd" class="tool ad">Free coins<small id="cAd">+25</small></button>
+  </footer>
+</div>
+<div id="modal" hidden><div id="sheet"></div></div>
+
+<script>
+/*<LOGIC>*/
+// ===================== PURE GAME LOGIC (no DOM) =====================
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
+function tierOf(n){return n<=10?'Easy':n<=30?'Medium':n<=60?'Hard':'Expert';}
+function levelParams(n){
+  const cols=Math.min(11,5+Math.floor((n-1)/6));
+  const rows=Math.min(16,cols+1+Math.floor((n-1)/12));
+  return {cols,rows,
+    fill:Math.min(0.80,0.40+n*0.008),
+    maxLen:Math.min(12,3+Math.floor(n/6)),
+    minLen:2,
+    pBlock:Math.min(0.97,0.35+n*0.015),
+    cands:Math.min(48,10+Math.floor(n/2))};
+}
+function lineFrom(x,y,dx,dy,cols,rows){
+  const out=[];let cx=x+dx,cy=y+dy;
+  while(cx>=0&&cy>=0&&cx<cols&&cy<rows){out.push([cx,cy]);cx+=dx;cy+=dy;}
+  return out;
+}
+function buildOcc(snakes,alive,cols,rows){
+  const occ=new Int16Array(cols*rows).fill(-1);
+  for(const s of snakes){if(!alive.has(s.id))continue;for(const c of s.cells)occ[c[1]*cols+c[0]]=s.id;}
+  return occ;
+}
+function firstBlocker(s,occ,cols){
+  for(let i=0;i<s.line.length;i++){
+    const o=occ[s.line[i][1]*cols+s.line[i][0]];
+    if(o>=0&&o!==s.id)return {steps:i+1,id:o};
+  }
+  return null;
+}
+function freeSnakes(level,alive){
+  const occ=buildOcc(level.snakes,alive,level.cols,level.rows);
+  return level.snakes.filter(s=>alive.has(s.id)&&!firstBlocker(s,occ,level.cols));
+}
+function isSolvable(level){
+  const alive=new Set(level.snakes.map(s=>s.id));
+  while(alive.size){const f=freeSnakes(level,alive);if(!f.length)return false;alive.delete(f[0].id);}
+  return true;
+}
+function bestHint(level,alive){
+  const free=freeSnakes(level,alive);
+  if(!free.length)return null;
+  let best=null,bs=-1;
+  for(const f of free){
+    const set=new Set(f.cells.map(c=>c[1]*level.cols+c[0]));
+    let sc=0;
+    for(const o of level.snakes){
+      if(o.id===f.id||!alive.has(o.id))continue;
+      if(o.line.some(p=>set.has(p[1]*level.cols+p[0])))sc++;
+    }
+    if(sc>bs){bs=sc;best=f;}
+  }
+  return best;
+}
+// Snakes are placed one by one. Each new snake's escape line must be clear of the snakes
+// already on the board, so removing snakes in REVERSE placement order always works.
+// New snakes may sit across older snakes' lines, which is what creates the puzzle.
+// Rounds = longest chain "A is blocked by B, which is blocked by C ...". Bigger chains = harder puzzles.
+function chainRounds(list,cols){
+  const owner=new Map();
+  for(const sn of list)for(const c of sn.cells)owner.set(c[1]*cols+c[0],sn.id);
+  const memo=new Map(),byId=new Map(list.map(x=>[x.id,x]));
+  function r(id){
+    if(memo.has(id))return memo.get(id);
+    memo.set(id,1);let best=0;const sn=byId.get(id);
+    for(const p of sn.line){const o=owner.get(p[1]*cols+p[0]);if(o!==undefined&&o!==id){const v=r(o);if(v>best)best=v;}}
+    memo.set(id,best+1);return best+1;
+  }
+  let mx=0,sum=0;for(const sn of list){const v=r(sn.id);if(v>mx)mx=v;sum+=v;}
+  return {mx,sum};
+}
+function buildLevel(n,attempt){
+  const P=levelParams(n),rnd=mulberry32(n*7919+13+attempt*104729);
+  const cols=P.cols,rows=P.rows,total=cols*rows;
+  const occ=new Int16Array(total).fill(-1);
+  const snakes=[];let filled=0;const target=Math.floor(total*P.fill);
+  const idx=(x,y)=>y*cols+x;
+  function tryBuild(){
+    const L=P.minLen+Math.floor(rnd()*(P.maxLen-P.minLen+1));
+    const sx=Math.floor(rnd()*cols),sy=Math.floor(rnd()*rows);
+    if(occ[idx(sx,sy)]>=0)return null;
+    const path=[[sx,sy]],inPath=new Set([idx(sx,sy)]);let last=null;
+    while(path.length<L){
+      const cur=path[path.length-1],opts=[];
+      for(const d of DIRS){
+        const nx=cur[0]+d[0],ny=cur[1]+d[1];
+        if(nx<0||ny<0||nx>=cols||ny>=rows)continue;
+        if(occ[idx(nx,ny)]>=0||inPath.has(idx(nx,ny)))continue;
+        opts.push(d);
+      }
+      if(!opts.length)break;
+      let d=opts[Math.floor(rnd()*opts.length)];
+      if(last&&rnd()<0.45){const st=opts.find(o=>o[0]===last[0]&&o[1]===last[1]);if(st)d=st;}
+      path.push([cur[0]+d[0],cur[1]+d[1]]);inPath.add(idx(cur[0]+d[0],cur[1]+d[1]));last=d;
+    }
+    if(path.length<2)return null;
+    if(rnd()<0.5)path.reverse();
+    const h=path[path.length-1],nk=path[path.length-2],dir=[h[0]-nk[0],h[1]-nk[1]];
+    const line=lineFrom(h[0],h[1],dir[0],dir[1],cols,rows);
+    for(const p of line){if(occ[idx(p[0],p[1])]>=0||inPath.has(idx(p[0],p[1])))return null;}
+    return {cells:path,dir,line,score:0};
+  }
+  let fails=0;
+  while(filled<target&&fails<300){
+    const c=[];
+    for(let k=0;k<P.cands;k++){const b=tryBuild();if(b)c.push(b);}
+    if(!c.length){fails++;continue;}
+    let pick;
+    if(rnd()<P.pBlock&&snakes.length>0){
+      let bestScore=-1,top=[];
+      for(const x of c){
+        const cr=chainRounds(snakes.concat([{id:snakes.length,cells:x.cells,line:x.line}]),cols);
+        const sc=cr.mx*1000+cr.sum;
+        if(sc>bestScore){bestScore=sc;top=[x];}else if(sc===bestScore)top.push(x);
+      }
+      pick=top[Math.floor(rnd()*top.length)];
+    }else pick=c[Math.floor(rnd()*c.length)];
+    const id=snakes.length;
+    for(const p of pick.cells)occ[idx(p[0],p[1])]=id;
+    filled+=pick.cells.length;
+    snakes.push({id,cells:pick.cells,dir:pick.dir,line:pick.line,color:id%8});
+  }
+  return {n,cols,rows,snakes};
+}
+function generateLevel(n){
+  for(let a=0;a<6;a++){const lv=buildLevel(n,a);if(lv.snakes.length>=2&&isSolvable(lv))return lv;}
+  // Safe fallback (never expected): two simple snakes
+  const mk=(id,cells,dir)=>({id,cells,dir,line:lineFrom(cells[cells.length-1][0],cells[cells.length-1][1],dir[0],dir[1],5,6),color:id});
+  return {n,cols:5,rows:6,snakes:[mk(0,[[0,1],[1,1]],[1,0]),mk(1,[[0,3],[1,3]],[1,0])]};
+}
+function rewardFor(n,perfect){return 8+Math.min(n,40)+(perfect?5:0);}
+/*</LOGIC>*/
+</script>
+
+<script>
+(() => {
+'use strict';
+// ===================== CONFIG =====================
+const CONFIG = {
+  SUPABASE_URL: 'https://lbjyfamkklphtmiugthe.supabase.co',
+  SUPABASE_KEY: 'sb_publishable_MXvaRf71eBr9HTQyCVMx9g_dX0Z3NBE',   // public (publishable) key
+  SUPABASE_JS:  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js',
+  START_COINS: 30,
+  COST: { hint: 15, eraser: 40, skip: 150 },
+  LIMIT: { hintsPerLevel: 3, erasersPerLevel: 2, skipsPerDay: 3, adsPerDay: 10 },
+  AD_REWARD: 25, AD_COOLDOWN_MS: 45000,
+  INTERSTITIAL_EVERY: 4,
+  PERFECT_BONUS: 5
+};
+const PALETTE = ['#3DDC97','#FF7A59','#5CC8FF','#FFC83D','#C77DFF','#FF5C9E','#9BE564','#FF9F1C'];
+const $ = id => document.getElementById(id);
+const MSG = {
+  not_enough_coins: 'Not enough coins. Watch an ad for free coins!',
+  ad_cap: 'No more free coins today. Come back tomorrow!',
+  ad_cooldown: 'Please wait a moment before the next ad.',
+  skip_limit: 'No skips left today.',
+  item_limit: 'You used all of those on this level.',
+  too_fast: 'That was too quick to count. Play it through!',
+  bad_level: 'That level is still locked.',
+  not_signed_in: 'Please sign in again.',
+  not_started: 'Level not started. Reload and try again.',
+  no_level: 'Level not started. Reload and try again.'
+};
+const errText = e => { const m=String((e&&e.message)||e||''); for(const k in MSG) if(m.indexOf(k)>=0) return MSG[k]; return 'Something went wrong. Please try again.'; };
+
+// ===================== SOUND =====================
+const Snd = {
+  ctx:null, on:true,
+  init(){ if(this.ctx) return; try{ this.ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,d,type,vol,to){
+    if(!this.on||!this.ctx) return;
+    try{
+      const c=this.ctx,o=c.createOscillator(),g=c.createGain(),t=c.currentTime;
+      o.type=type||'sine'; o.frequency.setValueAtTime(f,t); if(to) o.frequency.exponentialRampToValueAtTime(to,t+d);
+      g.gain.setValueAtTime(vol||0.12,t); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+      o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+d);
+    }catch(e){}
+  },
+  tap(){ this.tone(520,.06,'triangle',.08); },
+  out(){ this.tone(300,.25,'sine',.12,900); },
+  bonk(){ this.tone(160,.35,'sawtooth',.14,60); },
+  win(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>this.tone(f,.2,'triangle',.12),i*110)); },
+  coin(){ this.tone(880,.08,'square',.06); setTimeout(()=>this.tone(1320,.12,'square',.06),70); }
+};
+
+// ===================== ADS (placeholder) =====================
+// >>> To earn real money, replace the two functions below with your ad network's SDK calls. <<<
+// rewarded() must resolve true ONLY if the player watched the whole ad. interstitial() resolves when it closes.
+const Ads = {
+  enabled: true,
+  rewarded(){ return placeholderAd(true); },
+  interstitial(){ return placeholderAd(false); }
+};
+function placeholderAd(rewarded){
+  return new Promise(res=>{
+    let left = rewarded ? 5 : 3, done=false;
+    showModal(`<h2>${rewarded?'Rewarded ad':'Ad break'}</h2>
+      <div class="adbox">Ad placeholder<br><small>Your ad network plays here</small></div>
+      <p id="adT">${left}</p>
+      <button id="adGo" class="btn primary" disabled>${rewarded?'Collect reward':'Continue'}</button>
+      ${rewarded?'<button id="adX" class="btn ghost">Close (no reward)</button>':''}`);
+    const iv=setInterval(()=>{
+      left--; const t=$('adT'),b=$('adGo'); if(!t||!b){clearInterval(iv);return;}
+      t.textContent=left>0?String(left):'Done'; if(left<=0){clearInterval(iv);b.disabled=false;}
+    },1000);
+    $('adGo').onclick=()=>{ if(done)return; done=true; clearInterval(iv); hideModal(); res(true); };
+    const x=$('adX'); if(x) x.onclick=()=>{ if(done)return; done=true; clearInterval(iv); hideModal(); res(false); };
+  });
+}
+
+// ===================== MODAL / TOAST =====================
+const modal=$('modal'), sheet=$('sheet');
+function showModal(html,setup){ sheet.innerHTML=html; modal.hidden=false; if(setup) setup(sheet); }
+function hideModal(){ modal.hidden=true; sheet.innerHTML=''; }
+let toastTimer=null;
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('on'),2200); }
+
+// ===================== STORE (guest in memory / signed-in via Supabase) =====================
+const Store = {
+  sb:null, user:null,
+  st:{ coins:CONFIG.START_COINS, frontier:1, adsLeft:CONFIG.LIMIT.adsPerDay, skipsLeft:CONFIG.LIMIT.skipsPerDay },
+  lastAd:0,
+  isUser(){ return !!this.user; },
+  resetGuest(){ this.st={coins:CONFIG.START_COINS,frontier:1,adsLeft:CONFIG.LIMIT.adsPerDay,skipsLeft:CONFIG.LIMIT.skipsPerDay}; this.lastAd=0; },
+  apply(d){ this.st={coins:d.coins,frontier:d.current_level,adsLeft:d.ads_left,skipsLeft:d.skips_left}; },
+  async rpc(name,args){
+    const r=await this.sb.rpc(name,args||{});
+    if(r.error) throw new Error((r.error.message||'error').trim());
+    return r.data;
+  },
+  async begin(level){ if(this.isUser()) this.apply(await this.rpc('snake_begin_level',{p_level:level})); },
+  async useItem(item){
+    if(this.isUser()){ this.apply(await this.rpc('snake_use_item',{p_item:item})); return; }
+    const c=CONFIG.COST[item]; if(this.st.coins<c) throw new Error('not_enough_coins'); this.st.coins-=c;
+  },
+  async complete(level,perfect){
+    if(this.isUser()){ const d=await this.rpc('snake_complete_level',{p_level:level,p_perfect:perfect}); this.apply(d); return d.awarded||0; }
+    if(level!==this.st.frontier) return 0;
+    const a=rewardFor(level,perfect); this.st.coins+=a; this.st.frontier++; return a;
+  },
+  async skip(level){
+    if(this.isUser()){ this.apply(await this.rpc('snake_skip_level',{p_level:level})); return; }
+    if(level!==this.st.frontier) throw new Error('bad_level');
+    if(this.st.skipsLeft<=0) throw new Error('skip_limit');
+    if(this.st.coins<CONFIG.COST.skip) throw new Error('not_enough_coins');
+    this.st.coins-=CONFIG.COST.skip; this.st.skipsLeft--; this.st.frontier++;
+  },
+  async claimAd(){
+    if(this.isUser()){ this.apply(await this.rpc('snake_claim_ad')); return; }
+    if(this.st.adsLeft<=0) throw new Error('ad_cap');
+    if(Date.now()-this.lastAd<CONFIG.AD_COOLDOWN_MS) throw new Error('ad_cooldown');
+    this.lastAd=Date.now(); this.st.adsLeft--; this.st.coins+=CONFIG.AD_REWARD;
+  }
+};
+
+// ===================== GAME STATE =====================
+const canvas=$('board'), ctx=canvas.getContext('2d');
+const S = { n:1, level:null, alive:new Set(), moving:[], erasing:[], crash:null, over:false, won:false,
+  mode:'play', hint:null, hintUntil:0, attempts:0, usedHelp:false, hints:0, erasers:0, beginP:null,
+  clears:0, busy:false, shake:0, particles:[] };
+let cell=0, ox=0, oy=0, W=0, H=0, dpr=1;
+
+function startLevel(n,retry){
+  S.n=n; S.level=generateLevel(n); S.alive=new Set(S.level.snakes.map(s=>s.id));
+  S.moving=[]; S.erasing=[]; S.crash=null; S.over=false; S.won=false; S.mode='play'; S.hint=null; S.busy=false;
+  if(retry){ S.attempts++; }
+  else { S.attempts=0; S.usedHelp=false; S.hints=0; S.erasers=0;
+    S.beginP=Store.begin(n).catch(e=>{ toast(errText(e)); }); }
+  hideModal(); $('banner').hidden=true; layout(); updateHUD();
+}
+function updateHUD(){
+  $('lvTitle').textContent='Level '+S.n;
+  const t=tierOf(S.n), el=$('lvTier'); el.textContent=t; el.className='tier '+t;
+  $('coinN').textContent=Store.st.coins;
+  $('prevLv').disabled = S.n<=1;
+  $('nextLv').disabled = S.n>=Store.st.frontier;
+  $('cHint').textContent=CONFIG.COST.hint; $('cErase').textContent=CONFIG.COST.eraser; $('cSkip').textContent=CONFIG.COST.skip;
+  $('cAd').textContent = Store.st.adsLeft>0 ? '+'+CONFIG.AD_REWARD : 'Later';
+  $('bErase').classList.toggle('on',S.mode==='erase');
+  $('btnProfile').textContent = Store.user ? (Store.user.email||'?').charAt(0).toUpperCase() : 'Sign in';
+  $('btnSound').innerHTML = Snd.on ? '&#128266;' : '&#128263;';
+}
+
+// ===================== LAYOUT & DRAWING =====================
+function layout(){
+  const r=$('stage').getBoundingClientRect(); W=r.width; H=r.height;
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=Math.max(1,Math.floor(W*dpr)); canvas.height=Math.max(1,Math.floor(H*dpr));
+  if(!S.level) return;
+  const pad=10, cols=S.level.cols, rows=S.level.rows;
+  cell=Math.max(8,Math.min((W-pad*2)/cols,(H-pad*2)/rows));
+  ox=(W-cell*cols)/2; oy=(H-cell*rows)/2;
+}
+const gx=x=>ox+(x+0.5)*cell, gy=y=>oy+(y+0.5)*cell;
+function mix(hex,amt){ const n=parseInt(hex.slice(1),16); let r=n>>16,g=(n>>8)&255,b=n&255;
+  const t=amt<0?0:255,p=Math.abs(amt); r=Math.round((t-r)*p+r); g=Math.round((t-g)*p+g); b=Math.round((t-b)*p+b);
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); }
+function tracePath(pts){ ctx.beginPath(); pts.forEach((p,i)=>{ const x=gx(p[0]),y=gy(p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); }
+
+function drawSnake(sn,pts,o){
+  o=o||{}; const col=o.flash?'#FF5C7A':PALETTE[sn.color%8], w=cell*0.56*(o.scale==null?1:o.scale);
+  ctx.save(); ctx.globalAlpha=o.alpha==null?1:o.alpha; ctx.lineCap='round'; ctx.lineJoin='round';
+  if(o.glow){ ctx.shadowColor='#FFC83D'; ctx.shadowBlur=cell*0.6*o.glow; ctx.strokeStyle='#FFC83D'; ctx.lineWidth=w+cell*0.2; tracePath(pts); ctx.stroke(); ctx.shadowBlur=0; }
+  ctx.strokeStyle=mix(col,-0.4); ctx.lineWidth=w+cell*0.1; tracePath(pts); ctx.stroke();
+  ctx.strokeStyle=col; ctx.lineWidth=w; tracePath(pts); ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.22)'; ctx.lineWidth=w*0.26; ctx.setLineDash([cell*0.12,cell*0.3]); tracePath(pts); ctx.stroke(); ctx.setLineDash([]);
+  const hp=pts[pts.length-1], hx=gx(hp[0]), hy=gy(hp[1]), dx=sn.dir[0], dy=sn.dir[1], px=-dy, py=dx;
+  ctx.strokeStyle='#FF5C7A'; ctx.lineWidth=Math.max(1.5,cell*0.05);
+  ctx.beginPath(); ctx.moveTo(hx+dx*w*0.5,hy+dy*w*0.5); ctx.lineTo(hx+dx*w*0.98,hy+dy*w*0.98);
+  ctx.moveTo(hx+dx*w*0.98,hy+dy*w*0.98); ctx.lineTo(hx+dx*w*1.2+px*w*0.13,hy+dy*w*1.2+py*w*0.13);
+  ctx.moveTo(hx+dx*w*0.98,hy+dy*w*0.98); ctx.lineTo(hx+dx*w*1.2-px*w*0.13,hy+dy*w*1.2-py*w*0.13); ctx.stroke();
+  ctx.fillStyle=mix(col,-0.12); ctx.beginPath(); ctx.arc(hx,hy,w*0.62,0,Math.PI*2); ctx.fill();
+  for(const sgn of [-1,1]){
+    const ex=hx+dx*w*0.12+px*w*0.27*sgn, ey=hy+dy*w*0.12+py*w*0.27*sgn;
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(ex,ey,w*0.17,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#0F0D1F'; ctx.beginPath(); ctx.arc(ex+dx*w*0.06,ey+dy*w*0.06,w*0.085,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+function trailFor(sn,ext){
+  const pts=sn.cells.map(c=>[c[0],c[1]]), h=pts[pts.length-1];
+  for(let k=1;k<=ext;k++) pts.push([h[0]+sn.dir[0]*k,h[1]+sn.dir[1]*k]);
+  return pts;
+}
+function pointAt(pts,u){ if(u<=0) return pts[0]; if(u>=pts.length-1) return pts[pts.length-1];
+  const i=Math.floor(u),f=u-i,a=pts[i],b=pts[i+1]; return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]; }
+function windowPts(trail,s,Lb){
+  const out=[pointAt(trail,s)]; for(let i=Math.floor(s)+1;i<s+Lb;i++) if(i<trail.length) out.push(trail[i]); out.push(pointAt(trail,s+Lb)); return out;
+}
+
+function draw(now){
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  if(!S.level||cell<=0) return;
+  ctx.save();
+  if(S.shake>0){ ctx.translate((Math.random()-.5)*S.shake*8,(Math.random()-.5)*S.shake*8); }
+  const cols=S.level.cols, rows=S.level.rows;
+  ctx.fillStyle='#1A1733'; ctx.strokeStyle='#2C2752'; ctx.lineWidth=2;
+  const r=cell*0.4; ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(ox-6,oy-6,cell*cols+12,cell*rows+12,r); else ctx.rect(ox-6,oy-6,cell*cols+12,cell*rows+12);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#2C2752';
+  for(let y=0;y<rows;y++) for(let x=0;x<cols;x++){ ctx.beginPath(); ctx.arc(gx(x),gy(y),cell*0.05,0,Math.PI*2); ctx.fill(); }
+  const movingIds=new Set(S.moving.map(m=>m.sn.id)); if(S.crash) movingIds.add(S.crash.sn.id);
+  const pulse=0.55+0.45*Math.sin(now/180);
+  for(const sn of S.level.snakes){
+    if(!S.alive.has(sn.id)||movingIds.has(sn.id)) continue;
+    const flash = S.crash && S.crash.blk && S.crash.blk.id===sn.id && S.crash.hit;
+    drawSnake(sn,sn.cells,{glow:(S.hint===sn.id&&now<S.hintUntil)?pulse:0,flash});
+  }
+  for(const e of S.erasing){ const k=Math.min(1,e.t); drawSnake(e.sn,e.sn.cells,{alpha:1-k,scale:1-k*0.7}); }
+  for(const m of S.moving) drawSnake(m.sn,windowPts(m.trail,m.s,m.Lb),{});
+  if(S.crash){ const m=S.crash; drawSnake(m.sn,windowPts(m.trail,m.s,m.Lb),{flash:m.hit}); }
+  for(const p of S.particles){ ctx.globalAlpha=Math.max(0,p.life); ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha=1; ctx.restore();
+}
+
+// ===================== LOOP =====================
+let last=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-(last||now))/1000); last=now;
+  const speed=26;
+  for(let i=S.moving.length-1;i>=0;i--){
+    const m=S.moving[i]; m.s+=speed*dt;
+    if(m.s>=m.max){ S.moving.splice(i,1); Snd.out(); burst(m.sn); }
+  }
+  if(S.crash && !S.crash.hit){
+    S.crash.s+=speed*dt;
+    if(S.crash.s>=S.crash.max){ S.crash.s=S.crash.max; S.crash.hit=true; S.shake=1; Snd.bonk(); if(navigator.vibrate) try{navigator.vibrate(120);}catch(e){}
+      setTimeout(onCrash,520); }
+  }
+  for(let i=S.erasing.length-1;i>=0;i--){ S.erasing[i].t+=dt*3; if(S.erasing[i].t>=1){ burst(S.erasing[i].sn,true); S.erasing.splice(i,1); } }
+  S.shake=Math.max(0,S.shake-dt*2.5);
+  for(let i=S.particles.length-1;i>=0;i--){ const p=S.particles[i]; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=260*dt; p.life-=dt*1.4; if(p.life<=0) S.particles.splice(i,1); }
+  if(S.level&&!S.won&&!S.over&&!S.crash&&S.alive.size===0&&S.moving.length===0&&S.erasing.length===0){ S.won=true; onWin(); }
+  draw(now); requestAnimationFrame(frame);
+}
+function burst(sn,erase){
+  const h=sn.cells[sn.cells.length-1]; let x=gx(h[0]),y=gy(h[1]);
+  if(!erase){ x=Math.max(8,Math.min(W-8,x+sn.dir[0]*cell*2)); y=Math.max(8,Math.min(H-8,y+sn.dir[1]*cell*2)); }
+  for(let i=0;i<10;i++){ const a=Math.random()*Math.PI*2,v=60+Math.random()*120;
+    S.particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,life:1,r:2+Math.random()*3,color:PALETTE[sn.color%8]}); }
+}
+function confetti(){ for(let i=0;i<50;i++){ S.particles.push({x:W/2,y:H/3,vx:(Math.random()-.5)*420,vy:-Math.random()*320,life:1.6,r:3+Math.random()*3,color:PALETTE[i%8]}); } }
+
+// ===================== INPUT =====================
+function hit(px,py){
+  if(!S.level) return null; let best=null,bd=1e9;
+  for(const sn of S.level.snakes){
+    if(!S.alive.has(sn.id)) continue;
+    for(const c of sn.cells){ const d=Math.hypot(px-gx(c[0]),py-gy(c[1])); if(d<bd){bd=d;best=sn;} }
+  }
+  return bd<=cell*0.62?best:null;
+}
+canvas.addEventListener('pointerdown',e=>{
+  Snd.init(); const r=canvas.getBoundingClientRect(); const sn=hit(e.clientX-r.left,e.clientY-r.top);
+  if(!sn||S.over||S.won||S.crash||S.busy) return;
+  if(S.mode==='erase') return doErase(sn);
+  trySlide(sn);
+});
+function zone(sn){ const set=new Set(); for(const c of sn.cells) set.add(c[1]*S.level.cols+c[0]); for(const c of sn.line) set.add(c[1]*S.level.cols+c[0]); return set; }
+function trySlide(sn){
+  S.hint=null;
+  const mz=new Set(); for(const m of S.moving) for(const v of zone(m.sn)) mz.add(v);
+  for(const v of zone(sn)) if(mz.has(v)){ toast('Wait for the other snake'); return; }
+  const occ=buildOcc(S.level.snakes,S.alive,S.level.cols,S.level.rows), blk=firstBlocker(sn,occ,S.level.cols), Lb=sn.cells.length-1;
+  Snd.tap();
+  if(blk){ S.crash={sn,blk,s:0,max:blk.steps-0.62,Lb,trail:trailFor(sn,sn.line.length+Lb+4),hit:false}; return; }
+  S.alive.delete(sn.id);
+  S.moving.push({sn,s:0,Lb,max:Lb+sn.line.length+1.5,trail:trailFor(sn,sn.line.length+Lb+4)});
+}
+async function doErase(sn){
+  if(S.busy) return; S.busy=true;
+  try{ await Store.useItem('eraser'); S.erasers++; S.usedHelp=true; S.alive.delete(sn.id); S.erasing.push({sn,t:0}); Snd.out(); }
+  catch(e){ toast(errText(e)); if(String(e.message).indexOf('not_enough')>=0) pulseAd(); }
+  S.mode='play'; $('banner').hidden=true; S.busy=false; updateHUD();
+}
+function pulseAd(){ const b=$('bAd'); b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); }
+
+// ===================== RESULTS =====================
+function onCrash(){
+  S.over=true;
+  showModal(`<h2>Crash!</h2><p>Snakes cannot slide through each other.</p>
+    <button id="mRetry" class="btn primary">Try again</button>
+    ${Ads.enabled?'<button id="mRevive" class="btn purple">Watch ad to undo</button>':''}`,()=>{
+    $('mRetry').onclick=()=>startLevel(S.n,true);
+    const rv=$('mRevive'); if(rv) rv.onclick=async()=>{ const ok=await Ads.rewarded(); if(ok){ S.crash=null; S.over=false; S.usedHelp=true; hideModal(); } };
+  });
+}
+async function onWin(){
+  Snd.win(); confetti();
+  const perfect=S.attempts===0&&!S.usedHelp, level=S.n; let awarded=0, note='';
+  try{ if(S.beginP) await S.beginP; awarded=await Store.complete(level,perfect); }
+  catch(e){ note=errText(e); }
+  S.clears++; updateHUD();
+  const guest=!Store.isUser();
+  showModal(`<h2>Level cleared!</h2>
+    ${awarded>0?`<p class="big">+${awarded} coins</p>`:'<p class="big">&#10003;</p>'}
+    <p>${awarded>0?(perfect?'Perfect clear bonus included!':''):(note||'Already cleared before, so no coins this time.')}</p>
+    ${guest?'<p class="tiny">Playing as a guest: progress is not saved.</p>':''}
+    <button id="mNext" class="btn primary">Next level</button>
+    <button id="mAgain" class="btn">Replay</button>
+    ${guest?'<button id="mSign" class="btn ghost">Sign in to save progress</button>':''}`,()=>{
+    $('mNext').onclick=async()=>{
+      const nxt=S.n+1;
+      if(S.clears%CONFIG.INTERSTITIAL_EVERY===0&&Ads.enabled){ await Ads.interstitial(); }
+      startLevel(Math.min(nxt,Math.max(Store.st.frontier,1)));
+    };
+    $('mAgain').onclick=()=>startLevel(S.n,false);
+    const sg=$('mSign'); if(sg) sg.onclick=openAccount;
+  });
+}
+
+// ===================== TOOLS =====================
+$('bHint').onclick=async()=>{
+  Snd.init(); if(S.over||S.won||S.crash||S.busy) return;
+  if(S.hints>=CONFIG.LIMIT.hintsPerLevel){ toast(MSG.item_limit); return; }
+  const h=bestHint(S.level,S.alive); if(!h){ toast('Nothing to hint right now'); return; }
+  S.busy=true;
+  try{ await Store.useItem('hint'); S.hints++; S.usedHelp=true; S.hint=h.id; S.hintUntil=performance.now()+5000; toast('This snake can escape safely'); }
+  catch(e){ toast(errText(e)); if(String(e.message).indexOf('not_enough')>=0) pulseAd(); }
+  S.busy=false; updateHUD();
+};
+$('bErase').onclick=()=>{
+  Snd.init(); if(S.over||S.won||S.crash) return;
+  if(S.mode==='erase'){ S.mode='play'; $('banner').hidden=true; updateHUD(); return; }
+  if(S.erasers>=CONFIG.LIMIT.erasersPerLevel){ toast(MSG.item_limit); return; }
+  if(Store.st.coins<CONFIG.COST.eraser){ toast(MSG.not_enough_coins); pulseAd(); return; }
+  S.mode='erase'; $('banner').hidden=false; updateHUD();
+};
+$('bannerX').onclick=()=>{ S.mode='play'; $('banner').hidden=true; updateHUD(); };
+$('bSkip').onclick=()=>{
+  Snd.init(); if(S.over||S.won||S.crash) return;
+  if(S.n!==Store.st.frontier){ toast('You can only skip your newest level'); return; }
+  if(Store.st.skipsLeft<=0){ toast(MSG.skip_limit); return; }
+  showModal(`<h2>Skip this level?</h2><p>Costs ${CONFIG.COST.skip} coins. No reward for skipped levels.</p><p class="tiny">Skips left today: ${Store.st.skipsLeft}</p>
+    <button id="sYes" class="btn primary">Skip for ${CONFIG.COST.skip}</button><button id="sNo" class="btn ghost">Cancel</button>`,()=>{
+    $('sNo').onclick=hideModal;
+    $('sYes').onclick=async()=>{
+      try{ await Store.skip(S.n); startLevel(Store.st.frontier,false); }
+      catch(e){ hideModal(); toast(errText(e)); if(String(e.message).indexOf('not_enough')>=0) pulseAd(); }
+    };
+  });
+};
+$('bAd').onclick=async()=>{
+  Snd.init(); if(S.busy) return;
+  if(Store.st.adsLeft<=0){ toast(MSG.ad_cap); return; }
+  if(!Store.isUser()&&Date.now()-Store.lastAd<CONFIG.AD_COOLDOWN_MS){ toast(MSG.ad_cooldown); return; }
+  S.busy=true;
+  try{ const ok=await Ads.rewarded(); if(ok){ await Store.claimAd(); Snd.coin(); toast('+'+CONFIG.AD_REWARD+' coins!'); } }
+  catch(e){ toast(errText(e)); }
+  S.busy=false; updateHUD();
+};
+$('prevLv').onclick=()=>{ if(S.n>1) startLevel(S.n-1,false); };
+$('nextLv').onclick=()=>{ if(S.n<Store.st.frontier) startLevel(S.n+1,false); };
+$('btnSound').onclick=()=>{ Snd.on=!Snd.on; try{localStorage.setItem('se_sound',Snd.on?'1':'0');}catch(e){} Snd.init(); updateHUD(); };
+
+// ===================== ACCOUNT =====================
+$('btnProfile').onclick=()=>{ Store.isUser()?openProfile():openAccount(); };
+function openProfile(){
+  showModal(`<h2>Your account</h2><p>${esc(Store.user.email||'')}</p><p>Level ${Store.st.frontier} &middot; ${Store.st.coins} coins</p>
+    <p class="tiny">Your progress and coins are saved to this account.</p>
+    <button id="pOut" class="btn">Sign out</button><button id="pClose" class="btn ghost">Close</button>`,()=>{
+    $('pClose').onclick=hideModal;
+    $('pOut').onclick=async()=>{ try{ await Store.sb.auth.signOut(); }catch(e){} onSignedOut(); hideModal(); toast('Signed out'); };
+  });
+}
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function openAccount(){
+  if(!Store.sb){ showModal(`<h2>Sign-in unavailable</h2><p>We could not reach the sign-in service. You can keep playing as a guest and try again later.</p><button id="aOk" class="btn primary">OK</button>`,()=>{$('aOk').onclick=hideModal;}); return; }
+  let mode='in';
+  showModal(`<h2>Save your progress</h2><p>Sign in with your email to keep your level and coins on any device.</p>
+    <div class="tabs"><button id="tIn" class="tab on">Sign in</button><button id="tNew" class="tab">Create account</button></div>
+    <input id="fEmail" type="email" placeholder="Email" autocomplete="email">
+    <input id="fPass" type="password" placeholder="Password (6+ characters)" autocomplete="current-password">
+    <p id="fMsg" class="err"></p>
+    <button id="fGo" class="btn primary">Sign in</button><button id="fGuest" class="btn ghost">Play as guest</button>
+    <p class="tiny">We only store your email, level and coins.</p>`,()=>{
+    const setMode=m=>{ mode=m; $('tIn').classList.toggle('on',m==='in'); $('tNew').classList.toggle('on',m==='new'); $('fGo').textContent=m==='in'?'Sign in':'Create account'; $('fMsg').textContent=''; };
+    $('tIn').onclick=()=>setMode('in'); $('tNew').onclick=()=>setMode('new'); $('fGuest').onclick=hideModal;
+    $('fGo').onclick=async()=>{
+      const email=$('fEmail').value.trim(), pass=$('fPass').value, msg=$('fMsg'); msg.className='err';
+      if(!/^\S+@\S+\.\S+$/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+      if(pass.length<6){ msg.textContent='Password needs at least 6 characters.'; return; }
+      const goBtn=$('fGo'); goBtn.disabled=true;
+      try{
+        let r;
+        if(mode==='in') r=await Store.sb.auth.signInWithPassword({email,password:pass});
+        else r=await Store.sb.auth.signUp({email,password:pass});
+        if(r.error) throw r.error;
+        if(r.data&&r.data.session&&r.data.user){ await onSignedIn(r.data.user); hideModal(); toast('Signed in. Progress will be saved.'); }
+        else { msg.className='err okmsg'; msg.textContent='Account created. Check your email to confirm, then sign in.'; setMode('in'); msg.className='err okmsg'; msg.textContent='Account created. Check your email to confirm, then sign in.'; }
+      }catch(e){
+        const t=String((e&&e.message)||e); msg.textContent=/invalid login/i.test(t)?'Wrong email or password.':/already/i.test(t)?'That email already has an account. Use Sign in.':/rate/i.test(t)?'Too many tries. Please wait a minute.':t;
+      }
+      goBtn.disabled=false;
+    };
+  });
+}
+async function onSignedIn(user){
+  Store.user=user;
+  try{ Store.apply(await Store.rpc('snake_get_player')); }
+  catch(e){ Store.user=null; toast(errText(e)); updateHUD(); return; }
+  startLevel(Store.st.frontier,false);
+}
+function onSignedOut(){ Store.user=null; Store.resetGuest(); startLevel(1,false); }
+function loadSupabase(){
+  return new Promise((res,rej)=>{
+    if(window.supabase&&window.supabase.createClient) return res();
+    const s=document.createElement('script'); s.src=CONFIG.SUPABASE_JS; s.async=true;
+    const t=setTimeout(()=>rej(new Error('timeout')),6000);
+    s.onload=()=>{ clearTimeout(t); res(); }; s.onerror=()=>{ clearTimeout(t); rej(new Error('load')); };
+    document.head.appendChild(s);
+  });
+}
+function makeStorage(){
+  try{ const k='__t'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return localStorage; }
+  catch(e){ const m={}; return {getItem:k=>(k in m?m[k]:null),setItem:(k,v)=>{m[k]=v;},removeItem:k=>{delete m[k];}}; }
+}
+async function initAuth(){
+  try{ await loadSupabase(); }catch(e){ return; }
+  try{
+    Store.sb=window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storage:makeStorage()}});
+    const r=await Store.sb.auth.getSession();
+    if(r.data&&r.data.session) await onSignedIn(r.data.session.user);
+    Store.sb.auth.onAuthStateChange(evt=>{ if(evt==='SIGNED_OUT'&&Store.user) setTimeout(onSignedOut,0); });
+  }catch(e){ Store.sb=null; }
+}
+
+// ===================== BOOT =====================
+function howTo(){
+  showModal(`<h2>How to play</h2>
+    <ul><li>Tap a snake to send it sliding out the way its head points.</li>
+    <li>If another snake is in the way, they crash and the level ends.</li>
+    <li>Clear every snake to win coins.</li>
+    <li>Spend coins on <b>Hint</b>, <b>Eraser</b> or <b>Skip</b>. Watch an ad for free coins.</li></ul>
+    <button id="hOk" class="btn primary">Let's play</button>`,()=>{ $('hOk').onclick=()=>{ try{localStorage.setItem('se_help','1');}catch(e){} hideModal(); }; });
+}
+window.addEventListener('resize',layout);
+try{ Snd.on=localStorage.getItem('se_sound')!=='0'; }catch(e){}
+layout(); startLevel(1,false); requestAnimationFrame(frame);
+let seen=false; try{ seen=localStorage.getItem('se_help')==='1'; }catch(e){}
+if(!seen) howTo();
+initAuth();
+window.__SE__={S,Store,startLevel,trySlide,hit,CONFIG}; // handy for testing
+})();
+</script>
+</body>
+</html>

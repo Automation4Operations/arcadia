@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tap Target</title>
+<style>
+  html,body{margin:0;height:100%;background:#1a1733;color:#eceaff;font-family:system-ui,sans-serif;overflow:hidden;user-select:none}
+  #hud{position:absolute;top:10px;left:0;right:0;display:flex;justify-content:space-between;padding:0 16px;font-weight:700;font-size:18px}
+  #t{position:absolute;width:64px;height:64px;border-radius:50%;background:#ffc83d;border:6px solid #7c5cff;cursor:pointer;touch-action:manipulation}
+  #msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#0f0d1fcc;text-align:center}
+  [hidden]{display:none !important}
+  button{background:#ffc83d;color:#0f0d1f;border:0;border-radius:999px;padding:10px 28px;font-weight:800;font-size:16px;cursor:pointer}
+</style></head><body>
+<div id="hud"><span>Score: <b id="s">0</b></span><span>Time: <b id="tm">30</b></span></div>
+<div id="t" hidden></div>
+<div id="msg"><h2 id="h">Tap Target</h2><p id="p">Tap the yellow circle as many times as you can in 30 seconds.</p><button id="go">Start</button></div>
+<script>
+const t=document.getElementById('t'),s=document.getElementById('s'),tm=document.getElementById('tm'),
+msg=document.getElementById('msg'),h=document.getElementById('h'),p=document.getElementById('p');
+let score=0,left=30,timer=null;
+function move(){t.style.left=Math.random()*(innerWidth-76)+'px';t.style.top=60+Math.random()*(innerHeight-140)+'px'}
+t.addEventListener('pointerdown',()=>{score++;s.textContent=score;move()});
+document.getElementById('go').onclick=()=>{score=0;left=30;s.textContent=0;tm.textContent=30;msg.hidden=true;t.hidden=false;move();
+  clearInterval(timer);timer=setInterval(()=>{left--;tm.textContent=left;if(left<=0){clearInterval(timer);t.hidden=true;msg.hidden=false;h.textContent='Time!';p.textContent='You scored '+score+'. Play again?'}},1000)};
+</script></body></html>

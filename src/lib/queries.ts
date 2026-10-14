@@ -7,10 +7,19 @@ export type GameCardData = {
   thumbnailUrl: string;
   playCount: number;
   ratingAvg: number;
+  isFeatured?: boolean;
   category: { name: string; slug: string };
 };
 
-const CARD_COLUMNS = "id,slug,title,thumbnail_url,play_count,rating_avg,category:categories(name,slug)";
+export type CategoryItem = {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+};
+
+const CARD_COLUMNS =
+  "id,slug,title,thumbnail_url,play_count,rating_avg,is_featured,category:categories(name,slug)";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function toCard(r: any): GameCardData {
@@ -22,21 +31,49 @@ function toCard(r: any): GameCardData {
     thumbnailUrl: r.thumbnail_url,
     playCount: r.play_count,
     ratingAvg: r.rating_avg,
+    isFeatured: Boolean(r.is_featured),
     category: { name: cat?.name ?? "", slug: cat?.slug ?? "" },
   };
 }
 
 function check<T>(res: { data: T | null; error: { message: string } | null }): T {
-  if (res.error) {
-    const e = res.error as { message?: string; code?: string; details?: string; hint?: string };
-    throw new Error(
-      `Supabase error | message=${e.message || "(empty)"} | code=${e.code ?? ""} | details=${e.details ?? ""} | hint=${e.hint ?? ""}`,
-    );
-  }
+  if (res.error) throw new Error(res.error.message);
   return res.data as T;
 }
 
-export async function getTrending(take = 13): Promise<GameCardData[]> {
+export async function getAllCategories(): Promise<CategoryItem[]> {
+  const rows = check(
+    await getSupabase().from("categories").select("id,slug,name,icon").order("sort_order"),
+  );
+  return rows as CategoryItem[];
+}
+
+export async function getFeaturedHero() {
+  const res = await getSupabase()
+    .from("games")
+    .select("id,slug,title,description,thumbnail_url,play_count,rating_avg,category:categories(name,slug)")
+    .eq("is_published", true)
+    .order("is_featured", { ascending: false })
+    .order("play_count", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const r: any = check(res);
+  if (!r) return null;
+  const cat = Array.isArray(r.category) ? r.category[0] : r.category;
+  return {
+    id: r.id as string,
+    slug: r.slug as string,
+    title: r.title as string,
+    description: r.description as string,
+    thumbnailUrl: r.thumbnail_url as string,
+    playCount: r.play_count as number,
+    ratingAvg: r.rating_avg as number,
+    category: { name: cat?.name ?? "", slug: cat?.slug ?? "" },
+  };
+}
+
+export async function getTrending(take = 12): Promise<GameCardData[]> {
   const rows = check(
     await getSupabase()
       .from("games")
@@ -48,13 +85,23 @@ export async function getTrending(take = 13): Promise<GameCardData[]> {
   return rows.map(toCard);
 }
 
-export async function getCategorySections(categoryCount = 4, perCategory = 7) {
-  const db = getSupabase();
-  const categories = check(
-    await db.from("categories").select("id,slug,name,icon").order("sort_order").limit(categoryCount),
+export async function getNewReleases(take = 8): Promise<GameCardData[]> {
+  const rows = check(
+    await getSupabase()
+      .from("games")
+      .select(CARD_COLUMNS)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .limit(take),
   );
+  return rows.map(toCard);
+}
+
+export async function getCategorySections(categoryCount = 5, perCategory = 7) {
+  const db = getSupabase();
+  const categories = await getAllCategories();
   return Promise.all(
-    categories.map(async (category: any) => {
+    categories.slice(0, categoryCount).map(async (category) => {
       const rows = check(
         await db
           .from("games")
@@ -64,7 +111,7 @@ export async function getCategorySections(categoryCount = 4, perCategory = 7) {
           .order("play_count", { ascending: false })
           .limit(perCategory),
       );
-      return { category: category as { id: string; slug: string; name: string; icon: string | null }, games: rows.map(toCard) };
+      return { category, games: rows.map(toCard) };
     }),
   );
 }
@@ -99,7 +146,6 @@ export async function getGameBySlug(slug: string) {
   };
 }
 
-/** "Because you played X": same category or any shared tag, most played first. */
 export async function getRecommended(
   game: { id: string; categoryId: string; tagIds: string[] },
   take = 10,
@@ -141,7 +187,6 @@ export async function getRecommended(
   return [...merged.values()].sort((a, b) => b.playCount - a.playCount).slice(0, take);
 }
 
-/** Keyword on title, optional category, and AND-filtering across selected tag slugs. */
 export async function searchGames({
   q,
   category,
@@ -155,7 +200,6 @@ export async function searchGames({
 }): Promise<GameCardData[]> {
   const db = getSupabase();
 
-  // Resolve tag filters to a set of game ids (a game must have ALL selected tags)
   let allowedIds: string[] | null = null;
   if (tags.length > 0) {
     const tagRows = check(await db.from("tags").select("id,slug").in("slug", tags));

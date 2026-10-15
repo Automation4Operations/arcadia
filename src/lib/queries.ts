@@ -4,7 +4,9 @@ export type GameCardData = {
   id: string;
   slug: string;
   title: string;
+  description?: string;
   thumbnailUrl: string;
+  iframeUrl?: string;
   playCount: number;
   ratingAvg: number;
   isFeatured?: boolean;
@@ -19,7 +21,7 @@ export type CategoryItem = {
 };
 
 const CARD_COLUMNS =
-  "id,slug,title,thumbnail_url,play_count,rating_avg,is_featured,category:categories(name,slug)";
+  "id,slug,title,description,thumbnail_url,iframe_url,play_count,rating_avg,is_featured,category:categories(name,slug)";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function toCard(r: any): GameCardData {
@@ -28,7 +30,9 @@ function toCard(r: any): GameCardData {
     id: r.id,
     slug: r.slug,
     title: r.title,
+    description: r.description ?? "",
     thumbnailUrl: r.thumbnail_url,
+    iframeUrl: r.iframe_url ?? "",
     playCount: r.play_count,
     ratingAvg: r.rating_avg,
     isFeatured: Boolean(r.is_featured),
@@ -51,7 +55,7 @@ export async function getAllCategories(): Promise<CategoryItem[]> {
 export async function getFeaturedHero() {
   const res = await getSupabase()
     .from("games")
-    .select("id,slug,title,description,thumbnail_url,play_count,rating_avg,category:categories(name,slug)")
+    .select("id,slug,title,description,thumbnail_url,iframe_url,play_count,rating_avg,category:categories(name,slug)")
     .eq("is_published", true)
     .order("is_featured", { ascending: false })
     .order("play_count", { ascending: false })
@@ -67,13 +71,14 @@ export async function getFeaturedHero() {
     title: r.title as string,
     description: r.description as string,
     thumbnailUrl: r.thumbnail_url as string,
+    iframeUrl: r.iframe_url as string,
     playCount: r.play_count as number,
     ratingAvg: r.rating_avg as number,
     category: { name: cat?.name ?? "", slug: cat?.slug ?? "" },
   };
 }
 
-export async function getTrending(take = 13): Promise<GameCardData[]> {
+export async function getTrending(take = 15): Promise<GameCardData[]> {
   const rows = check(
     await getSupabase()
       .from("games")
@@ -91,13 +96,14 @@ export async function getNewReleases(take = 12): Promise<GameCardData[]> {
       .from("games")
       .select(CARD_COLUMNS)
       .eq("is_published", true)
+      .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(take),
   );
   return rows.map(toCard);
 }
 
-export async function getCategorySections(categoryCount = 12, perCategory = 7) {
+export async function getCategorySections(categoryCount = 13, perCategory = 11) {
   const db = getSupabase();
   const categories = await getAllCategories();
   return Promise.all(
@@ -148,10 +154,9 @@ export async function getGameBySlug(slug: string) {
 
 export async function getRecommended(
   game: { id: string; categoryId: string; tagIds: string[] },
-  take = 10,
+  take = 12,
 ): Promise<GameCardData[]> {
   const db = getSupabase();
-
   const sameCategory = check(
     await db
       .from("games")
@@ -162,36 +167,14 @@ export async function getRecommended(
       .order("play_count", { ascending: false })
       .limit(take),
   ).map(toCard);
-
-  let sharedTag: GameCardData[] = [];
-  if (game.tagIds.length > 0) {
-    const links = check(
-      await db.from("game_tags").select("game_id").in("tag_id", game.tagIds).neq("game_id", game.id).limit(60),
-    );
-    const ids = [...new Set(links.map((l: any) => l.game_id as string))];
-    if (ids.length > 0) {
-      sharedTag = check(
-        await db
-          .from("games")
-          .select(CARD_COLUMNS)
-          .eq("is_published", true)
-          .in("id", ids)
-          .order("play_count", { ascending: false })
-          .limit(take),
-      ).map(toCard);
-    }
-  }
-
-  const merged = new Map<string, GameCardData>();
-  [...sameCategory, ...sharedTag].forEach((g) => merged.set(g.id, g));
-  return [...merged.values()].sort((a, b) => b.playCount - a.playCount).slice(0, take);
+  return sameCategory;
 }
 
 export async function searchGames({
   q,
   category,
   tags = [],
-  take = 300,
+  take = 250,
 }: {
   q?: string;
   category?: string;
@@ -222,7 +205,7 @@ export async function searchGames({
   if (allowedIds) query = query.in("id", allowedIds);
 
   const keyword = q?.trim().replace(/[%_,()\\]/g, " ");
-  if (keyword) query = query.ilike("title", `%${keyword}%`);
+  if (keyword) query = query.ilike("title", "%" + keyword + "%");
 
   const rows = check(await query.order("play_count", { ascending: false }).limit(take));
   return rows.map(toCard);

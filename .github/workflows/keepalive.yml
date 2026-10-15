@@ -1,14 +1,30 @@
-# Pings Supabase twice a week so the free project never pauses from inactivity.
 name: supabase-keepalive
+
 on:
   schedule:
-    - cron: "0 6 * * 1,4"
+    - cron: "0 0 */5 * *"
   workflow_dispatch:
+
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          curl -fsS "${{ secrets.SUPABASE_URL }}/rest/v1/categories?select=id&limit=1" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+      - name: Send Ping to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "Error: Supabase secrets are missing in GitHub!"
+            exit 1
+          res=$(curl -s -o /dev/null -w "%{http_code}" -X GET \
+            "$SUPABASE_URL/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY")
+          echo "Supabase HTTP response code: $res"
+          if [ "$res" -eq 200 ] || [ "$res" -eq 404 ]; then
+            echo "Success! Supabase is kept alive."
+          else
+            echo "Failed with HTTP status $res"
+            exit 1
+          fi

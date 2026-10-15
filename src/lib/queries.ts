@@ -73,7 +73,7 @@ export async function getFeaturedHero() {
   };
 }
 
-export async function getTrending(take = 25): Promise<GameCardData[]> {
+export async function getTrending(take = 13): Promise<GameCardData[]> {
   const rows = check(
     await getSupabase()
       .from("games")
@@ -85,7 +85,7 @@ export async function getTrending(take = 25): Promise<GameCardData[]> {
   return rows.map(toCard);
 }
 
-export async function getNewReleases(take = 18): Promise<GameCardData[]> {
+export async function getNewReleases(take = 12): Promise<GameCardData[]> {
   const rows = check(
     await getSupabase()
       .from("games")
@@ -97,7 +97,7 @@ export async function getNewReleases(take = 18): Promise<GameCardData[]> {
   return rows.map(toCard);
 }
 
-export async function getCategorySections(categoryCount = 12, perCategory = 13) {
+export async function getCategorySections(categoryCount = 12, perCategory = 7) {
   const db = getSupabase();
   const categories = await getAllCategories();
   return Promise.all(

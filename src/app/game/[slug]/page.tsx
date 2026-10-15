@@ -6,7 +6,7 @@ import RecommendedList from "@/components/RecommendedList";
 import { getGameBySlug, getRecommended } from "@/lib/queries";
 import { formatCount } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type Params = { params: Promise<{ slug: string }> };
 

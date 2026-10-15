@@ -8,7 +8,7 @@ import {
   getTrending,
 } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function HomePage() {
   const [hero, trending, fresh, sections] = await Promise.all([

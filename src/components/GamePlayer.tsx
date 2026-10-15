@@ -25,7 +25,7 @@ const LIKES_KEY = "arcadia:likes";
 
 export default function GamePlayer({ game }: Props) {
   const frameRef = useRef<HTMLDivElement>(null);
-  const [started, setStarted] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cinemaDim, setCinemaDim] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -39,28 +39,28 @@ export default function GamePlayer({ game }: Props) {
     window.setTimeout(() => setToast(null), 2200);
   }, []);
 
+  // Auto-record recent history & register Service Worker on mount
   useEffect(() => {
+    pushRecent({ slug: game.slug, title: game.title, thumbnailUrl: game.thumbnailUrl });
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
     try {
       const likes: string[] = JSON.parse(localStorage.getItem(LIKES_KEY) ?? "[]");
       setLiked(likes.includes(game.slug));
     } catch {}
-  }, [game.slug]);
+    fetch("/api/play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: game.slug }),
+    }).catch(() => {});
+  }, [game.slug, game.title, game.thumbnailUrl]);
 
   useEffect(() => {
     const onChange = () => setIsFullscreen(document.fullscreenElement === frameRef.current);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
-
-function start() {
-    setStarted(true);
-    pushRecent({ slug: game.slug, title: game.title, thumbnailUrl: game.thumbnailUrl });
-    fetch("/api/play", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: game.slug }),
-    }).catch(() => {});
-  }
 
   function toggleLike() {
     const next = !liked;
@@ -107,7 +107,10 @@ function start() {
 
   return (
     <div className="relative">
-      {/* Cinema Lights-Off Backdrop */}
+      {/* Preconnect to game CDN for faster stream */}
+      <link rel="preconnect" href="https://html5.gamemonetize.co" />
+      <link rel="dns-prefetch" href="https://html5.gamemonetize.co" />
+
       {cinemaDim && (
         <div
           onClick={() => setCinemaDim(false)}
@@ -119,56 +122,50 @@ function start() {
       <div className={cinemaDim ? "relative z-40" : ""}>
         <div
           ref={frameRef}
-          className={`relative mx-auto overflow-hidden bg-black ${
-            isFullscreen ? "h-screen w-screen" : "rounded-2xl ring-1 ring-edge shadow-2xl"
-          }`}
+          className={
+            "relative mx-auto overflow-hidden bg-black " +
+            (isFullscreen ? "h-screen w-screen" : "rounded-2xl ring-1 ring-edge shadow-2xl")
+          }
           style={
             isFullscreen
               ? undefined
               : {
-                  aspectRatio: `${game.width} / ${game.height}`,
-                  width: `min(100%, calc((100dvh - 14rem) * ${ratio}))`,
+                  aspectRatio: game.width + " / " + game.height,
+                  width: "min(100%, calc((100dvh - 14rem) * " + ratio + "))",
                 }
           }
         >
-          {started ? (
-            <iframe
-              src={game.iframeUrl}
-              title={game.title}
-              className="absolute inset-0 h-full w-full border-0"
-              allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; clipboard-write; encrypted-media"
-              sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-orientation-lock"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
-          ) : (
-            <button
-              onClick={start}
-              className="group absolute inset-0 flex flex-col items-center justify-center focus-visible:outline-none"
-              aria-label={`Play ${game.title}`}
-            >
+          {/* Loading overlay disappears the instant the game iframe finishes loading */}
+          {!iframeLoaded && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-ink">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={game.thumbnailUrl}
                 alt=""
-                className="absolute inset-0 h-full w-full object-cover opacity-50 blur-[2px] transition duration-300 group-hover:scale-105 group-hover:opacity-70"
+                className="absolute inset-0 h-full w-full object-cover opacity-30 blur-sm"
               />
               <div className="relative flex flex-col items-center gap-3">
-                <span className="flex items-center gap-2.5 rounded-xl bg-sun px-8 py-3.5 font-display text-lg font-black text-ink shadow-[0_0_30px_rgba(204,255,0,0.5)] transition group-hover:scale-105">
-                  <svg viewBox="0 0 20 20" className="h-5 w-5 fill-current" aria-hidden>
-                    <path d="M6 4l11 6-11 6V4z" />
-                  </svg>
-                  LAUNCH GAME
-                </span>
-                <span className="rounded-md bg-ink/80 px-3 py-1 text-xs font-semibold text-fg backdrop-blur">
-                  Instant Browser Play · No Downloads
-                </span>
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-edge border-t-sun" />
+                <p className="font-display text-sm font-bold tracking-wide text-fg">
+                  Loading {game.title}...
+                </p>
               </div>
-            </button>
+            </div>
           )}
+
+          <iframe
+            src={game.iframeUrl}
+            title={game.title}
+            onLoad={() => setIframeLoaded(true)}
+            loading="eager"
+            className="absolute inset-0 h-full w-full border-0"
+            allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; clipboard-write; encrypted-media"
+            sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-orientation-lock"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
         </div>
 
-        {/* Control Deck */}
         <div className="mx-auto mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-edge bg-panel px-3 py-2">
           <ActionButton onClick={toggleLike} pressed={liked} label={liked ? "In Vault" : "Save"}>
             <path d="M10 17l-1.1-1C4.9 12.4 2.5 10.2 2.5 7.5c0-2.2 1.7-3.8 3.7-3.8 1.4 0 2.8.8 3.8 2 1-1.2 2.4-2 3.8-2 2 0 3.7 1.6 3.7 3.8 0 2.7-2.4 4.9-6.4 8.5L10 17z" />
@@ -291,18 +288,16 @@ function ActionButton({
   pressed?: boolean;
   subtle?: boolean;
 }) {
+  const btnClass =
+    "inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-sun " +
+    (pressed
+      ? "bg-sun text-ink"
+      : subtle
+        ? "text-mute hover:bg-ink hover:text-fg"
+        : "bg-ink text-fg ring-1 ring-edge hover:ring-arcade");
+
   return (
-    <button
-      onClick={onClick}
-      aria-pressed={pressed}
-      className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-sun ${
-        pressed
-          ? "bg-sun text-ink"
-          : subtle
-            ? "text-mute hover:bg-ink hover:text-fg"
-            : "bg-ink text-fg ring-1 ring-edge hover:ring-arcade"
-      }`}
-    >
+    <button onClick={onClick} aria-pressed={pressed} className={btnClass}>
       <svg viewBox="0 0 20 20" className="h-4 w-4 fill-current" aria-hidden>
         {children}
       </svg>

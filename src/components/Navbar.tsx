@@ -1,191 +1,184 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import type { CategoryItem } from "@/lib/queries";
-import { readRecent } from "@/lib/recent";
+import { useRouter } from "next/navigation";
+import { useState, FormEvent } from "react";
 import VaultDrawer from "./VaultDrawer";
 
-const RANDOM_TOP_SLUGS = [
-  "warstrike-3d-tactical-royale",
-  "super-car-driving-parking-3d",
-  "chess-online-club-3d",
-  "snaker-io-eat-and-grow",
-  "fps-strike-multiplayer-3d",
-  "burnout-city-night-drift-3d",
-  "highway-moto-traffic-rider-3d",
-  "draw-the-car-path-physics-puzzle",
-  "99-nights-in-the-forest-survival",
-  "steal-brainrots-multiplayer-3d",
+export type CategoryItem = {
+  id?: string | number;
+  name: string;
+  slug: string;
+  icon?: string | null;
+};
+
+type NavbarProps = {
+  categories?: CategoryItem[];
+};
+
+const GENZ_CATEGORIES = [
+  { name: "🔥 All Hits", href: "/" },
+  { name: "🎯 Battle Royale", href: "/search?q=battle" },
+  { name: "🏎️ 3D Driving", href: "/search?q=driving" },
+  { name: "🧩 Screw & Logic", href: "/search?q=puzzle" },
+  { name: "♟️ Chess & Board", href: "/search?q=chess" },
+  { name: "🎲 Ludo Party", href: "/search?q=ludo" },
+  { name: "🐍 Snake .io", href: "/search?q=snake" },
 ];
 
-function NavbarInner({ categories }: { categories: CategoryItem[] }) {
+export default function Navbar({ categories = [] }: NavbarProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const activeCategory = pathname === "/search" ? params.get("category") : null;
-  const [q, setQ] = useState(params.get("q") ?? "");
+  const [q, setQ] = useState("");
   const [vaultOpen, setVaultOpen] = useState(false);
-  const [xp, setXp] = useState(120);
-  const [onlineCount, setOnlineCount] = useState(1480);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    setQ(params.get("q") ?? "");
-  }, [params]);
-
-  useEffect(() => {
-    const updateStats = () => {
-      const recentCount = readRecent().length;
-      setXp(100 + recentCount * 75);
-    };
-    updateStats();
-    setOnlineCount(1350 + Math.floor(Math.random() * 450));
-    window.addEventListener("arcadia:recent-updated", updateStats);
-    return () => window.removeEventListener("arcadia:recent-updated", updateStats);
-  }, []);
-
-  const level = Math.max(1, Math.floor(xp / 150));
-
-  function onSubmit(e: React.FormEvent) {
+  const onSearch = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = q.trim();
-    const next = new URLSearchParams();
-    if (trimmed) next.set("q", trimmed);
-    if (activeCategory) next.set("category", activeCategory);
-    router.push("/search" + (next.toString() ? "?" + next.toString() : ""));
-  }
-
-  function playRandomHit() {
-    const pick = RANDOM_TOP_SLUGS[Math.floor(Math.random() * RANDOM_TOP_SLUGS.length)];
-    router.push("/game/" + pick);
-  }
+    if (trimmed) {
+      router.push("/search?q=" + encodeURIComponent(trimmed));
+      setMobileMenuOpen(false);
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-edge bg-ink/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3">
-        <Link href="/" className="group flex items-center gap-2.5 shrink-0">
-          <span
-            aria-hidden
-            className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-arcade to-sun font-display text-xl font-black text-ink shadow-md transition group-hover:rotate-6"
-          >
-            A
-          </span>
-          <div>
-            <span className="font-display text-xl font-extrabold tracking-tight text-fg">
-              ARCADIA
-            </span>
-            <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Instant Browser Gaming
-            </span>
+    <>
+      <header className="sticky top-0 z-40 w-full border-b border-edge/80 bg-ink/85 backdrop-blur-xl transition-all">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 sm:px-8">
+          {/* Animated Neon Brand Logo */}
+          <Link href="/" className="group flex items-center gap-2.5 shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-arcade via-indigo-500 to-sun shadow-lg shadow-arcade/30 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+              <span className="text-xl font-black text-white">⚡</span>
+            </div>
+            <div>
+              <span className="font-display text-xl font-black tracking-wider text-fg transition group-hover:text-sun">
+                ARCADIA
+              </span>
+              <span className="block text-[10px] font-extrabold tracking-widest text-arcade-soft uppercase">
+                Next-Gen 3D WebGL
+              </span>
+            </div>
+          </Link>
+
+          {/* Search Bar */}
+          <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md mx-4">
+            <div className="relative flex w-full items-center">
+              <input
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search 1,500+ 3D games, battle royale, chess..."
+                className="w-full rounded-full bg-panel/90 py-2 pl-4 pr-10 text-xs font-semibold text-fg placeholder:text-mute ring-1 ring-edge transition-all focus:outline-none focus:ring-2 focus:ring-arcade"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 rounded-full bg-arcade px-2.5 py-1 text-[10px] font-extrabold text-white transition hover:bg-arcade-soft"
+              >
+                GO
+              </button>
+            </div>
+          </form>
+
+          {/* Gen-Z Action Buttons */}
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/search?q=3d"
+              className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-pink-500/20 px-3.5 py-2 text-xs font-extrabold text-sun ring-1 ring-sun/40 transition-all duration-200 hover:scale-105 hover:ring-sun"
+            >
+              <span>🎲</span>
+              <span>Explore 3D</span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setVaultOpen(true)}
+              className="group relative flex items-center gap-1.5 rounded-xl bg-panel px-3.5 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all duration-200 hover:bg-arcade hover:text-white hover:ring-arcade hover:scale-105 active:scale-95"
+            >
+              <span className="transition-transform duration-200 group-hover:rotate-12">⚡</span>
+              <span>My Vault</span>
+            </button>
+
+            <Link
+              href="/about"
+              className="hidden sm:inline-flex items-center rounded-xl bg-panel px-3 py-2 text-xs font-bold text-mute ring-1 ring-edge transition-all hover:text-fg hover:ring-arcade/60"
+            >
+              About & DMCA
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex md:hidden h-9 w-9 items-center justify-center rounded-xl bg-panel text-fg ring-1 ring-edge"
+              aria-label="Toggle Menu"
+            >
+              {mobileMenuOpen ? "✕" : "☰"}
+            </button>
           </div>
-        </Link>
-
-        <form onSubmit={onSubmit} role="search" className="relative mx-auto flex-1 max-w-xl">
-          <label htmlFor="global-search" className="sr-only">
-            Search games
-          </label>
-          <input
-            id="global-search"
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search BGMI style, Dr. Parking, Screw puzzle, Ludo, Chess, Snake..."
-            className="w-full rounded-xl border border-edge bg-panel py-2.5 pl-10 pr-4 text-sm text-fg placeholder:text-mute focus:border-arcade focus:outline-none focus:ring-2 focus:ring-arcade/40"
-          />
-          <svg
-            aria-hidden
-            viewBox="0 0 20 20"
-            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 fill-mute"
-          >
-            <path d="M8.5 3a5.5 5.5 0 104.38 8.82l3.65 3.65 1.06-1.06-3.65-3.65A5.5 5.5 0 008.5 3zm0 1.5a4 4 0 110 8 4 4 0 010-8z" />
-          </svg>
-        </form>
-
-        {/* Gamer XP Level Pill (Stored in user device localStorage) */}
-        <div
-          title="Level up by playing games! Stored on your device."
-          className="hidden md:flex items-center gap-2 rounded-xl border border-edge bg-panel px-3 py-1.5 text-xs font-extrabold text-fg"
-        >
-          <span className="rounded-md bg-sun px-1.5 py-0.5 text-[10px] font-black text-ink">
-            LVL {level}
-          </span>
-          <span className="text-arcade-soft">{xp} XP</span>
         </div>
 
-        {/* Surprise Me / Random Hit Button */}
-        <button
-          type="button"
-          onClick={playRandomHit}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-arcade to-sun px-3.5 py-2 text-xs font-black text-ink shadow-md transition hover:scale-105 shrink-0"
-        >
-          <span aria-hidden>🎲</span>
-          <span className="hidden sm:inline">Surprise Me</span>
-        </button>
+        {/* Animated Category Pills Bar */}
+        <div className="border-t border-edge/40 bg-panel/40">
+          <nav className="mx-auto flex max-w-[1440px] items-center gap-2 overflow-x-auto no-scrollbar px-4 py-2 sm:px-8">
+            {GENZ_CATEGORIES.map((cat) => (
+              <Link
+                key={cat.name}
+                href={cat.href}
+                className="shrink-0 rounded-full bg-ink/80 px-3.5 py-1 text-[11px] font-extrabold text-mute ring-1 ring-edge transition-all duration-200 hover:bg-arcade hover:text-white hover:ring-arcade hover:scale-105 active:scale-95"
+              >
+                {cat.name}
+              </Link>
+            ))}
+            {categories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/?cat=${encodeURIComponent(cat.slug)}`}
+                className="shrink-0 rounded-full bg-ink/60 px-3 py-1 text-[11px] font-bold text-mute ring-1 ring-edge/60 transition-all duration-200 hover:bg-arcade hover:text-white hover:scale-105"
+              >
+                {cat.icon ? `${cat.icon} ` : ""}{cat.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setVaultOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl border border-edge bg-panel px-3.5 py-2 text-xs font-bold text-fg transition hover:border-arcade hover:text-arcade-soft shrink-0"
-        >
-          <span aria-hidden>⚡</span>
-          <span className="hidden sm:inline">My Vault</span>
-        </button>
-      </div>
-
-      {categories.length > 0 && (
-        <nav
-          aria-label="Game categories"
-          className="mx-auto flex max-w-[1600px] items-center gap-2 overflow-x-auto px-4 pb-2.5 no-scrollbar"
-        >
-          <CategoryPill href="/" active={pathname === "/"} label="Lobby" icon="🏠" />
-          {categories.map((c) => (
-            <CategoryPill
-              key={c.id}
-              href={"/search?category=" + c.slug}
-              active={activeCategory === c.slug}
-              label={c.name}
-              icon={c.icon ?? undefined}
-            />
-          ))}
-        </nav>
-      )}
+        {/* Mobile Slide-Down Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-edge bg-panel/95 px-4 py-4 backdrop-blur-2xl">
+            <form onSubmit={onSearch} className="mb-3 flex gap-2">
+              <input
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search games..."
+                className="flex-1 rounded-xl bg-ink px-3 py-2 text-xs text-fg ring-1 ring-edge"
+              />
+              <button type="submit" className="rounded-xl bg-arcade px-4 py-2 text-xs font-bold text-white">
+                Search
+              </button>
+            </form>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {GENZ_CATEGORIES.map((cat) => (
+                <Link
+                  key={cat.name}
+                  href={cat.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-xl bg-ink p-2.5 text-center text-xs font-bold text-fg ring-1 ring-edge hover:bg-arcade hover:text-white"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+            <Link
+              href="/about"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block rounded-xl bg-ink p-2.5 text-center text-xs font-bold text-arcade-soft ring-1 ring-edge"
+            >
+              🛡️ About Us & DMCA Compliance
+            </Link>
+          </div>
+        )}
+      </header>
 
       <VaultDrawer open={vaultOpen} onClose={() => setVaultOpen(false)} />
-    </header>
-  );
-}
-
-export default function Navbar({ categories }: { categories: CategoryItem[] }) {
-  return (
-    <Suspense fallback={<div className="h-24 border-b border-edge bg-ink/90" />}>
-      <NavbarInner categories={categories} />
-    </Suspense>
-  );
-}
-
-function CategoryPill({
-  href,
-  active,
-  label,
-  icon,
-}: {
-  href: string;
-  active: boolean;
-  label: string;
-  icon?: string;
-}) {
-  const pillClasses =
-    "inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition " +
-    (active
-      ? "bg-sun text-ink shadow-sm"
-      : "bg-panel text-fg/85 hover:bg-edge hover:text-fg");
-
-  return (
-    <Link href={href} className={pillClasses}>
-      {icon ? <span aria-hidden>{icon}</span> : null}
-      {label}
-    </Link>
+    </>
   );
 }

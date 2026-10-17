@@ -1,3 +1,4 @@
+import AdBanner from "@/components/AdBanner";
 import GamerMoodBar from "@/components/GamerMoodBar";
 import ContinuePlaying from "@/components/ContinuePlaying";
 import GameGrid from "@/components/GameGrid";

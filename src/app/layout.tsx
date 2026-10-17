@@ -10,10 +10,11 @@ const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
 export const metadata: Metadata = {
   icons: {
     icon: [
-      { url: "/icon.svg?v=2", type: "image/svg+xml", sizes: "any" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg?v=2", type: "image/svg+xml" },
     ],
-    shortcut: ["/icon.svg?v=2"],
-    apple: ["/icon.svg?v=2"],
+    shortcut: ["/favicon.ico"],
+    apple: ["/favicon.ico"],
   },
   metadataBase: new URL("https://arcadiagames.app"),
   title: {

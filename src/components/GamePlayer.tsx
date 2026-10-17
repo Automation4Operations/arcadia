@@ -3,20 +3,31 @@
 import { useEffect, useRef, useState } from "react";
 import { pushRecent } from "@/lib/recent";
 
-type Props = {
+type GameObj = {
   slug: string;
   title: string;
   iframeUrl: string;
   thumbnailUrl: string;
-  categoryName?: string;
+  width?: number;
+  height?: number;
 };
 
-export default function GamePlayer({
-  slug,
-  title,
-  iframeUrl,
-  thumbnailUrl,
-}: Props) {
+type Props = {
+  slug?: string;
+  title?: string;
+  iframeUrl?: string;
+  thumbnailUrl?: string;
+  categoryName?: string;
+  game?: GameObj;
+};
+
+export default function GamePlayer(props: Props) {
+  // Support both direct props and game={...} object wrapper
+  const slug = props.game?.slug || props.slug || "";
+  const title = props.game?.title || props.title || "Arcadia Game";
+  const iframeUrl = props.game?.iframeUrl || props.iframeUrl || "";
+  const thumbnailUrl = props.game?.thumbnailUrl || props.thumbnailUrl || "";
+
   const stageRef = useRef<HTMLDivElement>(null);
   const [theater, setTheater] = useState(false);
   const [fitMode, setFitMode] = useState<"fit" | "wide" | "tall">("fit");
@@ -24,7 +35,7 @@ export default function GamePlayer({
   const [reported, setReported] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
 
-  // Append referrer URL for GameMonetize / HTML5 ad SDKs so ad impressions, clicks & rewarded ads validate properly
+  // Append referrer URL for GameMonetize / HTML5 ad SDKs so ads validate properly
   const finalIframeUrl = (() => {
     try {
       const u = new URL(iframeUrl);
@@ -38,6 +49,7 @@ export default function GamePlayer({
   })();
 
   useEffect(() => {
+    if (!slug) return;
     pushRecent({ slug, title, thumbnailUrl });
     fetch("/api/play", {
       method: "POST",
@@ -76,7 +88,6 @@ export default function GamePlayer({
     }).catch(() => {});
   };
 
-  // Dynamic viewport-safe height so the game and its internal menus NEVER overflow outside the laptop/desktop screen
   const stageSizeClass =
     fitMode === "tall"
       ? "mx-auto w-full max-w-[440px] h-[calc(100vh-175px)] min-h-[480px] max-h-[760px]"
@@ -86,7 +97,6 @@ export default function GamePlayer({
 
   return (
     <div className={theater ? "fixed inset-0 z-50 bg-black/95 p-3 sm:p-6 flex flex-col justify-center" : "w-full"}>
-      {/* Game Frame Container - Constrained to fit inside screen view */}
       <div
         ref={stageRef}
         className={`relative overflow-hidden rounded-2xl bg-black ring-1 ring-edge shadow-2xl flex items-center justify-center ${
@@ -104,7 +114,6 @@ export default function GamePlayer({
         />
       </div>
 
-      {/* Compact Control Dock — Always visible right below the game */}
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-panel px-4 py-2.5 ring-1 ring-edge">
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -126,7 +135,6 @@ export default function GamePlayer({
             {theater ? "💡 Lights On" : "🌙 Lights Off"}
           </button>
 
-          {/* Screen Fit Switcher so any game menu fits 100% inside screen */}
           <div className="flex items-center rounded-xl bg-ink p-0.5 ring-1 ring-edge">
             <button
               type="button"
@@ -134,7 +142,6 @@ export default function GamePlayer({
               className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
                 fitMode === "fit" ? "bg-arcade text-white" : "text-mute hover:text-fg"
               }`}
-              title="Auto-fit inside desktop screen"
             >
               🖥️ Fit Screen
             </button>
@@ -144,7 +151,6 @@ export default function GamePlayer({
               className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
                 fitMode === "wide" ? "bg-arcade text-white" : "text-mute hover:text-fg"
               }`}
-              title="16:9 Widescreen"
             >
               16:9
             </button>
@@ -154,7 +160,6 @@ export default function GamePlayer({
               className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
                 fitMode === "tall" ? "bg-arcade text-white" : "text-mute hover:text-fg"
               }`}
-              title="Mobile Portrait Mode (Best for Ludo, Screw Puzzle & Vertical games)"
             >
               📱 Mobile View
             </button>
@@ -164,7 +169,6 @@ export default function GamePlayer({
             type="button"
             onClick={() => setIframeKey((k) => k + 1)}
             className="rounded-xl bg-ink px-3 py-1.5 text-xs font-bold text-mute hover:text-fg ring-1 ring-edge cursor-pointer"
-            title="Reload Game"
           >
             ↻ Reload
           </button>

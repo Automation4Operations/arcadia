@@ -2,34 +2,27 @@ name: supabase-keepalive
 
 on:
   schedule:
-    - cron: "0 0 */5 * *"
+    - cron: "0 0 */3 * *"
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Ping to Supabase
+      - name: Send ping to Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          KEY_SERVICE: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          KEY_ANON: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
         run: |
-          SUPABASE_KEY="${KEY_SERVICE:-$KEY_ANON}"
-          if [ -z "$SUPABASE_URL" ]; then
-            echo "Error: SUPABASE_URL secret is empty in GitHub!"
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "Error: SUPABASE_URL or SUPABASE_PUBLISHABLE_KEY is missing in GitHub secrets!"
             exit 1
           fi
-          if [ -z "$SUPABASE_KEY" ]; then
-            echo "Error: Both SUPABASE_SERVICE_ROLE_KEY and SUPABASE_ANON_KEY are empty in GitHub!"
-            exit 1
-          fi
-          res=$(curl -s -o /dev/null -w "%{http_code}" -X GET \
+          res=$(curl -s -o /dev/null -w "%{http_code}" \
             "$SUPABASE_URL/rest/v1/categories?select=id&limit=1" \
-            -H "apikey: $SUPABASE_KEY" \
-            -H "Authorization: Bearer $SUPABASE_KEY")
+            -H "apikey: $SUPABASE_KEY")
           echo "Supabase HTTP response code: $res"
-          if [ "$res" -eq 200 ] || [ "$res" -eq 404 ]; then
+          if [ "$res" -eq 200 ]; then
             echo "Success! Supabase is kept alive."
           else
             echo "Failed with HTTP status $res"

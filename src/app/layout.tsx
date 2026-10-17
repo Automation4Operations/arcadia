@@ -8,6 +8,13 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-disp
 const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: [
+      { url: "/icon.svg?v=2", type: "image/svg+xml", sizes: "any" },
+    ],
+    shortcut: ["/icon.svg?v=2"],
+    apple: ["/icon.svg?v=2"],
+  },
   metadataBase: new URL("https://arcadiagames.app"),
   title: {
     default: "Arcadia Games (ArcadiaGames.app) — Play Free Online HTML5 & 3D Games",

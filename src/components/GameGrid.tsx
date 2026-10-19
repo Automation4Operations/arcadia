@@ -9,6 +9,7 @@ type Props = {
   icon?: string | null;
   leadFeatured?: boolean;
   priorityFirst?: boolean;
+  badge?: "hot" | "new";
 };
 
 export default function GameGrid({
@@ -18,6 +19,7 @@ export default function GameGrid({
   icon,
   leadFeatured = true,
   priorityFirst = false,
+  badge,
 }: Props) {
   if (games.length === 0) return null;
 
@@ -26,18 +28,24 @@ export default function GameGrid({
       <div className="mb-4 flex items-center justify-between border-b border-edge/60 pb-2.5">
         <div className="flex items-center gap-2.5">
           {icon ? (
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-panel text-lg ring-1 ring-edge" aria-hidden>
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-panel text-lg ring-1 ring-edge"
+              aria-hidden
+            >
               {icon}
             </span>
           ) : null}
-          <h2 id={"grid-" + title} className="font-display text-xl font-extrabold tracking-tight text-fg sm:text-2xl">
+          <h2
+            id={"grid-" + title}
+            className="font-display text-xl font-extrabold tracking-tight text-fg sm:text-2xl"
+          >
             {title}
           </h2>
         </div>
         {href ? (
           <Link
             href={href}
-            className="inline-flex items-center gap-1 rounded-xl bg-panel px-3.5 py-1.5 text-xs font-bold text-arcade-soft ring-1 ring-edge transition hover:border-arcade hover:bg-arcade hover:text-ink"
+            className="inline-flex items-center gap-1 rounded-xl bg-panel px-3.5 py-1.5 text-xs font-bold text-arcade-soft ring-1 ring-edge transition hover:bg-arcade hover:text-ink"
           >
             <span>Explore All</span>
             <span aria-hidden>→</span>
@@ -45,13 +53,14 @@ export default function GameGrid({
         ) : null}
       </div>
 
-      <div className="grid grid-flow-dense grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 2xl:grid-cols-5">
+      <div className="grid grid-flow-dense grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
         {games.map((game, i) => (
           <GameCard
             key={game.id}
             game={game}
             featured={leadFeatured && i === 0}
             priority={priorityFirst && i < 4}
+            badge={badge === "hot" ? (i < 5 ? "hot" : undefined) : badge}
           />
         ))}
       </div>

@@ -131,3 +131,4 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .hero-progress { animation-duration: 6s !important; }
 }
+

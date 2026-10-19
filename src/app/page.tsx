@@ -1,20 +1,13 @@
-import AdBanner from "@/components/AdBanner";
-import GamerMoodBar from "@/components/GamerMoodBar";
 import ContinuePlaying from "@/components/ContinuePlaying";
 import GameGrid from "@/components/GameGrid";
 import HeroSpotlight from "@/components/HeroSpotlight";
-import {
-  getCategorySections,
-  getFeaturedHero,
-  getNewReleases,
-  getTrending,
-} from "@/lib/queries";
+import { getCategorySections, getHeroSlides, getNewReleases, getTrending } from "@/lib/queries";
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [hero, trending, fresh, sections] = await Promise.all([
-    getFeaturedHero(),
+  const [slides, trending, fresh, sections] = await Promise.all([
+    getHeroSlides(),
     getTrending(),
     getNewReleases(),
     getCategorySections(),
@@ -22,16 +15,10 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 pb-16">
-      <HeroSpotlight game={hero} />
+      <HeroSpotlight games={slides} />
       <ContinuePlaying />
       <GameGrid title="Trending in Lobby" icon="🔥" games={trending} href="/search" priorityFirst />
-      <GameGrid
-        title="Fresh Releases"
-        icon="✨"
-        games={fresh}
-        href="/search"
-        leadFeatured={false}
-      />
+      <GameGrid title="Fresh Releases" icon="✨" games={fresh} href="/search" leadFeatured={false} />
       {sections.map(({ category, games }) => (
         <GameGrid
           key={category.id}

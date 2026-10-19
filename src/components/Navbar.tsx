@@ -36,7 +36,7 @@ const DEFAULT_CATEGORIES: CategoryItem[] = [
 function NavbarInner({ categories = [] }: NavbarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeCat = searchParams?.get("cat") || "";
+  const activeCat = searchParams?.get("category") || "";
 
   const [q, setQ] = useState("");
   const [vaultOpen, setVaultOpen] = useState(false);
@@ -197,7 +197,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                 return (
                   <Link
                     key={cat.slug}
-                    href={`/?cat=${encodeURIComponent(cat.slug)}`}
+                    href={`/search?category=${encodeURIComponent(cat.slug)}`}
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
                       isSelected

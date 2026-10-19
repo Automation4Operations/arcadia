@@ -22,7 +22,7 @@ export default function GameGrid({
   if (games.length === 0) return null;
 
   return (
-    <section aria-labelledby={"grid-" + title} className="mt-10">
+    <section aria-labelledby={"grid-" + title} className="fade-up mt-10">
       <div className="mb-4 flex items-center justify-between border-b border-edge/60 pb-2.5">
         <div className="flex items-center gap-2.5">
           {icon ? (

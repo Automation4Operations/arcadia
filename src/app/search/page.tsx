@@ -1,6 +1,6 @@
 import Link from "next/link";
 import GameGrid from "@/components/GameGrid";
-import { getPopularTags, searchGames } from "@/lib/queries";
+import { getAllCategories, getPopularTags, searchGames } from "@/lib/queries";
 
 type SP = { q?: string; category?: string; tag?: string | string[] };
 
@@ -12,9 +12,21 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const category = sp.category;
   const selected = sp.tag ? (Array.isArray(sp.tag) ? sp.tag : [sp.tag]) : [];
 
-  const [games, tags] = await Promise.all([searchGames({ q, category, tags: selected }), getPopularTags()]);
+  const [games, tags, categories] = await Promise.all([
+    searchGames({ q, category, tags: selected }),
+    getPopularTags(),
+    getAllCategories(),
+  ]);
 
-  // Toggle a tag while keeping the keyword and the other selected tags
+  const categoryName = categories.find((c) => c.slug === category)?.name;
+
+  const title = q
+    ? `Results for "${q}"`
+    : categoryName
+      ? `${categoryName} Games`
+      : "All games";
+
+  // Toggle a tag while keeping the keyword, category and other selected tags
   const hrefFor = (slug: string) => {
     const next = selected.includes(slug) ? selected.filter((s) => s !== slug) : [...selected, slug];
     const params = new URLSearchParams();
@@ -46,14 +58,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       </ul>
 
       {games.length > 0 ? (
-        <GameGrid
-          title={q ? `Results for "${q}"` : "All games"}
-          games={games}
-          leadFeatured={false}
-        />
+        <GameGrid title={title} games={games} leadFeatured={false} />
       ) : (
         <p className="mt-16 text-center text-mute">
-          No games match. Try a different keyword or remove a tag.
+          No games here yet. Try another category or a different keyword.
         </p>
       )}
     </div>

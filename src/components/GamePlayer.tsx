@@ -22,10 +22,9 @@ type Props = {
 };
 
 export default function GamePlayer(props: Props) {
-  // Support both direct props and game={...} object wrapper
   const slug = props.game?.slug || props.slug || "";
   const title = props.game?.title || props.title || "Arcadia Game";
-  const iframeUrl = props.game?.iframeUrl || props.iframeUrl || "";
+  const rawIframeUrl = props.game?.iframeUrl || props.iframeUrl || "";
   const thumbnailUrl = props.game?.thumbnailUrl || props.thumbnailUrl || "";
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -35,16 +34,16 @@ export default function GamePlayer(props: Props) {
   const [reported, setReported] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
 
-  // Append referrer URL for GameMonetize / HTML5 ad SDKs so ads validate properly
   const finalIframeUrl = (() => {
     try {
-      const u = new URL(iframeUrl);
-      if (u.hostname.includes("gamemonetize") && !u.searchParams.has("gd_sdk_referrer_url")) {
-        u.searchParams.set("gd_sdk_referrer_url", `https://arcadiagames.app/game/${slug}`);
+      const u = new URL(rawIframeUrl);
+      if (u.hostname.includes("gamemonetize")) {
+        u.search = "";
+        if (!u.pathname.endsWith("/")) u.pathname += "/";
       }
       return u.toString();
     } catch {
-      return iframeUrl;
+      return rawIframeUrl;
     }
   })();
 
@@ -84,24 +83,25 @@ export default function GamePlayer(props: Props) {
     await fetch("/api/report", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug, reason: "Player reported broken or cut-off game" }),
+      body: JSON.stringify({ slug, reason: "Player reported issue" }),
     }).catch(() => {});
   };
 
   const stageSizeClass =
     fitMode === "tall"
-      ? "mx-auto w-full max-w-[440px] h-[calc(100vh-175px)] min-h-[480px] max-h-[760px]"
+      ? "mx-auto w-full max-w-[440px] h-[calc(100vh-165px)] min-h-[480px] max-h-[760px]"
       : fitMode === "wide"
-      ? "w-full aspect-video max-h-[calc(100vh-175px)] min-h-[380px]"
-      : "w-full h-[calc(100vh-175px)] min-h-[400px] max-h-[720px]";
+      ? "w-full aspect-video max-h-[calc(100vh-165px)] min-h-[380px]"
+      : "w-full h-[calc(100vh-165px)] min-h-[420px] max-h-[720px]";
 
   return (
     <div className={theater ? "fixed inset-0 z-50 bg-black/95 p-3 sm:p-6 flex flex-col justify-center" : "w-full"}>
       <div
         ref={stageRef}
-        className={`relative overflow-hidden rounded-2xl bg-black ring-1 ring-edge shadow-2xl flex items-center justify-center ${
-          theater ? "w-full h-[calc(100vh-90px)]" : stageSizeClass
-        }`}
+        className={
+          "relative overflow-hidden rounded-2xl bg-black ring-1 ring-edge shadow-2xl flex items-center justify-center " +
+          (theater ? "w-full h-[calc(100vh-90px)]" : stageSizeClass)
+        }
       >
         <iframe
           key={iframeKey}
@@ -124,7 +124,7 @@ export default function GamePlayer(props: Props) {
             }}
             className="rounded-xl bg-ink px-3 py-1.5 text-xs font-bold text-fg ring-1 ring-edge transition hover:ring-arcade cursor-pointer"
           >
-            {saved ? "✓ Saved in Vault" : "⚡ Save"}
+            {saved ? "Saved in Vault" : "Save"}
           </button>
 
           <button
@@ -132,36 +132,39 @@ export default function GamePlayer(props: Props) {
             onClick={() => setTheater(!theater)}
             className="rounded-xl bg-ink px-3 py-1.5 text-xs font-bold text-fg ring-1 ring-edge transition hover:ring-arcade cursor-pointer"
           >
-            {theater ? "💡 Lights On" : "🌙 Lights Off"}
+            {theater ? "Lights On" : "Lights Off"}
           </button>
 
           <div className="flex items-center rounded-xl bg-ink p-0.5 ring-1 ring-edge">
             <button
               type="button"
               onClick={() => setFitMode("fit")}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
-                fitMode === "fit" ? "bg-arcade text-white" : "text-mute hover:text-fg"
-              }`}
+              className={
+                "rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer " +
+                (fitMode === "fit" ? "bg-arcade text-white" : "text-mute hover:text-fg")
+              }
             >
-              🖥️ Fit Screen
+              Fit Screen
             </button>
             <button
               type="button"
               onClick={() => setFitMode("wide")}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
-                fitMode === "wide" ? "bg-arcade text-white" : "text-mute hover:text-fg"
-              }`}
+              className={
+                "rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer " +
+                (fitMode === "wide" ? "bg-arcade text-white" : "text-mute hover:text-fg")
+              }
             >
               16:9
             </button>
             <button
               type="button"
               onClick={() => setFitMode("tall")}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
-                fitMode === "tall" ? "bg-arcade text-white" : "text-mute hover:text-fg"
-              }`}
+              className={
+                "rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer " +
+                (fitMode === "tall" ? "bg-arcade text-white" : "text-mute hover:text-fg")
+              }
             >
-              📱 Mobile View
+              Mobile View
             </button>
           </div>
 
@@ -170,7 +173,7 @@ export default function GamePlayer(props: Props) {
             onClick={() => setIframeKey((k) => k + 1)}
             className="rounded-xl bg-ink px-3 py-1.5 text-xs font-bold text-mute hover:text-fg ring-1 ring-edge cursor-pointer"
           >
-            ↻ Reload
+            Reload
           </button>
 
           <button
@@ -178,7 +181,7 @@ export default function GamePlayer(props: Props) {
             onClick={shareGame}
             className="rounded-xl bg-ink px-3 py-1.5 text-xs font-bold text-mute hover:text-fg ring-1 ring-edge cursor-pointer"
           >
-            🔗 Share
+            Share
           </button>
         </div>
 
@@ -188,7 +191,7 @@ export default function GamePlayer(props: Props) {
             onClick={reportBroken}
             className="rounded-xl bg-ink px-3 py-1.5 text-xs font-semibold text-mute hover:text-red-400 ring-1 ring-edge cursor-pointer"
           >
-            {reported ? "✓ Reported" : "⚑ Report"}
+            {reported ? "Reported" : "Report"}
           </button>
 
           <button
@@ -196,7 +199,7 @@ export default function GamePlayer(props: Props) {
             onClick={toggleFullscreen}
             className="rounded-xl bg-arcade px-4 py-1.5 text-xs font-extrabold text-white shadow-md shadow-arcade/30 transition hover:bg-arcade-soft cursor-pointer"
           >
-            ⛶ Fullscreen
+            Fullscreen
           </button>
         </div>
       </div>

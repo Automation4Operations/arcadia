@@ -31,7 +31,7 @@ export default function CategoryChips({ categories, active }: { categories: Chip
           return (
             <Link
               key={c.slug}
-              href={`/search?category=${c.slug}`}
+              href={`/category/${c.slug}`}
               className={
                 base +
                 " " +

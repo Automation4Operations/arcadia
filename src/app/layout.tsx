@@ -51,10 +51,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={display.variable + " " + body.variable}>
       <body className="min-h-screen bg-ink font-body text-fg antialiased flex flex-col">
-                <div className="aurora" aria-hidden>
+        {/* Animated background: sits behind everything */}
+        <div className="aurora" aria-hidden>
           <div className="aurora-blob" />
           <div className="aurora-grid" />
         </div>
+
         <Navbar categories={categories} />
         <main className="flex-1">{children}</main>
         <footer className="mt-20 border-t border-edge bg-panel/50 py-8 text-center text-xs text-mute">

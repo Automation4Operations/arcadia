@@ -5,6 +5,7 @@ import { getAllCategories, getPopularTags, searchGames } from "@/lib/queries";
 type SP = { q?: string; category?: string; tag?: string | string[] };
 
 export const dynamic = "force-dynamic";
+export const metadata = { robots: { index: false, follow: true } };
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;

@@ -209,3 +209,15 @@ export async function getPopularTags(take = 24) {
   const rows = check(await getSupabase().from("tags").select("slug,name").order("name").limit(take));
   return rows as { slug: string; name: string }[];
 }
+export async function getHeroSlides(take = 5): Promise<GameCardData[]> {
+  const rows = check(
+    await getSupabase()
+      .from("games").select(CARD_COLUMNS)
+      .ilike("iframe_url", "%gamemonetize%")
+      .eq("is_published", true)
+      .order("is_featured", { ascending: false })
+      .order("play_count", { ascending: false })
+      .limit(take),
+  );
+  return rows.map(toCard);
+}

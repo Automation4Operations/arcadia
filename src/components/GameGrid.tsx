@@ -45,7 +45,7 @@ export default function GameGrid({
         ) : null}
       </div>
 
-      <div className="grid grid-flow-dense grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-flow-dense grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 2xl:grid-cols-5">
         {games.map((game, i) => (
           <GameCard
             key={game.id}

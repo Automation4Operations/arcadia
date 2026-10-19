@@ -54,7 +54,7 @@ export async function getAllCategories(): Promise<CategoryItem[]> {
 
 export async function getFeaturedHero() {
   const res = await getSupabase()
-    .from("games").select("id,slug,title,description,thumbnail_url,iframe_url,play_count,rating_avg,category:categories(name,slug).ilike("iframe_url", "%gamemonetize%")")
+    .from("games").select("id,slug,title,description,thumbnail_url,iframe_url,play_count,rating_avg,category:categories(name,slug)").ilike("iframe_url", "%gamemonetize%")
     .eq("is_published", true)
     .order("is_featured", { ascending: false })
     .order("play_count", { ascending: false })
@@ -80,7 +80,7 @@ export async function getFeaturedHero() {
 export async function getTrending(take = 15): Promise<GameCardData[]> {
   const rows = check(
     await getSupabase()
-      .from("games").select(CARD_COLUMNS).ilike("iframe_url", "%gamemonetize%")
+      .from("games").select(CARD_COLUMNS)
       .eq("is_published", true)
       .order("play_count", { ascending: false })
       .limit(take),
@@ -91,7 +91,7 @@ export async function getTrending(take = 15): Promise<GameCardData[]> {
 export async function getNewReleases(take = 12): Promise<GameCardData[]> {
   const rows = check(
     await getSupabase()
-      .from("games").select(CARD_COLUMNS).ilike("iframe_url", "%gamemonetize%")
+      .from("games").select(CARD_COLUMNS)
       .eq("is_published", true)
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
@@ -107,7 +107,7 @@ export async function getCategorySections(categoryCount = 13, perCategory = 11) 
     categories.slice(0, categoryCount).map(async (category) => {
       const rows = check(
         await db
-          .from("games").select(CARD_COLUMNS).ilike("iframe_url", "%gamemonetize%")
+          .from("games").select(CARD_COLUMNS)
           .eq("is_published", true)
           .eq("category_id", category.id)
           .order("play_count", { ascending: false })
@@ -120,7 +120,7 @@ export async function getCategorySections(categoryCount = 13, perCategory = 11) 
 
 export async function getGameBySlug(slug: string) {
   const res = await getSupabase()
-    .from("games").select("*, category:categories(id,slug,name).ilike("iframe_url", "%gamemonetize%"), tags:game_tags(tag:tags(id,slug,name))")
+    .from("games").select("*, category:categories(id,slug,name), tags:game_tags(tag:tags(id,slug,name))").ilike("iframe_url", "%gamemonetize%")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
@@ -154,7 +154,7 @@ export async function getRecommended(
   const db = getSupabase();
   const sameCategory = check(
     await db
-      .from("games").select(CARD_COLUMNS).ilike("iframe_url", "%gamemonetize%")
+      .from("games").select(CARD_COLUMNS)
       .eq("is_published", true)
       .eq("category_id", game.categoryId)
       .neq("id", game.id)
@@ -189,7 +189,7 @@ export async function searchGames({
     if (!allowedIds || allowedIds.length === 0) return [];
   }
 
-  let query = db.from("games").select(CARD_COLUMNS).ilike("iframe_url", "%gamemonetize%").eq("is_published", true);
+  let query = db.from("games").select(CARD_COLUMNS).eq("is_published", true);
 
   if (category) {
     const cat = check(await db.from("categories").select("id").eq("slug", category).maybeSingle()) as any;

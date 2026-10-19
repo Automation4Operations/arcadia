@@ -17,7 +17,7 @@ export default function ContinuePlaying() {
       <h2 id="continue-playing" className="mb-4 font-display text-2xl font-bold text-fg">
         Continue playing
       </h2>
-      <ul className="flex snap-x gap-4 overflow-x-auto pb-2">
+      <ul className="flex snap-x gap-4 overflow-x-auto no-scrollbar pb-2">
         {recent.map((g) => (
           <li key={g.slug} className="w-40 shrink-0 snap-start sm:w-48">
             <GameCard game={g} />

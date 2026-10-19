@@ -72,7 +72,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             <Link href="/" className="group flex items-center gap-2.5 shrink-0">
               <ArcadiaLogo className="h-10 w-10 transition-transform duration-300 group-hover:scale-110" />
               <div>
-                <span className="font-display text-lg sm:text-xl font-black tracking-wider text-fg transition group-hover:text-sun">
+                <span className="font-display text-lg sm:text-xl font-black tracking-wider text-neon">
                   ARCADIA
                 </span>
                 <span className="block text-[9px] font-extrabold tracking-widest text-arcade-soft uppercase">

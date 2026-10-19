@@ -79,10 +79,12 @@ export default function HeroSpotlight({ games }: { games: GameCardData[] }) {
                 More {game.category.name}
               </Link>
             ) : null}
-            <span className="text-xs font-semibold text-fg/70">
-              <span className="font-bold text-white">{formatCount(game.playCount)}</span> plays
-              {game.ratingAvg ? ` · ★ ${game.ratingAvg.toFixed(1)}` : ""}
-            </span>
+            {game.playCount > 0 ? (
+              <span className="text-xs font-semibold text-fg/70">
+                <span className="font-bold text-white">{formatCount(game.playCount)}</span> plays
+                {game.ratingAvg ? ` · ★ ${game.ratingAvg.toFixed(1)}` : ""}
+              </span>
+            ) : null}
           </div>
         </div>
 

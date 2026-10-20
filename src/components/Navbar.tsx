@@ -28,7 +28,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname() || "/";
   const searchParams = useSearchParams();
-  const activeTag = pathname === "/search" ? searchParams?.get("tag") || "" : "";
+    const activeTag = pathname.startsWith("/collection/") ? pathname.split("/")[2] || "" : "";
   const activeCat = pathname.startsWith("/category/") ? pathname.split("/")[2] || "" : "";
 
   const [q, setQ] = useState("");

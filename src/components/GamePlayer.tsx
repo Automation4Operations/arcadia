@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { pushRecent } from "@/lib/recent";
+import { pushRecent } from "@/lib/recent"; import { recordPlay } from "@/lib/progress";
 import { formatCount } from "@/lib/format";
 
 type GameObj = {
@@ -123,7 +123,7 @@ export default function GamePlayer(props: Props) {
     setLoaded(false);
     if (!slug) return;
     pushRecent({ slug, title, thumbnailUrl });
-    fetch("/api/play", {
+        recordPlay(slug); fetch("/api/play", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug }),

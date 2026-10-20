@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "Arcadia Games",
       title,
       description,
-      images: [{ url: `${SITE}/icon.svg`, alt: "Arcadia Games logo" }],
+            images: [{ url: `${SITE}/web-app-manifest-512x512.png`, width: 512, height: 512, alt: "Arcadia Games logo" }],
     },
     twitter: { card: "summary", title, description },
   };
@@ -60,7 +60,7 @@ export default async function HomePage() {
         "@type": "Organization",
         name: "Arcadia Games",
         url: SITE,
-        logo: `${SITE}/icon.svg`,
+               logo: `${SITE}/web-app-manifest-512x512.png`,
         email: "contact@arcadiagames.app",
       },
       {

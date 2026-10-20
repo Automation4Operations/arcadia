@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, FormEvent, Suspense } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState, FormEvent, Suspense } from "react";
 import VaultDrawer from "./VaultDrawer";
 import ArcadiaLogo from "./ArcadiaLogo";
 
@@ -17,6 +17,8 @@ type NavbarProps = {
   categories?: CategoryItem[];
 };
 
+type Suggestion = { slug: string; title: string; thumbnailUrl: string };
+
 const COLLECTIONS = [
   { slug: "3d", name: "3D Games", icon: "🧊" },
   { slug: "2-player", name: "2 Player", icon: "👥" },
@@ -27,13 +29,33 @@ const COLLECTIONS = [
 function NavbarInner({ categories = [] }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname() || "/";
-  const searchParams = useSearchParams();
-    const activeTag = pathname.startsWith("/collection/") ? pathname.split("/")[2] || "" : "";
+  const activeTag = pathname.startsWith("/collection/") ? pathname.split("/")[2] || "" : "";
   const activeCat = pathname.startsWith("/category/") ? pathname.split("/")[2] || "" : "";
 
   const [q, setQ] = useState("");
   const [vaultOpen, setVaultOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [showSuggest, setShowSuggest] = useState(false);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
+
+  // Listen to the bottom navigation bar (phones)
+  useEffect(() => {
+    const openMenu = () => setSidebarOpen(true);
+    const openSearch = () => {
+      setSidebarOpen(true);
+      setTimeout(() => mobileSearchRef.current?.focus(), 80);
+    };
+    const openVault = () => setVaultOpen(true);
+    window.addEventListener("arcadia:open-menu", openMenu);
+    window.addEventListener("arcadia:open-search", openSearch);
+    window.addEventListener("arcadia:open-vault", openVault);
+    return () => {
+      window.removeEventListener("arcadia:open-menu", openMenu);
+      window.removeEventListener("arcadia:open-search", openSearch);
+      window.removeEventListener("arcadia:open-vault", openVault);
+    };
+  }, []);
 
   // Esc closes the sidebar, and the page behind it stops scrolling
   useEffect(() => {
@@ -50,13 +72,37 @@ function NavbarInner({ categories = [] }: NavbarProps) {
     };
   }, [sidebarOpen]);
 
+  // Search suggestions (waits until the player stops typing for a moment)
+  useEffect(() => {
+    const term = q.trim();
+    if (term.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetch("/api/suggest?q=" + encodeURIComponent(term))
+        .then((r) => r.json())
+        .then((d) => setSuggestions(Array.isArray(d?.games) ? d.games : []))
+        .catch(() => setSuggestions([]));
+    }, 220);
+    return () => clearTimeout(timer);
+  }, [q]);
+
   const onSearch = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = q.trim();
     if (trimmed) {
       router.push("/search?q=" + encodeURIComponent(trimmed));
       setSidebarOpen(false);
+      setShowSuggest(false);
     }
+  };
+
+  const openGame = (slug: string) => {
+    setShowSuggest(false);
+    setSidebarOpen(false);
+    setQ("");
+    router.push(`/game/${slug}`);
   };
 
   const close = () => setSidebarOpen(false);
@@ -66,6 +112,35 @@ function NavbarInner({ categories = [] }: NavbarProps) {
     (active
       ? "bg-arcade text-ink ring-1 ring-arcade"
       : "bg-ink/50 text-mute hover:bg-ink hover:text-fg hover:ring-1 hover:ring-arcade/50");
+
+  const suggestBox =
+    showSuggest && suggestions.length > 0 ? (
+      <ul className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl bg-panel shadow-2xl ring-1 ring-edge">
+        {suggestions.map((s) => (
+          <li key={s.slug}>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => openGame(s.slug)}
+              className="flex w-full items-center gap-3 px-3 py-2 text-left text-xs font-semibold text-fg transition hover:bg-ink cursor-pointer"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={s.thumbnailUrl} alt="" className="h-9 w-12 shrink-0 rounded-md object-cover ring-1 ring-edge" />
+              <span className="truncate">{s.title}</span>
+            </button>
+          </li>
+        ))}
+        <li>
+          <button
+            type="submit"
+            onMouseDown={(e) => e.preventDefault()}
+            className="w-full border-t border-edge px-3 py-2 text-left text-[11px] font-bold text-arcade hover:bg-ink cursor-pointer"
+          >
+            See all results for &quot;{q.trim()}&quot; →
+          </button>
+        </li>
+      </ul>
+    ) : null;
 
   return (
     <>
@@ -96,15 +171,21 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             </Link>
           </div>
 
-          {/* Center: search bar */}
+          {/* Center: search bar with suggestions (computers and tablets) */}
           <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md mx-4" role="search">
             <div className="relative flex w-full items-center">
               <input
                 type="search"
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setShowSuggest(true);
+                }}
+                onFocus={() => setShowSuggest(true)}
+                onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
                 placeholder="Search games: shooting, racing, puzzle, .io..."
                 aria-label="Search games"
+                autoComplete="off"
                 className="w-full rounded-full bg-panel/90 py-2 pl-4 pr-14 text-xs font-semibold text-fg placeholder:text-mute ring-1 ring-edge transition-all focus:outline-none focus:ring-2 focus:ring-arcade"
               />
               <button
@@ -113,6 +194,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               >
                 GO
               </button>
+              {suggestBox}
             </div>
           </form>
 
@@ -129,15 +211,23 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             <button
               type="button"
               onClick={() => setVaultOpen(true)}
-              className="group flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:bg-arcade hover:text-ink hover:ring-arcade cursor-pointer"
+              className="group hidden md:flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:bg-arcade hover:text-ink hover:ring-arcade cursor-pointer"
             >
               <span>⚡</span>
               <span>My Vault</span>
             </button>
 
             <Link
+              href="/profile"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:ring-arcade"
+            >
+              <span>👤</span>
+              <span>Me</span>
+            </Link>
+
+            <Link
               href="/about"
-              className="hidden sm:inline-flex items-center rounded-xl bg-panel px-3 py-2 text-xs font-bold text-mute ring-1 ring-edge transition-all hover:text-fg hover:ring-arcade/60"
+              className="hidden lg:inline-flex items-center rounded-xl bg-panel px-3 py-2 text-xs font-bold text-mute ring-1 ring-edge transition-all hover:text-fg hover:ring-arcade/60"
             >
               About & DMCA
             </Link>
@@ -165,19 +255,26 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               </button>
             </div>
 
-            {/* Mobile search */}
-            <form onSubmit={onSearch} className="mt-4 flex md:hidden gap-2" role="search">
+            {/* Mobile search with suggestions */}
+            <form onSubmit={onSearch} className="relative mt-4 flex md:hidden gap-2" role="search">
               <input
+                ref={mobileSearchRef}
                 type="search"
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setShowSuggest(true);
+                }}
+                onFocus={() => setShowSuggest(true)}
                 placeholder="Search games..."
                 aria-label="Search games"
-                className="flex-1 rounded-xl bg-ink px-3 py-2 text-xs text-fg ring-1 ring-edge"
+                autoComplete="off"
+                className="flex-1 rounded-xl bg-ink px-3 py-2 text-sm text-fg ring-1 ring-edge"
               />
               <button type="submit" className="rounded-xl bg-arcade px-3 py-2 text-xs font-bold text-ink">
                 Go
               </button>
+              {suggestBox}
             </form>
 
             <div className="no-scrollbar mt-4 flex-1 space-y-5 overflow-y-auto pr-1">
@@ -239,7 +336,9 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               <Link href="/about" onClick={close} className="font-bold text-arcade hover:underline">
                 🛡️ About & DMCA
               </Link>
-                            <Link href="/feedback" onClick={close} className="font-bold text-sun hover:underline">💬 Feedback</Link>
+              <Link href="/feedback" onClick={close} className="font-bold text-sun hover:underline">
+                💬 Feedback
+              </Link>
             </div>
           </aside>
         </div>

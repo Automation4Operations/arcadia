@@ -239,7 +239,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               <Link href="/about" onClick={close} className="font-bold text-arcade hover:underline">
                 🛡️ About & DMCA
               </Link>
-              <span>arcadiagames.app</span>
+                            <Link href="/feedback" onClick={close} className="font-bold text-sun hover:underline">💬 Feedback</Link>
             </div>
           </aside>
         </div>

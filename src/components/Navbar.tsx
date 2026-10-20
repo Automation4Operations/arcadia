@@ -119,7 +119,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
           {/* Right: quick action buttons */}
           <div className="flex items-center gap-2">
             <Link
-              href="/search?tag=3d"
+              href="/collection/3d"
               className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-pink-500/20 px-3 py-2 text-xs font-extrabold text-sun ring-1 ring-sun/40 transition-all hover:scale-105 hover:ring-sun"
             >
               <span>🧊</span>
@@ -197,7 +197,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                 {COLLECTIONS.map((c) => (
                   <Link
                     key={c.slug}
-                    href={`/search?tag=${c.slug}`}
+                    href={`/collection/${c.slug}`}
                     onClick={close}
                     className={itemClass(activeTag === c.slug)}
                   >

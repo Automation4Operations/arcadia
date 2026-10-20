@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import GamePlayer from "@/components/GamePlayer";
 import MoreLikeThis from "@/components/MoreLikeThis";
+import GameComments from "@/components/GameComments";
 import { getGameBySlug } from "@/lib/queries";
 import { getGameVotes, getMoreLikeThis } from "@/lib/gamePage";
 import { formatCount } from "@/lib/format";
@@ -194,6 +195,9 @@ export default async function GamePage({ params }: Params) {
             Browse all {game.category.name} games →
           </Link>
         </p>
+
+        {/* Comments, suggestions & issues */}
+        <GameComments slug={game.slug} heading={`What players say about ${game.title}`} />
       </article>
 
       <MoreLikeThis games={more} />

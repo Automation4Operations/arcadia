@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Arcadia Games",
   },
   description:
-    "Play 1,500+ free online games instantly at ArcadiaGames.app! Battle Royale, Dr. Driving, Screw & Rope Physics, Online Chess, Ludo, Snake, and 3D WebGL games with no downloads.",
+        "Play free online games instantly on Arcadia Games – shooters, racing, .io battles, puzzles, stickman fights and 2-player games. No download, no sign-up, on phone or PC.",
   keywords: [
     "arcadiagames",
     "arcadia games",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Arcadia Games — Play Free Online Browser Games",
-    description: "Instant browser gaming portal with 1,500+ HTML5 and 3D WebGL games. No downloads required.",
+        description: "Hundreds of free HTML5 and 3D browser games. Instant play on phone or PC, no downloads required.",
     url: "https://arcadiagames.app",
     siteName: "Arcadia Games",
     type: "website",

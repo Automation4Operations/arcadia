@@ -10,13 +10,13 @@ const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
 export const metadata: Metadata = {
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
+            { url: "/favicon.ico", sizes: "48x48" }, { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
       { url: "/icon.svg?v=2", type: "image/svg+xml" },
     ],
     shortcut: ["/favicon.ico"],
-    apple: ["/favicon.ico"],
+        apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
-  metadataBase: new URL("https://arcadiagames.app"),
+    metadataBase: new URL("https://arcadiagames.app"), manifest: "/site.webmanifest",
   title: {
     default: "Arcadia Games (ArcadiaGames.app) — Play Free Online HTML5 & 3D Games",
     template: "%s | Arcadia Games",

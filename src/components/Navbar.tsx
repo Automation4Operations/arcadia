@@ -89,7 +89,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                 type="search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search 1,500+ 3D games, battle royale, chess..."
+                placeholder="Search games: shooting, racing, puzzle, .io..."
                 className="w-full rounded-full bg-panel/90 py-2 pl-4 pr-14 text-xs font-semibold text-fg placeholder:text-mute ring-1 ring-edge transition-all focus:outline-none focus:ring-2 focus:ring-arcade"
               />
               <button

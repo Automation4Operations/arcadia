@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import CategoryChips from "@/components/CategoryChips";
 import GameGrid from "@/components/GameGrid";
 import { getAllCategories, searchGames } from "@/lib/queries";
+import { CATEGORY_CONTENT } from "@/lib/categoryContent";
 
 export const revalidate = 3600;
 
@@ -18,8 +19,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const { category } = await load(slug);
   if (!category) return {};
+  const content = CATEGORY_CONTENT[slug];
   const title = `${category.name} Games - Play Free Online ${category.name} Games`;
-  const description = `Play the best free ${category.name.toLowerCase()} games online at Arcadia Games. No downloads, no sign-up. Instant play on PC, mobile and tablet.`;
+  const description =
+    content?.metaDescription ??
+    `Play the best free ${category.name.toLowerCase()} games online at Arcadia Games. No downloads, no sign-up. Instant play on PC, mobile and tablet.`;
   return {
     title,
     description,
@@ -33,6 +37,7 @@ export default async function CategoryPage({ params }: Params) {
   const { categories, category } = await load(slug);
   if (!category) notFound();
 
+  const content = CATEGORY_CONTENT[slug];
   const games = await searchGames({ category: slug, take: 250 });
 
   return (
@@ -43,11 +48,25 @@ export default async function CategoryPage({ params }: Params) {
           {category.name} Games
         </h1>
         <p className="mt-2 max-w-3xl text-mute">
-          Play {games.length} free {category.name.toLowerCase()} games online at Arcadia Games. Every game
-          runs instantly in your browser on PC, phone and tablet, with no downloads and no sign-up.
+          {content
+            ? content.intro
+            : `Play free ${category.name.toLowerCase()} games online at Arcadia Games.`}{" "}
+          Choose from {games.length} free games with no downloads and no sign-up.
         </p>
       </header>
       <GameGrid title={`All ${category.name} Games`} games={games} leadFeatured={false} />
+      {content && (
+        <section className="mt-12 max-w-3xl rounded-2xl bg-panel p-6 ring-1 ring-edge">
+          <h2 className="font-display text-xl font-extrabold text-fg">
+            About {category.name} Games
+          </h2>
+          {content.about.map((text, i) => (
+            <p key={i} className="mt-3 text-sm leading-relaxed text-mute">
+              {text}
+            </p>
+          ))}
+        </section>
+      )}
     </div>
   );
 }

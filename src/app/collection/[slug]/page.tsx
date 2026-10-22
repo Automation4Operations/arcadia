@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import GameCard from "@/components/GameCard";
 import { COLLECTIONS, getCollection, getCollectionGames } from "@/lib/collections";
+import { COLLECTION_CONTENT } from "@/lib/collectionContent";
 
 export const revalidate = 3600;
 
@@ -20,9 +21,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!col) return { title: "Collection not found", robots: { index: false } };
 
   const games = await getCollectionGames(col.slug);
+  const content = COLLECTION_CONTENT[col.slug];
   const url = `${SITE}/collection/${col.slug}`;
   const title = `Free ${col.seoName} Online – ${games.length} Games, No Download`;
-  const description = `Play ${games.length} free ${col.seoName.toLowerCase()} instantly on Arcadia Games. ${col.intro.split(". ")[0]}.`;
+  const description = content
+    ? `Play ${games.length} free ${col.seoName.toLowerCase()} on Arcadia Games. ${content.metaDescription}`
+    : `Play ${games.length} free ${col.seoName.toLowerCase()} instantly on Arcadia Games. ${col.intro.split(". ")[0]}.`;
 
   return {
     title,
@@ -45,6 +49,7 @@ export default async function CollectionPage({ params }: Params) {
   if (!col) notFound();
 
   const games = await getCollectionGames(col.slug);
+  const content = COLLECTION_CONTENT[col.slug];
   const url = `${SITE}/collection/${col.slug}`;
 
   const jsonLd = {
@@ -110,6 +115,17 @@ export default async function CollectionPage({ params }: Params) {
             <GameCard key={g.id} game={g} />
           ))}
         </div>
+      )}
+
+      {content && (
+        <section className="mt-12 rounded-3xl bg-panel/60 p-6 ring-1 ring-edge sm:p-8">
+          <h2 className="mb-3 font-display text-xl font-bold text-fg">About {col.seoName}</h2>
+          <div className="max-w-3xl space-y-3 text-sm leading-relaxed text-mute">
+            {content.about.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+        </section>
       )}
 
       <section className="mt-12">

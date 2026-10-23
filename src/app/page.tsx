@@ -1,127 +1,140 @@
-import type { Metadata } from "next";
-import CategoryChips from "@/components/CategoryChips";
-import ContinuePlaying from "@/components/ContinuePlaying";
-import GameGrid from "@/components/GameGrid";
-import HeroSpotlight from "@/components/HeroSpotlight";
+'use client'
+
+import { useMemo, useState, useEffect } from 'react'
+import Link from 'next/link'
 import {
-  getAllCategories,
-  getCategorySections,
-  getHeroSlides,
-  getNewReleases,
-  getTrending,
-} from "@/lib/queries";
-import { getPublishedGameCount, roundedGameLabel } from "@/lib/stats";
+  ArrowRight,
+  BarChart3,
+  Bell,
+  Bookmark,
+  Check,
+  ChevronDown,
+  Flame,
+  Gamepad2,
+  Grid3X3,
+  Info,
+  Menu,
+  Play,
+  Search,
+  Settings2,
+  Sparkles,
+  Swords,
+  Trophy,
+  Users,
+  X,
+  Zap,
+} from 'lucide-react'
 
-export const revalidate = 3600;
+export default function Page() {
+  const [search, setSearch] = useState('')
+  const [vault, setVault] = useState<string[]>(['Neon Blade: Reborn'])
+  const [xp, setXp] = useState(2840)
+  const [notice, setNotice] = useState('Welcome to Arcadia Games — Level 24 Explorer')
 
-const SITE = "https://arcadiagames.app";
+  useEffect(() => {
+    const timer = setTimeout(() => setNotice(''), 3000)
+    return () => clearTimeout(timer)
+  }, [])
 
-export async function generateMetadata(): Promise<Metadata> {
-  const total = await getPublishedGameCount();
-  const label = roundedGameLabel(total);
-
-  const title = label
-    ? `Arcadia Games – Play ${label} Free Online Games, No Download`
-    : "Arcadia Games – Free Online Games, No Download";
-  const description = `Play ${label || "hundreds of"} free online games instantly on Arcadia Games – shooters, racing, .io battles, puzzles & 2-player fun. No download, no sign-up, on phone or PC.`;
-
-  return {
-    title: { absolute: title },
-    description,
-    alternates: { canonical: SITE },
-    openGraph: {
-      type: "website",
-      url: SITE,
-      siteName: "Arcadia Games",
-      title,
-      description,
-            images: [{ url: `${SITE}/web-app-manifest-512x512.png`, width: 512, height: 512, alt: "Arcadia Games logo" }],
-    },
-    twitter: { card: "summary", title, description },
-  };
-}
-
-export default async function HomePage() {
-  // Counts chosen so every row is full at 4 per row:
-  // a "Top Pick" tile fills 4 spots, so 1 big + 12 small = 16 spots = 4 full rows.
-  const [categories, slides, trending, fresh, sections, total] = await Promise.all([
-    getAllCategories(),
-    getHeroSlides(),
-    getTrending(13),
-    getNewReleases(12),
-    getCategorySections(13, 9),
-    getPublishedGameCount(),
-  ]);
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        name: "Arcadia Games",
-        url: SITE,
-               logo: `${SITE}/web-app-manifest-512x512.png`,
-        email: "contact@arcadiagames.app",
-      },
-      {
-        "@type": "WebSite",
-        name: "Arcadia Games",
-        alternateName: "ArcadiaGames.app",
-        url: SITE,
-      },
-    ],
-  };
+  const triggerWarp = () => {
+    setXp((prev) => prev + 150)
+    setNotice('⚡ Dimensional Warp Triggered! +150 XP')
+    setTimeout(() => setNotice(''), 2500)
+  }
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 pb-16">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
-      />
+    <main className="arcadia-shell">
+      <aside className="sidebar">
+        <div className="brand">
+          <span className="brand-mark"><span /></span>
+          <span>arcadia<span className="brand-dot">.</span></span>
+        </div>
+        <div className="profile-mini">
+          <div className="avatar">A</div>
+          <div><strong>Arcadia Player</strong><span>Level 24 · Explorer</span></div>
+          <ChevronDown size={15} />
+        </div>
+        <nav className="side-nav" aria-label="Main navigation">
+          <p className="nav-label">DISCOVER</p>
+          <Link href="/" className="nav-link active"><Home size={18} />Home</Link>
+          <Link href="/games" className="nav-link"><Gamepad2 size={18} />All Games <span className="nav-count">1.5k</span></Link>
+          <Link href="/categories" className="nav-link"><Grid3X3 size={18} />Categories</Link>
+          
+          <p className="nav-label space">YOUR SPACE</p>
+          <a className="nav-link"><Bookmark size={18} />My Vault <span className="nav-count">{vault.length}</span></a>
+          <a className="nav-link"><Trophy size={18} />Achievements</a>
+          <a className="nav-link"><BarChart3 size={18} />Stats</a>
+          
+          <p className="nav-label space">COMMUNITY</p>
+          <a className="nav-link"><Users size={18} />Friends <span className="online-dot" /></a>
+          <a className="nav-link"><Info size={18} />About Arcadia</a>
+        </nav>
+        <div className="sidebar-foot">
+          <div className="streak">
+            <Flame size={18} fill="currentColor" />
+            <div><strong>7 day streak</strong><span>Keep it going!</span></div>
+            <ArrowRight size={16} />
+          </div>
+          <div className="side-foot-links"><Settings2 size={15} />Settings <span>·</span> Help</div>
+        </div>
+      </aside>
 
-      {/* Live stats strip */}
-      {total > 0 && (
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 rounded-2xl bg-panel/60 px-4 py-3 text-xs font-semibold text-mute ring-1 ring-edge sm:justify-between">
-          <p className="font-display text-sm font-bold text-fg">
-            <span className="text-sun">{total.toLocaleString("en-US")}</span> free games. One click to play.
-          </p>
-          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-            <li>⚡ Instant play</li>
-            <li>📱 Phone &amp; PC</li>
-            <li>🚫 No downloads</li>
-            <li>🔓 No sign-up</li>
-          </ul>
+      <section className="content">
+        <header className="topbar">
+          <button className="mobile-menu" aria-label="Open menu"><Menu /></button>
+          <div className="search-wrap">
+            <Search size={18} />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search games, genres, anime vibes..." />
+          </div>
+          <div className="top-actions">
+            <button className="icon-button" aria-label="Notifications"><Bell size={18} /><i /></button>
+            <div className="xp">
+              <span>XP {xp} / 3,200</span>
+              <div><b style={{ width: `${(xp / 3200) * 100}%` }} /></div>
+            </div>
+            <div className="avatar small">A</div>
+          </div>
+        </header>
+
+        <div className="page-inner">
+          <section className="hero">
+            <div className="hero-copy">
+              <div className="eyebrow"><span className="pulse" /> 1,247 players online now</div>
+              <h1>Play something<br /><em>legendary.</em></h1>
+              <p>Zero downloads. Zero waiting. Just press play<br />and enter your next favorite browser world.</p>
+              <button className="primary-button" onClick={triggerWarp}>
+                <Play size={16} fill="currentColor" /> Play a random game <Zap size={15} />
+              </button>
+            </div>
+            <div className="hero-art" aria-hidden="true">
+              <div className="orbit orbit-one" />
+              <div className="orbit orbit-two" />
+              <div className="spark s1">✦</div>
+              <div className="spark s2">✧</div>
+              <div className="spark s3">+</div>
+              <div className="hero-orb" onClick={triggerWarp} style={{ cursor: 'pointer' }}>
+                <Swords size={78} strokeWidth={1.2} />
+                <span>ENTER<br />THE RIFT</span>
+              </div>
+            </div>
+          </section>
+
+          <section className="section-head">
+            <div>
+              <div className="section-kicker"><Sparkles size={14} /> CURATED FOR YOU</div>
+              <h2>Find your next obsession</h2>
+            </div>
+            <Link href="/games" className="text-button">View all <ArrowRight size={16} /></Link>
+          </section>
+        </div>
+      </section>
+
+      {notice && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-lg bg-[#27222e] border border-[#80506e] px-4 py-3 text-xs text-[#f9c2d6] shadow-2xl animate-bounce">
+          <Check size={16} className="text-[#35d797]" />
+          {notice}
         </div>
       )}
-
-      <CategoryChips categories={categories} />
-      <HeroSpotlight games={slides} />
-      <ContinuePlaying />
-      <GameGrid
-        title="Trending in Lobby"
-        icon="🔥"
-        games={trending}
-        href="/search"
-        priorityFirst
-        badge="hot"
-      />
-      <GameGrid
-        title="Fresh Releases"
-        icon="✨"
-        games={fresh}
-        href="/search"
-        leadFeatured={false}
-        badge="new"
-      />
-      {sections.map(({ category, games }) => (
-        <GameGrid
-          key={category.id}
-          title={category.name}
-          icon={category.icon}
-          games={games}
-          href={`/category/${category.slug}`}
-        />
-      ))}
-    </div>
-  );
+    </main>
+  )
 }

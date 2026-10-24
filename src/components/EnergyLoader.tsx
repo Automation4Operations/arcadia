@@ -1,8 +1,15 @@
 import type { CSSProperties } from "react";
 
-export default function EnergyLoader({ label = "Charging up" }: { label?: string }) {
+export default function EnergyLoader({
+  label = "Charging up",
+  launch = false,
+}: {
+  label?: string;
+  launch?: boolean;
+}) {
   return (
-    <div className="energy-loader" role="status" aria-live="polite">
+    <div className={"energy-loader" + (launch ? " launch" : "")} role="status" aria-live="polite">
+      {launch ? <div className="warp" aria-hidden /> : null}
       <div className="energy-stage">
         <div className="energy-aura" />
         <div className="energy-ring r1" />

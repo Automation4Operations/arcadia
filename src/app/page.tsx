@@ -99,10 +99,16 @@ export default async function HomePage() {
         <CategoryChips categories={categories} />
       </div>
 
-      {/* Hero with floating sparkles */}
-      <div className="relative">
+            {/* Hero with motion layer */}
+      <div className="hero-fx relative">
         <HeroSpotlight games={slides} />
-        <div className="sparkles" aria-hidden />
+        <div className="hero-fx-layer" aria-hidden>
+          <span className="orb orb-a" />
+          <span className="orb orb-b" />
+          <span className="orb orb-c" />
+          <span className="beam" />
+          <span className="sparkles" />
+        </div>
       </div>
 
       <ContinuePlaying />

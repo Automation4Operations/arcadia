@@ -10,7 +10,7 @@
   },
   "kv_namespaces": [
     {
-      "binding": "KV",
+      "binding": "NEXT_INC_CACHE_KV",
       "id": "7d00a53755904d53b5598a3fbe1d5fab"
     }
   ],

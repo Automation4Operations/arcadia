@@ -131,3 +131,149 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .hero-progress { animation-duration: 6s !important; }
 }
+
+/* =====================================================
+   NEW: v0-style motion pack (Tailwind 3 safe, pure CSS)
+   ===================================================== */
+
+/* Game card: lift, neon edge glow, light sweep, glyph pop */
+.card-fx {
+  position: relative;
+  isolation: isolate;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+  will-change: transform;
+}
+.card-fx:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(0,229,255,.55), 0 0 28px rgba(0,229,255,.25);
+}
+.card-fx::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.18) 50%, transparent 65%);
+  transform: translateX(-120%);
+}
+.card-fx:hover::after {
+  transform: translateX(120%);
+  transition: transform .8s ease;
+}
+.card-fx img { transition: transform .5s ease; }
+.card-fx:hover img { transform: scale(1.08); }
+
+/* "PLAY NOW" overlay that fades in on hover */
+.play-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0;
+  background: linear-gradient(180deg, rgba(9,11,16,.1), rgba(9,11,16,.8));
+  transition: opacity .25s ease;
+}
+.card-fx:hover .play-overlay,
+.card-fx:focus-within .play-overlay { opacity: 1; }
+.play-overlay .play-btn {
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: #090b10;
+  background: #00e5ff;
+  box-shadow: 0 0 28px rgba(0,229,255,.7);
+  transform: scale(.7);
+  transition: transform .25s ease;
+}
+.card-fx:hover .play-btn { transform: scale(1); }
+
+/* Staggered entrance for a grid: add class "stagger" to the grid */
+.stagger > * { animation: rise .55s cubic-bezier(.22,1,.36,1) both; }
+.stagger > *:nth-child(1) { animation-delay: .00s; }
+.stagger > *:nth-child(2) { animation-delay: .05s; }
+.stagger > *:nth-child(3) { animation-delay: .10s; }
+.stagger > *:nth-child(4) { animation-delay: .15s; }
+.stagger > *:nth-child(5) { animation-delay: .20s; }
+.stagger > *:nth-child(6) { animation-delay: .25s; }
+.stagger > *:nth-child(7) { animation-delay: .30s; }
+.stagger > *:nth-child(8) { animation-delay: .35s; }
+.stagger > *:nth-child(n+9) { animation-delay: .40s; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scroll reveal (no JS): sections fade up as they enter the screen */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+}
+
+/* Glitch headline: add "glitch" to a heading */
+.glitch { animation: glitch 5s steps(1) infinite; }
+@keyframes glitch {
+  0%, 88%, 100% { transform: translate(0); text-shadow: none; }
+  90% { transform: translate(-2px,1px); text-shadow: 3px 0 #00e5ff, -3px 0 #a855f7; }
+  92% { transform: translate(2px,-1px); text-shadow: -3px 0 #00e5ff, 3px 0 #a855f7; }
+}
+
+/* Floating + glowing pulse helpers */
+.float { animation: float 4.5s ease-in-out infinite; }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.pulse-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #ccff00;
+  box-shadow: 0 0 10px #ccff00;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: .7; box-shadow: 0 0 8px #ccff00; }
+  50% { opacity: 1; box-shadow: 0 0 18px #ccff00; }
+}
+
+/* Glowing call-to-action button */
+.btn-glow {
+  transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+  box-shadow: 0 8px 25px rgba(0,229,255,.25);
+}
+.btn-glow:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.12);
+  box-shadow: 0 10px 34px rgba(0,229,255,.45);
+}
+
+/* Floating sparkle particles: add <div class="sparkles"/> inside the hero */
+.sparkles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.sparkles::before, .sparkles::after {
+  content: "";
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #00e5ff;
+  top: 25%; left: 20%;
+  box-shadow: 90px 120px #a855f7, 260px 40px #ccff00, 420px 180px #00e5ff, 620px 90px #a855f7, 780px 200px #ccff00;
+  animation: particle 6s ease-in-out infinite;
+}
+.sparkles::after {
+  top: 55%; left: 10%;
+  animation-duration: 8s;
+  animation-delay: -3s;
+  animation-direction: reverse;
+}
+@keyframes particle {
+  0%, 100% { transform: translate3d(0,0,0) scale(.7); opacity: .25; }
+  50% { transform: translate3d(18px,-22px,0) scale(1.2); opacity: .9; }
+}

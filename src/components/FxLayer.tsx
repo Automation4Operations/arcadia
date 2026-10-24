@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import EnergyLoader from "./EnergyLoader";
 
+type Mode = "load" | "launch" | null;
+
 export default function FxLayer() {
-  const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<Mode>(null);
   const glow = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -14,10 +16,10 @@ export default function FxLayer() {
     const stop = () => {
       if (timer) clearInterval(timer);
       timer = undefined;
-      setBusy(false);
+      setMode(null);
     };
 
-    // Show the energy loader the instant an internal link is clicked
+    // Show the loader (or the launch warp for games) the instant a link is clicked
     const onClick = (e: MouseEvent) => {
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as HTMLElement | null)?.closest?.("a");
@@ -29,7 +31,7 @@ export default function FxLayer() {
       if (next === now || (url.hash && url.pathname === window.location.pathname)) return;
 
       target = next;
-      setBusy(true);
+      setMode(url.pathname.startsWith("/game/") ? "launch" : "load");
       if (timer) clearInterval(timer);
       const started = Date.now();
       timer = setInterval(() => {
@@ -48,7 +50,7 @@ export default function FxLayer() {
       setTimeout(() => b.remove(), 650);
     };
 
-    // Soft glow that follows the mouse (desktop only)
+    // Mouse glow + hero parallax (desktop only)
     let raf = 0;
     let x = 0;
     let y = 0;
@@ -56,12 +58,19 @@ export default function FxLayer() {
     const onMove = (e: PointerEvent) => {
       x = e.clientX;
       y = e.clientY;
-      if (!raf) {
-        raf = requestAnimationFrame(() => {
-          raf = 0;
-          if (glow.current) glow.current.style.transform = `translate3d(${x - 150}px, ${y - 150}px, 0)`;
-        });
-      }
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        if (glow.current) glow.current.style.transform = `translate3d(${x - 150}px, ${y - 150}px, 0)`;
+        const hero = document.querySelector<HTMLElement>(".hero-fx");
+        if (hero) {
+          const r = hero.getBoundingClientRect();
+          if (r.bottom > 0 && r.top < window.innerHeight) {
+            hero.style.setProperty("--px", ((x - r.left) / r.width - 0.5).toFixed(3));
+            hero.style.setProperty("--py", ((y - r.top) / r.height - 0.5).toFixed(3));
+          }
+        }
+      });
     };
 
     document.addEventListener("click", onClick);
@@ -79,7 +88,12 @@ export default function FxLayer() {
   return (
     <>
       <div ref={glow} className="cursor-glow" aria-hidden />
-      {busy && <EnergyLoader />}
+      {mode && (
+        <EnergyLoader
+          launch={mode === "launch"}
+          label={mode === "launch" ? "Launching game" : "Charging up"}
+        />
+      )}
     </>
   );
 }

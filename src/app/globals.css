@@ -747,3 +747,21 @@ nav[aria-label="Game categories"] a.bg-arcade::after { animation: chip-sheen 3.2
   .energy-loader .warp { display: none; }
   nav[aria-label="Game categories"] a, .hero-fx > :first-child { animation: none; }
 }
+/* honest hover badge (replaces the old LIVE PREVIEW text) */
+a.group[href^="/game/"]::before {
+  content: "▶ PLAY FREE";
+  color: #ccff00;
+  letter-spacing: .1em;
+}
+
+/* hover motion preview: slow camera pan over the thumbnail */
+.grid > a.group[href^="/game/"]:hover img {
+  animation: thumb-pan 5s ease-in-out infinite alternate;
+}
+@keyframes thumb-pan {
+  from { translate: 2.5% 1.5%; }
+  to   { translate: -2.5% -2%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grid > a.group[href^="/game/"]:hover img { animation: none; }
+}

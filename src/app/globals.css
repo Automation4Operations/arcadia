@@ -782,3 +782,38 @@ a.group[href^="/game/"]::before {
 @media (update: slow) {
   html::before, html::after { animation: none; }
 }
+/* =====================================================
+   GAME PLAYER: loading screen + glowing frame
+   ===================================================== */
+.player-loading {
+  position: absolute; inset: 0; z-index: 10;
+  display: grid; place-items: center;
+  background:
+    linear-gradient(rgba(9,11,16,.78), rgba(9,11,16,.92)),
+    var(--thumb, none) center / cover no-repeat,
+    #090b10;
+  transition: opacity .5s ease, visibility 0s linear .5s;
+}
+.player-loading.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+.player-loading.is-done * { animation-play-state: paused !important; }
+.player-loading-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 16px; text-align: center; }
+.player-loading .energy-stage { width: 150px; height: 150px; }
+.player-loading .energy-core  { width: 80px; height: 80px; }
+.player-loading .energy-label {
+  max-width: 80vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  letter-spacing: .22em; font-size: 12px;
+}
+.player-loading .energy-p { animation-name: p-spiral-sm; }
+@keyframes p-spiral-sm {
+  from { transform: rotate(var(--a)) translateX(76px) scale(.5); opacity: 0; }
+  25%  { opacity: 1; }
+  to   { transform: rotate(calc(var(--a) + 220deg)) translateX(10px) scale(.15); opacity: 0; }
+}
+
+/* the frame around the game breathes with neon light */
+.player-frame { animation: frame-breathe 4s ease-in-out infinite; }
+@keyframes frame-breathe {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0,229,255,.3), 0 0 26px rgba(0,229,255,.14), 0 20px 60px rgba(0,0,0,.6); }
+  50%      { box-shadow: 0 0 0 1px rgba(168,85,247,.45), 0 0 38px rgba(168,85,247,.22), 0 20px 60px rgba(0,0,0,.6); }
+}
+@media (prefers-reduced-motion: reduce) { .player-frame { animation: none; } }

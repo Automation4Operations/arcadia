@@ -6,7 +6,14 @@ import { getAllCategories, searchGames } from "@/lib/queries";
 import { CATEGORY_CONTENT } from "@/lib/categoryContent";
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
+export function generateStaticParams() {
+  return [
+    "shooting", "driving", "action", "stickman", "io", "puzzle",
+    "arcade", "adventure", "simulation", "sports", "board", "clicker",
+  ].map((slug) => ({ slug }));
+}
 type Params = { params: Promise<{ slug: string }> };
 
 async function load(slug: string) {

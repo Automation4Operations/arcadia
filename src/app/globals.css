@@ -567,3 +567,90 @@ footer::before {
   .energy-core .swirl, .energy-ring, .energy-p, .energy-aura, .click-burst, .cursor-glow { animation-duration: 3s !important; }
   html { scroll-behavior: auto; }
 }
+/* =====================================================
+   LIVING BACKGROUND + AMBIENT CARD GLOW
+   ===================================================== */
+
+/* twinkling stars that drift down forever (GPU transform, seamless loop) */
+html::before {
+  content: "";
+  position: fixed; top: -260px; left: 0; right: 0; bottom: 0;
+  z-index: -1; pointer-events: none;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20px 30px,  #ffffff, transparent),
+    radial-gradient(1px 1px at 90px 120px,     #9bf3ff, transparent),
+    radial-gradient(2px 2px at 160px 60px,     #d8b4fe, transparent),
+    radial-gradient(1px 1px at 230px 180px,    #ffffff, transparent),
+    radial-gradient(1.5px 1.5px at 300px 90px, #ccff00, transparent),
+    radial-gradient(1px 1px at 60px 220px,     #9bf3ff, transparent),
+    radial-gradient(1.5px 1.5px at 190px 240px,#d8b4fe, transparent);
+  background-size: 340px 260px;
+  animation: stars-drift 22s linear infinite, stars-twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes stars-drift   { to { transform: translateY(260px); } }
+@keyframes stars-twinkle { from { opacity: .25; } to { opacity: .75; } }
+
+/* slow rotating light sweep */
+html::after {
+  content: "";
+  position: fixed; left: 50%; top: 50%;
+  width: 160vmax; height: 160vmax; margin: -80vmax 0 0 -80vmax;
+  z-index: -1; pointer-events: none;
+  background: conic-gradient(from 0deg,
+    transparent 0deg, rgba(0,229,255,.08) 40deg, transparent 85deg,
+    transparent 180deg, rgba(168,85,247,.09) 230deg, transparent 285deg);
+  animation: bg-sweep 55s linear infinite;
+}
+@keyframes bg-sweep { to { transform: rotate(360deg); } }
+
+/* every game card: breathing neon glow, staggered so they don't pulse together */
+.grid > a.group[href^="/game/"] {
+  --d: 0s;
+  animation: card-idle 4.5s ease-in-out infinite;
+  animation-delay: var(--d);
+}
+.grid > a.group[href^="/game/"]:nth-child(2n) { --d: -.9s; }
+.grid > a.group[href^="/game/"]:nth-child(3n) { --d: -1.8s; }
+.grid > a.group[href^="/game/"]:nth-child(5n) { --d: -2.7s; }
+.grid > a.group[href^="/game/"]:nth-child(7n) { --d: -3.6s; }
+@keyframes card-idle {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0,229,255,.28), 0 0 14px rgba(0,229,255,.16); }
+  50%      { box-shadow: 0 0 0 1px rgba(168,85,247,.42), 0 0 26px rgba(168,85,247,.30); }
+}
+.grid > a.group[href^="/game/"]:hover { animation: none; }
+
+/* cards rise in as they scroll into view (uses translate/scale so it never fights the 3D tilt) */
+@keyframes card-in {
+  from { opacity: 0; translate: 0 26px; scale: .95; }
+  to   { opacity: 1; translate: 0 0;    scale: 1; }
+}
+@supports (animation-timeline: view()) {
+  .grid > a.group[href^="/game/"] {
+    animation: card-in linear both, card-idle 4.5s ease-in-out infinite;
+    animation-timeline: view(), auto;
+    animation-range: entry 0% entry 45%, normal;
+    animation-delay: 0s, var(--d);
+  }
+  .grid > a.group[href^="/game/"]:hover { animation: none; }
+}
+
+/* animated neon underline under every section title */
+main section h2::after {
+  content: "";
+  display: block; height: 3px; width: 46px; margin-top: 6px; border-radius: 99px;
+  background: linear-gradient(90deg, #00e5ff, #ccff00, #a855f7, #00e5ff);
+  background-size: 200% 100%;
+  animation: bar-shimmer 3s linear infinite;
+}
+@keyframes bar-shimmer { to { background-position: 200% 0; } }
+
+/* keep phones fast: lighter background, no idle card glow */
+@media (max-width: 767px) {
+  html::after { display: none; }
+  html::before { opacity: .4; }
+  .grid > a.group[href^="/game/"] { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html::before, html::after { animation: none; }
+  .grid > a.group[href^="/game/"] { animation: none; }
+}

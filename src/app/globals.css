@@ -765,3 +765,20 @@ a.group[href^="/game/"]::before {
 @media (prefers-reduced-motion: reduce) {
   .grid > a.group[href^="/game/"]:hover img { animation: none; }
 }
+/* =====================================================
+   SPEED: skip rendering off-screen cards
+   ===================================================== */
+.grid > a.group[href^="/game/"]:not(.col-span-2) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+
+/* GPU hints only where motion actually happens */
+.cursor-glow, .energy-loader, .hero-fx-layer .orb {
+  will-change: transform;
+}
+
+/* never run heavy idle effects while the tab is in the background */
+@media (update: slow) {
+  html::before, html::after { animation: none; }
+}

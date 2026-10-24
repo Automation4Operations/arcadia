@@ -358,3 +358,74 @@ html, body {
   .hero-fx-layer { display: none; }
   .hero-fx img, .hero-fx a[href^="/game/"] { animation: none; }
 }
+/* ===== Speed: no tap delay + instant press feedback ===== */
+a, button, [role="button"], input, select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+a:active, button:active { transform: scale(.96); transition: transform 60ms ease-out; }
+
+/* ===== Loading skeleton + top progress bar ===== */
+.skeleton {
+  background: linear-gradient(100deg, #121621 30%, #1c2335 50%, #121621 70%);
+  background-size: 250% 100%;
+  animation: skeleton-shimmer 1.1s linear infinite;
+}
+@keyframes skeleton-shimmer { to { background-position: -250% 0; } }
+.nav-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 101;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, #00e5ff, #ccff00, #a855f7);
+  box-shadow: 0 0 12px #00e5ff;
+  animation: nav-load 1.4s cubic-bezier(.1,.7,.2,1) forwards;
+}
+@keyframes nav-load { from { transform: scaleX(0); } to { transform: scaleX(.88); } }
+
+/* ===== Scroll progress bar (CSS only) ===== */
+@supports (animation-timeline: scroll()) {
+  body::before {
+    content: ""; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100;
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, #00e5ff, #ccff00, #a855f7);
+    animation: scroll-bar linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@keyframes scroll-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ===== Menu, chips and header buttons: lift + glow ===== */
+header a, header button {
+  transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease;
+}
+header a:hover, header button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,229,255,.28);
+}
+a[href^="/category/"], a[href^="/collection/"] {
+  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+}
+a[href^="/category/"]:hover, a[href^="/collection/"]:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 22px rgba(204,255,0,.3);
+}
+
+/* ===== Hero: spinning neon border ===== */
+@property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.hero-fx::before {
+  content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  border-radius: 2rem; padding: 2px;
+  background: conic-gradient(from var(--ang), #00e5ff, #a855f7, #ccff00, #00e5ff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-ang 6s linear infinite;
+}
+@keyframes spin-ang { to { --ang: 360deg; } }
+
+/* ===== Lighter effects on phones (keeps them fast) ===== */
+@media (max-width: 767px), (hover: none) {
+  .aurora::before, .aurora::after { filter: blur(70px); }
+  .hero-fx-layer .orb { filter: blur(50px); }
+  .hero-fx-layer .orb-c, .hero-fx .sparkles::after { display: none; }
+  .hero-fx::before { animation: none; }
+}

@@ -116,6 +116,7 @@ export default function GameCard({ game, featured = false, priority = false, bad
     return (
       <Link
         href={"/game/" + game.slug}
+           prefetch={false}
         onMouseMove={onMove}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
@@ -153,6 +154,7 @@ export default function GameCard({ game, featured = false, priority = false, bad
   return (
     <Link
       href={"/game/" + game.slug}
+      prefetch={false}
       onMouseMove={onMove}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}

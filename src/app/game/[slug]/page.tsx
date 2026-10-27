@@ -8,7 +8,7 @@ import { getGameBySlug } from "@/lib/queries";
 import { getGameVotes, getMoreLikeThis } from "@/lib/gamePage";
 import { formatCount } from "@/lib/format";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

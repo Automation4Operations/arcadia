@@ -12,7 +12,7 @@ import {
 } from "@/lib/queries";
 import { getPublishedGameCount, roundedGameLabel } from "@/lib/stats";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const SITE = "https://arcadiagames.app";
 

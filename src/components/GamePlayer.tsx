@@ -285,7 +285,7 @@ export default function GamePlayer(props: Props) {
             title={title}
             onLoad={() => setLoaded(true)}
             className="h-full w-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gamepad; gyroscope; picture-in-picture; pointer-lock; web-share"
+            allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; picture-in-picture *; pointer-lock *; web-share *; xr-spatial-tracking *"
             allowFullScreen
             referrerPolicy="no-referrer-when-downgrade"
           />

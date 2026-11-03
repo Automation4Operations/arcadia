@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const url = `${SITE}/game/${game.slug}`;
   const title = `${game.title} - Play Free Online`;
     const description = shortText(
-    `Play ${game.title} free in your browser – no download, no sign-up. ${cleanText(game.description)}`,
+    `Play ${game.title} free in your browser – no download or sign-up needed. ${cleanText(game.description)}`,
     158
   );
 

@@ -18,6 +18,16 @@ const SITE = "https://arcadiagames.app";
 
 type Params = { params: Promise<{ slug: string }> };
 
+function cleanText(text: string | null | undefined) {
+  return (text ?? "")
+    .replace(/&rsquo;|&lsquo;|&#39;/g, "'")
+    .replace(/&ldquo;|&rdquo;|&quot;/g, '"')
+    .replace(/&mdash;/g, "—")
+    .replace(/&ndash;/g, "–")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&");
+}
+
 function shortText(text: string | null | undefined, max = 155) {
   const t = (text ?? "").replace(/\s+/g, " ").trim();
   return t.length > max ? t.slice(0, max - 1).trimEnd() + "…" : t;
@@ -30,8 +40,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
   const url = `${SITE}/game/${game.slug}`;
   const title = `${game.title} - Play Free Online`;
-  const description =
-    shortText(game.description) || `Play ${game.title} free online on Arcadia Games. No download needed.`;
+    const description = shortText(
+    `Play ${game.title} free in your browser – no download, no sign-up. ${cleanText(game.description)}`,
+    158
+  );
 
   return {
     title,
@@ -150,7 +162,7 @@ export default async function GamePage({ params }: Params) {
                 by {game.developer}
               </span>
             )}
-            {game.playCount > 0 && (
+                        {game.playCount >= 50 && (
               <span className="rounded-full bg-panel px-3 py-1 text-mute ring-1 ring-edge">
                 ▶ {formatCount(game.playCount)} plays
               </span>

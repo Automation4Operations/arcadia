@@ -16,6 +16,7 @@ export default function MoreLikeThis({ games }: { games: MoreGame[] }) {
         {games.map((g) => (
           <Link
             key={g.id}
+            prefetch={false}
             href={`/game/${g.slug}`}
             className="group flex flex-col gap-2 rounded-xl p-1.5 ring-1 ring-transparent transition hover:bg-panel hover:ring-edge lg:flex-row lg:items-center lg:gap-3"
           >
@@ -37,7 +38,7 @@ export default function MoreLikeThis({ games }: { games: MoreGame[] }) {
               </p>
               <p className="mt-0.5 text-[11px] text-mute">
                 {g.category.name}
-                {g.playCount > 0 ? ` · ${formatCount(g.playCount)} plays` : ""}
+                {g.playCount >= 50 ? ` · ${formatCount(g.playCount)} plays` : ""}
               </p>
             </div>
           </Link>

@@ -132,7 +132,7 @@ export default async function HomePage() {
           </div>
           <GameGrid games={section.games} />
         </section>
-      )}
+      )})
     </main>
   );
 }

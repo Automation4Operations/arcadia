@@ -79,10 +79,12 @@ export default async function HomePage() {
   };
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-10">
+    <main className="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 lg:px-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       {slides.length > 0 && <HeroSpotlight slides={slides} />}
@@ -132,7 +134,7 @@ export default async function HomePage() {
           </div>
           <GameGrid games={section.games} />
         </section>
-      )})
+      ))}
     </main>
   );
 }

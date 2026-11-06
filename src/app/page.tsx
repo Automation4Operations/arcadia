@@ -87,7 +87,7 @@ export default async function HomePage() {
         }}
       />
 
-      {slides.length > 0 && <HeroSpotlight slides={slides} />}
+      {slides.length > 0 && <HeroSpotlight games={slides} />}
 
       <CategoryChips categories={categories} />
 
@@ -106,7 +106,7 @@ export default async function HomePage() {
               View all ({total}+) →
             </Link>
           </div>
-          <GameGrid games={trending} />
+          <GameGrid title="Trending Now" games={trending} />
         </section>
       )}
 
@@ -115,7 +115,7 @@ export default async function HomePage() {
           <h2 className="text-xl font-bold tracking-tight text-white">
             ✨ New Releases
           </h2>
-          <GameGrid games={fresh} />
+          <GameGrid title="New Releases" games={fresh} />
         </section>
       )}
 
@@ -132,7 +132,7 @@ export default async function HomePage() {
               More {section.category.name} →
             </Link>
           </div>
-          <GameGrid games={section.games} />
+          <GameGrid title={section.category.name} games={section.games} />
         </section>
       ))}
     </main>

@@ -12,6 +12,14 @@ export type Collection = {
 
 export const COLLECTIONS: Collection[] = [
   {
+    slug: "sort-puzzle",
+    name: "Sort Puzzles",
+    icon: "🧪",
+    seoName: "Sort Puzzle Games",
+    intro:
+      "Calm, satisfying puzzles where you sort colors, fish, cakes, cars and liquids into the right place. Each level takes a minute or two, so they are perfect for a short break. All sort games play free in your browser on phone or PC, with no download.",
+  },
+  {
     slug: "3d",
     name: "3D Games",
     icon: "🧊",

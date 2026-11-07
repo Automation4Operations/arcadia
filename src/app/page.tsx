@@ -95,18 +95,10 @@ export default async function HomePage() {
 
       {trending.length > 0 && (
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight text-white">
-              🔥 Trending Now
-            </h2>
-            <Link
-              href="/games"
-              className="text-sm font-medium text-cyan-400 hover:text-cyan-300"
-            >
-              View all ({total}+) →
-            </Link>
-          </div>
-          <GameGrid title="Trending Now" games={trending} />
+          <h2 className="text-xl font-bold tracking-tight text-white">
+            ⭐ Top Picks
+          </h2>
+          <GameGrid title="Top Picks" games={trending} />
         </section>
       )}
 

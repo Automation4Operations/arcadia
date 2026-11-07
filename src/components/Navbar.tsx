@@ -219,6 +219,17 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               <span>🎲</span>
               <span className="hidden sm:inline">Random</span>
             </a>
+
+            <a
+              href="/api/random?mode=quick"
+              rel="nofollow"
+              aria-label="Quick Break: a random quick casual game"
+              title="Quick Break: a short puzzle or arcade game"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:scale-105 hover:ring-sun hover:text-sun active:scale-95"
+            >
+              <span>☕</span>
+              <span className="hidden lg:inline">Quick Break</span>
+            </a>
             <Link
               href="/collection/3d"
               className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-pink-500/20 px-3 py-2 text-xs font-extrabold text-sun ring-1 ring-sun/40 transition-all hover:scale-105 hover:ring-sun"

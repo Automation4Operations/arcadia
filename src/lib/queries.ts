@@ -103,7 +103,9 @@ export async function getTrending(take = 15): Promise<GameCardData[]> {
     await getSupabase()
       .from("games").select(CARD_COLUMNS)
       .eq("is_published", true)
+      .order("is_featured", { ascending: false })
       .order("play_count", { ascending: false })
+      .order("title", { ascending: true })
       .limit(take),
   );
   return rows.map(toCard);

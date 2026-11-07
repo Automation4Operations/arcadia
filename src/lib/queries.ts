@@ -134,6 +134,7 @@ export async function getGameBySlug(slug: string) {
     title: r.title as string,
     description: r.description as string,
     instructions: (r.instructions as string | null) ?? null,
+    seoTitle: (r.seo_title as string | null) ?? null,
     developer: (r.developer as string | null) ?? null,
     thumbnailUrl: r.thumbnail_url as string,
     iframeUrl: r.iframe_url as string,

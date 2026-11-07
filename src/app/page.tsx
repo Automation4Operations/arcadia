@@ -5,7 +5,7 @@ import ContinuePlaying from "@/components/ContinuePlaying";
 import GameGrid from "@/components/GameGrid";
 import HeroSpotlight from "@/components/HeroSpotlight";
 import {
- getNavCategories(),
+  getNavCategories,
   getCategorySections,
   getHeroSlides,
   getNewReleases,

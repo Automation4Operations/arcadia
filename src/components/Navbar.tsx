@@ -200,6 +200,15 @@ function NavbarInner({ categories = [] }: NavbarProps) {
 
           {/* Right: quick action buttons */}
           <div className="flex items-center gap-2">
+            <a
+              href="/api/random"
+              rel="nofollow"
+              aria-label="Play a random game"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-arcade px-3 py-2 text-xs font-extrabold text-ink ring-1 ring-arcade transition-all hover:scale-105 hover:brightness-110 active:scale-95"
+            >
+              <span>🎲</span>
+              <span className="hidden sm:inline">Random</span>
+            </a>
             <Link
               href="/collection/3d"
               className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-pink-500/20 px-3 py-2 text-xs font-extrabold text-sun ring-1 ring-sun/40 transition-all hover:scale-105 hover:ring-sun"

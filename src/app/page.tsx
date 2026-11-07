@@ -93,6 +93,36 @@ export default async function HomePage() {
 
       <ContinuePlaying />
 
+      {/* "Not sure what to play?" banner */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-arcade/25 via-panel to-sun/20 p-6 ring-1 ring-edge sm:p-8">
+        <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="font-display text-2xl font-black text-fg sm:text-3xl">
+              Not sure what to play?
+            </h2>
+            <p className="mt-1 text-sm text-mute">
+              Let us pick a game for you. One click, no download.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href="/api/random"
+              rel="nofollow"
+              className="inline-flex items-center gap-2 rounded-2xl bg-arcade px-5 py-3 text-sm font-extrabold text-ink shadow-lg transition-all hover:scale-105 hover:brightness-110 active:scale-95"
+            >
+              🎲 Surprise me
+            </a>
+            <a
+              href="/api/random?mode=quick"
+              rel="nofollow"
+              className="inline-flex items-center gap-2 rounded-2xl bg-panel px-5 py-3 text-sm font-extrabold text-fg ring-1 ring-edge transition-all hover:scale-105 hover:ring-sun hover:text-sun active:scale-95"
+            >
+              ☕ Quick 5-minute game
+            </a>
+          </div>
+        </div>
+      </section>
+
       {trending.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-bold tracking-tight text-white">

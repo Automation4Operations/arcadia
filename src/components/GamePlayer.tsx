@@ -112,6 +112,22 @@ export default function GamePlayer(props: Props) {
     };
   }, [theater, pseudoFs]);
 
+  /* While a game is running, arrow keys and space control the game, not the page */
+  useEffect(() => {
+    if (!started) return;
+    const keys = [" ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+    const onKey = (e: KeyboardEvent) => {
+      if (!keys.includes(e.key)) return;
+      const el = document.activeElement as HTMLElement | null;
+      const tag = el?.tagName;
+      // Let people type normally in the comment box and search
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el?.isContentEditable) return;
+      e.preventDefault();
+    };
+    window.addEventListener("keydown", onKey, { passive: false });
+    return () => window.removeEventListener("keydown", onKey);
+  }, [started]);
+
   /* Safety: hide the loader after 10s even if the game never reports "loaded" */
   useEffect(() => {
     if (!started || loaded) return;
@@ -283,7 +299,13 @@ export default function GamePlayer(props: Props) {
             key={iframeKey}
             src={finalIframeUrl}
             title={title}
-            onLoad={() => setLoaded(true)}
+                        onLoad={(e) => {
+              setLoaded(true);
+              // Give the keyboard to the game right away
+              try {
+                e.currentTarget.focus({ preventScroll: true });
+              } catch {}
+            }}
             className="h-full w-full border-0"
             allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; picture-in-picture *; pointer-lock *; web-share *; xr-spatial-tracking *"
             allowFullScreen

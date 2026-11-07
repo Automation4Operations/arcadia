@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, Suspense } from "react";
 import VaultDrawer from "./VaultDrawer";
+import { readRecent } from "@/lib/recent";
 import ArcadiaLogo from "./ArcadiaLogo";
 
 export type CategoryItem = {
@@ -38,6 +39,15 @@ function NavbarInner({ categories = [] }: NavbarProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggest, setShowSuggest] = useState(false);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const [recentCount, setRecentCount] = useState(0);
+
+  // How many games this device has played (for the badge)
+  useEffect(() => {
+    const update = () => setRecentCount(readRecent().length);
+    update();
+    window.addEventListener("arcadia:recent-updated", update);
+    return () => window.removeEventListener("arcadia:recent-updated", update);
+  }, []);
 
   // Listen to the bottom navigation bar (phones)
   useEffect(() => {
@@ -223,7 +233,14 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               className="group hidden md:flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:bg-arcade hover:text-ink hover:ring-arcade cursor-pointer"
             >
               <span>⚡</span>
-              <span>My Vault</span>
+              <span>🕹️</span>
+              <span className="xl:hidden">Recent</span>
+              <span className="hidden xl:inline">Recently Played</span>
+              {recentCount > 0 && (
+                <span className="rounded-full bg-arcade px-1.5 text-[10px] font-black text-ink group-hover:bg-ink group-hover:text-arcade">
+                  {recentCount}
+                </span>
+              )}
             </button>
 
             <Link

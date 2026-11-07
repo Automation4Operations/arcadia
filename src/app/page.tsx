@@ -51,7 +51,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const [categories, slides, trending, fresh, sections, total] = await Promise.all([
-    getAllCategories(),
+    getNavCategories(),
     getHeroSlides(),
     getTrending(13),
     getNewReleases(12),

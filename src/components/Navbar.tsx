@@ -144,7 +144,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-edge/80 bg-ink/95 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-ink/70 backdrop-blur-xl backdrop-saturate-150 shadow-lg shadow-black/30">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
           {/* Left: Category menu button + brand logo */}
           <div className="flex items-center gap-3">

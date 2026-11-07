@@ -22,7 +22,7 @@ export default function VaultDrawer({ open, onClose }: { open: boolean; onClose:
     <div className="fixed inset-0 z-50 flex justify-end bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative flex h-full w-full max-w-md flex-col border-l border-edge bg-panel p-6 text-fg shadow-2xl">
         <div className="flex items-center justify-between border-b border-edge pb-4">
-          <h2 className="font-display text-lg font-extrabold text-fg">⚡ My Vault — Recently Played</h2>
+          <h2 className="font-display text-lg font-extrabold text-fg">🕹️ Recently Played</h2>
           <button
             type="button"
             onClick={onClose}

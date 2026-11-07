@@ -20,6 +20,7 @@ export type CategoryItem = {
   slug: string;
   name: string;
   icon: string | null;
+  showInNav?: boolean;
 };
 
 const CARD_COLUMNS =
@@ -56,9 +57,20 @@ function check<T>(res: { data: T | null; error: { message: string } | null }): T
 
 export async function getAllCategories(): Promise<CategoryItem[]> {
   const rows = check(
-    await getSupabase().from("categories").select("id,slug,name,icon").order("sort_order"),
+    await getSupabase().from("categories").select("id,slug,name,icon,show_in_nav").order("sort_order"),
   );
-  return rows as CategoryItem[];
+  return (rows as any[]).map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    name: r.name,
+    icon: r.icon,
+    showInNav: r.show_in_nav !== false,
+  }));
+}
+
+// Only the categories that should appear in menus, chips and homepage rows
+export async function getNavCategories(): Promise<CategoryItem[]> {
+  return (await getAllCategories()).filter((c) => c.showInNav !== false);
 }
 
 export async function getFeaturedHero() {
@@ -111,7 +123,7 @@ export async function getNewReleases(take = 12): Promise<GameCardData[]> {
 
 export async function getCategorySections(categoryCount = 13, perCategory = 11) {
   const db = getSupabase();
-  const categories = await getAllCategories();
+  const categories = await getNavCategories();
   return Promise.all(
     categories.slice(0, categoryCount).map(async (category) => {
       const rows = check(

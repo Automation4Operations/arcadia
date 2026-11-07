@@ -11,6 +11,8 @@ export type GameCardData = {
   ratingAvg: number;
   isFeatured?: boolean;
   category: { name: string; slug: string };
+  badge?: "new" | "top";
+  is3d?: boolean;
 };
 
 export type CategoryItem = {
@@ -21,7 +23,7 @@ export type CategoryItem = {
 };
 
 const CARD_COLUMNS =
-  "id,slug,title,description,thumbnail_url,iframe_url,play_count,rating_avg,is_featured,category:categories(name,slug)";
+  "id,slug,title,description,thumbnail_url,iframe_url,play_count,rating_avg,is_featured,created_at,category:categories(name,slug),tags:game_tags(tag:tags(slug))";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function toCard(r: any): GameCardData {
@@ -37,6 +39,13 @@ function toCard(r: any): GameCardData {
     ratingAvg: r.rating_avg,
     isFeatured: Boolean(r.is_featured),
     category: { name: cat?.name ?? "", slug: cat?.slug ?? "" },
+    // Badges from real data only
+    badge: r.is_featured
+      ? "top"
+      : r.created_at && Date.now() - new Date(r.created_at).getTime() < 14 * 24 * 60 * 60 * 1000
+        ? "new"
+        : undefined,
+    is3d: (r.tags ?? []).some((t: any) => (Array.isArray(t.tag) ? t.tag[0]?.slug : t.tag?.slug) === "3d"),
   };
 }
 

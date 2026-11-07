@@ -117,6 +117,12 @@ function NavbarInner({ categories = [] }: NavbarProps) {
 
   const close = () => setSidebarOpen(false);
 
+  const pillClass = (active: boolean) =>
+    "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-extrabold whitespace-nowrap ring-1 transition-all " +
+    (active
+      ? "bg-arcade text-ink ring-arcade"
+      : "bg-panel/70 text-mute ring-edge hover:text-fg hover:ring-arcade/60");
+
   const itemClass = (active: boolean) =>
     "group flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all " +
     (active
@@ -270,6 +276,37 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             </Link>
           </div>
         </div>
+        {/* Category pill bar (swipe sideways on phones) */}
+        <nav aria-label="Game categories" className="border-t border-white/5">
+          <div className="no-scrollbar mx-auto flex max-w-[1440px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6">
+            <Link href="/" prefetch={false} className={pillClass(pathname === "/")}>
+              <span>🏠</span>
+              <span>All</span>
+            </Link>
+            {categories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/category/${encodeURIComponent(cat.slug)}`}
+                prefetch={false}
+                className={pillClass(activeCat === cat.slug)}
+              >
+                <span>{cat.icon || "🎮"}</span>
+                <span>{cat.name}</span>
+              </Link>
+            ))}
+            {COLLECTIONS.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/collection/${c.slug}`}
+                prefetch={false}
+                className={pillClass(activeTag === c.slug)}
+              >
+                <span>{c.icon}</span>
+                <span>{c.name}</span>
+              </Link>
+            ))}
+          </div>
+        </nav>
       </header>
 
       {/* Slide-out category drawer */}

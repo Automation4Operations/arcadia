@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import FxLayer from "@/components/FxLayer";
-import { getAllCategories } from "@/lib/queries";
+import { getNavCategories } from "@/lib/queries";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display" });
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const categories = await getAllCategories().catch(() => []);
+  const categories = await getNavCategories().catch(() => []);
 
   return (
     <html lang="en" className={display.variable + " " + body.variable}>

@@ -21,6 +21,7 @@ type NavbarProps = {
 type Suggestion = { slug: string; title: string; thumbnailUrl: string };
 
 const COLLECTIONS = [
+  { slug: "sort-puzzle", name: "Sort Puzzles", icon: "🧪" },
   { slug: "3d", name: "3D Games", icon: "🧊" },
   { slug: "2-player", name: "2 Player", icon: "👥" },
   { slug: "multiplayer", name: "Multiplayer", icon: "🌍" },

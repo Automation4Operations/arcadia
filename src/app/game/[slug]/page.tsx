@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!game) return { title: "Game not found", robots: { index: false } };
 
   const url = `${SITE}/game/${game.slug}`;
-  const title = `${game.title} - Play Free Online`;
+  const title = game.seoTitle || `${game.title} - Play Free Online`;
     const description = shortText(
     `Play ${game.title} free in your browser – no download or sign-up needed. ${cleanText(game.description)}`,
     158

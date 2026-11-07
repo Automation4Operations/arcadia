@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { formatCount } from "@/lib/format";
 import { readRecent } from "@/lib/recent";
 
+type BadgeType = "hot" | "new" | "top";
+
 export type GameCardProps = {
   game: {
     slug: string;
@@ -16,19 +18,29 @@ export type GameCardProps = {
     playCount?: number;
     ratingAvg?: number;
     category?: { name: string } | null;
+    badge?: BadgeType;
+    is3d?: boolean;
   };
   featured?: boolean;
   priority?: boolean;
-  badge?: "hot" | "new";
+  badge?: BadgeType;
 };
 
-const BADGE_STYLE = {
+const BADGE_STYLE: Record<BadgeType, string> = {
   hot: "bg-gradient-to-r from-orange-500 to-red-500",
   new: "bg-gradient-to-r from-cyan-500 to-blue-500",
+  top: "bg-gradient-to-r from-amber-400 to-orange-500",
+};
+
+const BADGE_LABEL: Record<BadgeType, string> = {
+  hot: "🔥 Hot",
+  new: "✨ New",
+  top: "⭐ Top Pick",
 };
 
 export default function GameCard({ game, featured = false, priority = false, badge }: GameCardProps) {
   const [played, setPlayed] = useState(false);
+  const shownBadge = game.badge ?? badge;
 
   // Real data: has this device played this game before?
   useEffect(() => {
@@ -69,13 +81,21 @@ export default function GameCard({ game, featured = false, priority = false, bad
           </span>
         </span>
 
-        {badge && (
-          <span
-            className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-md ${BADGE_STYLE[badge]}`}
-          >
-            {badge === "hot" ? "🔥 Hot" : "✨ New"}
-          </span>
-        )}
+        {/* Badges (top-left) */}
+        <div className="absolute left-2 top-2 flex gap-1">
+          {shownBadge && (
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-md ${BADGE_STYLE[shownBadge]}`}
+            >
+              {BADGE_LABEL[shownBadge]}
+            </span>
+          )}
+          {game.is3d && (
+            <span className="rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-black text-sky-300 ring-1 ring-sky-400/40 backdrop-blur-sm">
+              3D
+            </span>
+          )}
+        </div>
 
         {played && (
           <span className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-400/40 backdrop-blur-sm">

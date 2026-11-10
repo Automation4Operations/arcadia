@@ -164,7 +164,7 @@ export default async function GamePage({ params }: Params) {
             )}
                         {game.playCount >= 50 && (
               <span className="rounded-full bg-panel px-3 py-1 text-mute ring-1 ring-edge">
-                ▶ {formatCount(game.playCount)} plays
+                ▶ {formatCount(game.playCount)} {game.playCount === 1 ? "play" : "plays"}
               </span>
             )}
             {votes.likeCount > 0 && (

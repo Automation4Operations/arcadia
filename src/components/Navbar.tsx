@@ -231,14 +231,9 @@ function NavbarInner({ categories = [] }: NavbarProps) {
           </div>
 
           {/* Center: search bar with suggestions (computers and tablets) */}
-          <form
-            onSubmit={onSearch}
-            className="hidden md:flex flex-1 min-w-[200px] lg:min-w-[300px] max-w-xl mx-4"
-            role="search"
-          >
+          <form onSubmit={onSearch} className="hidden md:flex flex-1 min-w-[200px] lg:min-w-[300px] max-w-xl mx-4" role="search">
             <div className="relative flex w-full items-center">
               <input
-                ref={desktopSearchRef}
                 type="search"
                 value={q}
                 onChange={(e) => {
@@ -246,6 +241,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                   setShowSuggest(true);
                 }}
                 onFocus={() => setShowSuggest(true)}
+                ref={desktopSearchRef}
                 onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
                 placeholder="Search games...  (press /)"
                 aria-label="Search games"
@@ -324,8 +320,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             </Link>
           </div>
         </div>
-
-        {/* Category pill bar (swipe sideways on phones, arrows on computers) */}
+        {/* Category pill bar (swipe sideways on phones) */}
         <nav aria-label="Game categories" className="relative border-t border-white/5">
           {canLeft && (
             <>
@@ -359,10 +354,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               </button>
             </>
           )}
-          <div
-            ref={pillRef}
-            className="no-scrollbar flex items-center gap-2 overflow-x-auto scroll-smooth px-4 py-2 sm:px-6 min-[1440px]:px-[calc((100%-1440px)/2+1.5rem)]"
-          >
+          <div ref={pillRef} className="no-scrollbar flex items-center gap-2 overflow-x-auto scroll-smooth px-4 py-2 sm:px-6 min-[1440px]:px-[calc((100%-1440px)/2+1.5rem)]">
             <Link href="/" prefetch={false} className={pillClass(pathname === "/")}>
               <span>🏠</span>
               <span>All</span>

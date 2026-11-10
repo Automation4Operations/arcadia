@@ -10,6 +10,8 @@ type Props = {
   leadFeatured?: boolean;
   priorityFirst?: boolean;
   badge?: "hot" | "new";
+  moreLabel?: string;
+  bento?: boolean;
 };
 
 export default function GameGrid({
@@ -20,8 +22,14 @@ export default function GameGrid({
   leadFeatured = true,
   priorityFirst = false,
   badge,
+  moreLabel,
+  bento = false,
 }: Props) {
   if (games.length === 0) return null;
+
+  // Bento: 1 wide hero card + 6 normal cards fills 2/3/4-column grids with no gaps
+  const useBento = bento && games.length >= 7;
+  const shown = useBento ? games.slice(0, 7) : games;
 
   return (
     <section aria-labelledby={"grid-" + title} className="fade-up mt-10">
@@ -47,18 +55,19 @@ export default function GameGrid({
             href={href}
             className="inline-flex items-center gap-1 rounded-xl bg-panel px-3.5 py-1.5 text-xs font-bold text-arcade-soft ring-1 ring-edge transition hover:bg-arcade hover:text-ink"
           >
-            <span>Explore All</span>
+            <span>{moreLabel ?? "Explore All"}</span>
             <span aria-hidden>→</span>
           </Link>
         ) : null}
       </div>
 
       <div className="grid grid-flow-dense grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-        {games.map((game, i) => (
+        {shown.map((game, i) => (
           <GameCard
             key={game.id}
             game={game}
-            featured={leadFeatured && i === 0}
+            featured={!useBento && leadFeatured && i === 0}
+            hero={useBento && i === 0}
             priority={priorityFirst && i < 4}
             badge={badge === "hot" ? (i < 5 ? "hot" : undefined) : badge}
           />

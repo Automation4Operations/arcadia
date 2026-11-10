@@ -23,6 +23,7 @@ export type GameCardProps = {
   };
   featured?: boolean;
   priority?: boolean;
+  hero?: boolean;
   badge?: BadgeType;
 };
 
@@ -38,7 +39,7 @@ const BADGE_LABEL: Record<BadgeType, string> = {
   top: "⭐ Top Pick",
 };
 
-export default function GameCard({ game, featured = false, priority = false, badge }: GameCardProps) {
+export default function GameCard({ game, featured = false, priority = false, hero = false, badge }: GameCardProps) {
   const [played, setPlayed] = useState(false);
   const shownBadge = game.badge ?? badge;
 
@@ -53,13 +54,13 @@ export default function GameCard({ game, featured = false, priority = false, bad
     <Link
       href={`/game/${game.slug}`}
       className={`group relative flex flex-col overflow-hidden rounded-2xl bg-panel ring-1 ring-edge transition-all duration-300 hover:-translate-y-1 hover:ring-arcade/70 hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)] ${
-        featured ? "md:flex-row md:items-stretch" : ""
+        hero ? "col-span-2 sm:col-span-3 lg:col-span-2 sm:flex-row sm:items-stretch" : featured ? "md:flex-row md:items-stretch" : ""
       }`}
     >
       {/* Thumbnail */}
       <div
         className={`relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-ink ${
-          featured ? "md:aspect-[16/9] md:w-80" : ""
+          hero ? "sm:aspect-auto sm:min-h-[210px] sm:w-[52%]" : featured ? "md:aspect-[16/9] md:w-80" : ""
         }`}
       >
         <Image
@@ -67,7 +68,7 @@ export default function GameCard({ game, featured = false, priority = false, bad
           alt={game.title}
           fill
           priority={priority}
-          sizes={featured ? "(max-width: 768px) 100vw, 320px" : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"}
+          sizes={hero ? "(max-width: 640px) 100vw, 40vw" : featured ? "(max-width: 768px) 100vw, 320px" : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"}
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -105,12 +106,17 @@ export default function GameCard({ game, featured = false, priority = false, bad
       </div>
 
       {/* Text */}
-      <div className={`flex flex-1 flex-col gap-1.5 p-3 ${featured ? "md:justify-center md:p-5" : ""}`}>
-        <h3 className="line-clamp-1 font-display text-sm font-bold text-fg transition-colors group-hover:text-arcade sm:text-base">
+      <div className={`flex flex-1 flex-col gap-1.5 p-3 ${hero ? "sm:justify-center sm:gap-3 sm:p-6" : featured ? "md:justify-center md:p-5" : ""}`}>
+        <h3 className={`${hero ? "line-clamp-2 sm:text-2xl" : "line-clamp-1 sm:text-base"} font-display text-sm font-bold text-fg transition-colors group-hover:text-arcade`}>
           {game.title}
         </h3>
-        {featured && game.description && (
-          <p className="line-clamp-2 text-xs text-mute">{game.description}</p>
+        {(hero || featured) && game.description && (
+          <p className={hero ? "line-clamp-3 text-sm text-mute" : "line-clamp-2 text-xs text-mute"}>{game.description}</p>
+        )}
+        {hero && (
+          <span className="inline-flex w-fit items-center gap-2 rounded-xl bg-arcade px-4 py-2 text-xs font-extrabold text-ink shadow-md shadow-arcade/30 transition group-hover:brightness-110">
+            ▶ Play Now
+          </span>
         )}
         <div className="mt-auto flex items-center gap-2 text-[11px] text-mute">
           {game.category?.name && (
@@ -119,7 +125,7 @@ export default function GameCard({ game, featured = false, priority = false, bad
             </span>
           )}
           {typeof game.playCount === "number" && game.playCount > 0 && (
-            <span>{formatCount(game.playCount)} plays</span>
+            <span>{formatCount(game.playCount)} {game.playCount === 1 ? "play" : "plays"}</span>
           )}
         </div>
       </div>

@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import CategoryChips from "@/components/CategoryChips";
 import ContinuePlaying from "@/components/ContinuePlaying";
 import GameGrid from "@/components/GameGrid";
 import HeroSpotlight from "@/components/HeroSpotlight";
 import {
-  getNavCategories,
   getCategorySections,
   getHeroSlides,
   getNewReleases,
@@ -50,8 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [categories, slides, trending, fresh, sections, total] = await Promise.all([
-    getNavCategories(),
+  const [slides, trending, fresh, sections, total] = await Promise.all([
     getHeroSlides(),
     getTrending(13),
     getNewReleases(12),
@@ -89,8 +85,6 @@ export default async function HomePage() {
 
       {slides.length > 0 && <HeroSpotlight games={slides} />}
 
-      <CategoryChips categories={categories} />
-
       <ContinuePlaying />
 
       {/* "Not sure what to play?" banner */}
@@ -124,38 +118,22 @@ export default async function HomePage() {
       </section>
 
       {trending.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-bold tracking-tight text-white">
-            ⭐ Top Picks
-          </h2>
-          <GameGrid title="Top Picks" games={trending} />
-        </section>
+        <GameGrid title="Top Picks" icon="⭐" games={trending} bento />
       )}
 
       {fresh.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-bold tracking-tight text-white">
-            ✨ New Releases
-          </h2>
-          <GameGrid title="New Releases" games={fresh} />
-        </section>
+        <GameGrid title="New Releases" icon="✨" games={fresh} bento />
       )}
 
       {sections.map((section) => (
-        <section key={section.category.slug} className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight text-white">
-              {section.category.name}
-            </h2>
-            <Link
-              href={`/category/${section.category.slug}`}
-              className="text-sm font-medium text-cyan-400 hover:text-cyan-300"
-            >
-              More {section.category.name} →
-            </Link>
-          </div>
-          <GameGrid title={section.category.name} games={section.games} />
-        </section>
+        <GameGrid
+          key={section.category.slug}
+          title={section.category.name}
+          games={section.games}
+          href={`/category/${section.category.slug}`}
+          moreLabel={`More ${section.category.name}`}
+          bento
+        />
       ))}
     </main>
   );

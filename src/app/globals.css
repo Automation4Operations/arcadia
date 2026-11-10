@@ -210,3 +210,87 @@ html, body {
   0% { transform: translateX(-110%); }
   100% { transform: translateX(260%); }
 }
+
+/* ===== Page-level energy loader (full-screen overlay) ===== */
+.energy-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(5, 7, 13, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+  animation: loader-fade-in 0.18s ease-out both;
+}
+.energy-ring.r3 {
+  inset: 0;
+  border: 2px dashed rgba(255, 0, 128, 0.45);
+  animation: energy-spin 6s linear infinite;
+}
+.energy-loader.launch .energy-label {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.energy-loader .warp {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: repeating-radial-gradient(
+    circle at center,
+    rgba(0, 229, 255, 0.14) 0 2px,
+    transparent 2px 46px
+  );
+  animation: warp-zoom 1.1s ease-in infinite;
+}
+@keyframes loader-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes warp-zoom {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* ===== Click burst + cursor glow (used by FxLayer) ===== */
+.click-burst {
+  position: fixed;
+  z-index: 90;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 2px solid #00e5ff;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.7);
+  pointer-events: none;
+  animation: click-burst-ring 0.6s ease-out forwards;
+}
+@keyframes click-burst-ring {
+  from { transform: scale(0.4); opacity: 1; }
+  to { transform: scale(4); opacity: 0; }
+}
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.1), transparent 65%);
+  pointer-events: none;
+  will-change: transform;
+}
+@media (hover: none) {
+  .cursor-glow { display: none; }
+}
+
+/* ===== Aurora drift (animation used by .aurora) ===== */
+@keyframes aurora-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(6vmax, 4vmax, 0) scale(1.15); }
+}

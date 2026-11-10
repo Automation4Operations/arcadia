@@ -42,6 +42,48 @@ function NavbarInner({ categories = [] }: NavbarProps) {
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const [recentCount, setRecentCount] = useState(0);
 
+  const desktopSearchRef = useRef<HTMLInputElement>(null);
+  const pillRef = useRef<HTMLDivElement>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+
+  const scrollPills = (dir: 1 | -1) => {
+    pillRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
+  };
+
+  // Show or hide the edge fades and arrows depending on how far the pills are scrolled
+  useEffect(() => {
+    const el = pillRef.current;
+    if (!el) return;
+    const update = () => {
+      setCanLeft(el.scrollLeft > 4);
+      setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [categories.length]);
+
+  // Press "/" to jump straight to the search box (not while typing somewhere else)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+      const el = document.activeElement as HTMLElement | null;
+      const tag = el?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el?.isContentEditable) return;
+      e.preventDefault();
+      const desktop = desktopSearchRef.current;
+      if (desktop && desktop.offsetParent !== null) desktop.focus();
+      else window.dispatchEvent(new Event("arcadia:open-search"));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   // How many games this device has played (for the badge)
   useEffect(() => {
     const update = () => setRecentCount(readRecent().length);
@@ -189,9 +231,14 @@ function NavbarInner({ categories = [] }: NavbarProps) {
           </div>
 
           {/* Center: search bar with suggestions (computers and tablets) */}
-          <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md mx-4" role="search">
+          <form
+            onSubmit={onSearch}
+            className="hidden md:flex flex-1 min-w-[200px] lg:min-w-[300px] max-w-xl mx-4"
+            role="search"
+          >
             <div className="relative flex w-full items-center">
               <input
+                ref={desktopSearchRef}
                 type="search"
                 value={q}
                 onChange={(e) => {
@@ -200,7 +247,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                 }}
                 onFocus={() => setShowSuggest(true)}
                 onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
-                placeholder="Search games: shooting, racing, puzzle, .io..."
+                placeholder="Search games...  (press /)"
                 aria-label="Search games"
                 autoComplete="off"
                 className="w-full rounded-full bg-panel/90 py-2 pl-4 pr-14 text-xs font-semibold text-fg placeholder:text-mute ring-1 ring-edge transition-all focus:outline-none focus:ring-2 focus:ring-arcade"
@@ -277,9 +324,45 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             </Link>
           </div>
         </div>
-        {/* Category pill bar (swipe sideways on phones) */}
-        <nav aria-label="Game categories" className="border-t border-white/5">
-          <div className="no-scrollbar mx-auto flex max-w-[1440px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6">
+
+        {/* Category pill bar (swipe sideways on phones, arrows on computers) */}
+        <nav aria-label="Game categories" className="relative border-t border-white/5">
+          {canLeft && (
+            <>
+              <div
+                className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-ink/90 to-transparent"
+                aria-hidden
+              />
+              <button
+                type="button"
+                onClick={() => scrollPills(-1)}
+                aria-label="Scroll categories left"
+                className="absolute left-2 top-1/2 z-20 hidden h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-panel text-sm font-black text-fg ring-1 ring-edge transition hover:bg-arcade hover:text-ink sm:flex cursor-pointer"
+              >
+                ‹
+              </button>
+            </>
+          )}
+          {canRight && (
+            <>
+              <div
+                className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-ink/90 to-transparent"
+                aria-hidden
+              />
+              <button
+                type="button"
+                onClick={() => scrollPills(1)}
+                aria-label="Scroll categories right"
+                className="absolute right-2 top-1/2 z-20 hidden h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-panel text-sm font-black text-fg ring-1 ring-edge transition hover:bg-arcade hover:text-ink sm:flex cursor-pointer"
+              >
+                ›
+              </button>
+            </>
+          )}
+          <div
+            ref={pillRef}
+            className="no-scrollbar flex items-center gap-2 overflow-x-auto scroll-smooth px-4 py-2 sm:px-6 min-[1440px]:px-[calc((100%-1440px)/2+1.5rem)]"
+          >
             <Link href="/" prefetch={false} className={pillClass(pathname === "/")}>
               <span>🏠</span>
               <span>All</span>

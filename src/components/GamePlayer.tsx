@@ -205,11 +205,11 @@ export default function GamePlayer(props: Props) {
       else localStorage.removeItem(voteKey);
     } catch {}
 
-    if (!slug || (dLike === 0 && dDislike === 0)) return;
+    if (!slug || !newVote) return;
     fetch("/api/vote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug, like: dLike, dislike: dDislike }),
+      body: JSON.stringify({ slug, vote: newVote === "like" ? 1 : -1 }),
     }).catch(() => {});
   };
 

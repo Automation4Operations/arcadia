@@ -61,9 +61,14 @@ export default function GamePlayer(props: Props) {
   const finalIframeUrl = (() => {
     try {
       const u = new URL(rawIframeUrl);
-      if (u.hostname.includes("gamemonetize")) {
-        u.search = "";
+      if (
+        u.hostname.includes("gamemonetize") ||
+        u.hostname.includes("gamedistribution")
+      ) {
         if (!u.pathname.endsWith("/")) u.pathname += "/";
+        const gameUrl = `https://arcadiagames.app/game/${slug}`;
+        u.searchParams.set("gd_sdk_referrer_url", gameUrl);
+        u.searchParams.set("referrer_url", gameUrl);
       }
       return u.toString();
     } catch {
@@ -309,7 +314,7 @@ export default function GamePlayer(props: Props) {
             className="h-full w-full border-0"
             allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; picture-in-picture *; pointer-lock *; web-share *; xr-spatial-tracking *; screen-wake-lock *"
             allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
+            referrerPolicy="no-referrer-when-downgrade"
           />
         )}
 

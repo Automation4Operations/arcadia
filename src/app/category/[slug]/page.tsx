@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CategoryChips from "@/components/CategoryChips";
 import GameGrid from "@/components/GameGrid";
+import AdBanner from "@/components/AdBanner";
 import { getAllCategories, searchGames } from "@/lib/queries";
 import { CATEGORY_CONTENT } from "@/lib/categoryContent";
 
@@ -61,6 +62,7 @@ export default async function CategoryPage({ params }: Params) {
           Choose from {games.length} free games with no downloads and no sign-up.
         </p>
       </header>
+      <AdBanner format="auto" className="my-6" />
       <GameGrid title={`All ${category.name} Games`} games={games} leadFeatured={false} />
       {content && (
         <section className="mt-12 max-w-3xl rounded-2xl bg-panel p-6 ring-1 ring-edge">

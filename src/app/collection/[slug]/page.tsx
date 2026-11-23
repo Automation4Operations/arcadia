@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import GameCard from "@/components/GameCard";
+import AdBanner from "@/components/AdBanner";
 import { COLLECTIONS, getCollection, getCollectionGames } from "@/lib/collections";
 import { COLLECTION_CONTENT } from "@/lib/collectionContent";
 
@@ -106,6 +107,7 @@ export default async function CollectionPage({ params }: Params) {
         </div>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-mute">{col.intro}</p>
       </header>
+      <AdBanner format="auto" className="my-6" />
 
       {games.length === 0 ? (
         <p className="mt-10 text-center text-sm text-mute">No games in this collection yet. Check back soon!</p>

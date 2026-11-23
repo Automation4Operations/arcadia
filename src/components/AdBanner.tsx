@@ -27,11 +27,11 @@ export default function AdBanner({
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w = window as any;
-      if (w.adsbygoogle) {
-        w.adsbygoogle.push({});
-        pushed.current = true;
-      }
-    } catch {}
+      (w.adsbygoogle = w.adsbygoogle || []).push({});
+      pushed.current = true;
+    } catch {
+      // Ad blocker or push error ignored
+    }
   }, [isLive]);
 
   const styleMap = {

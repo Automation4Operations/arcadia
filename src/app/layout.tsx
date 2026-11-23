@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import FxLayer from "@/components/FxLayer";
@@ -50,9 +51,18 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const categories = await getNavCategories().catch(() => []);
+  const adsenseId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5519830896693885";
 
   return (
     <html lang="en" className={display.variable + " " + body.variable}>
+      <head>
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
+          crossOrigin="anonymous"
+          strategy="lazyOnload"
+        />
+      </head>
       <body className="min-h-screen bg-ink font-body text-fg antialiased flex flex-col">
         <AuthProvider>
           <FxLayer />

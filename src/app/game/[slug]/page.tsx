@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import GamePlayer from "@/components/GamePlayer";
 import MoreLikeThis from "@/components/MoreLikeThis";
 import GameComments from "@/components/GameComments";
+import AdBanner from "@/components/AdBanner";
 import { getGameBySlug } from "@/lib/queries";
 import { getGameVotes, getMoreLikeThis } from "@/lib/gamePage";
 import { formatCount } from "@/lib/format";
@@ -147,6 +148,9 @@ export default async function GamePage({ params }: Params) {
           }}
         />
 
+        {/* AdSense Leaderboard Slot */}
+        <AdBanner format="horizontal" className="my-6" />
+
         {/* Title + stats */}
         <header className="mt-6">
           <h1 className="font-display text-2xl font-bold text-fg sm:text-4xl">{game.title}</h1>
@@ -216,7 +220,10 @@ export default async function GamePage({ params }: Params) {
         <GameComments slug={game.slug} heading={`What players say about ${game.title}`} />
       </article>
 
-      <MoreLikeThis games={more} />
+      <aside className="space-y-6">
+        <AdBanner format="rectangle" />
+        <MoreLikeThis games={more} />
+      </aside>
     </div>
   );
 }

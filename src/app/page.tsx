@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ContinuePlaying from "@/components/ContinuePlaying";
 import GameGrid from "@/components/GameGrid";
 import HeroSpotlight from "@/components/HeroSpotlight";
+import AdBanner from "@/components/AdBanner";
 import {
   getCategorySections,
   getHeroSlides,
@@ -120,6 +121,9 @@ export default async function HomePage() {
       {trending.length > 0 && (
         <GameGrid title="Top Picks" icon="⭐" games={trending} bento />
       )}
+
+      {/* Google AdSense In-Feed Slot */}
+      <AdBanner format="auto" className="my-8" />
 
       {fresh.length > 0 && (
         <GameGrid title="New Releases" icon="✨" games={fresh} bento />

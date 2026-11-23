@@ -307,9 +307,9 @@ export default function GamePlayer(props: Props) {
               } catch {}
             }}
             className="h-full w-full border-0"
-            allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; picture-in-picture *; pointer-lock *; web-share *; xr-spatial-tracking *"
+            allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; picture-in-picture *; pointer-lock *; web-share *; xr-spatial-tracking *; screen-wake-lock *"
             allowFullScreen
-            referrerPolicy="no-referrer-when-downgrade"
+            referrerPolicy="strict-origin-when-cross-origin"
           />
         )}
 

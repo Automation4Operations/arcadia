@@ -62,10 +62,11 @@ google.com, pub-7002491002409919, RESELLER, f08c47fec0942fa0
 adingo.jp, 26007, RESELLER`;
 
 export async function GET() {
+  const defaultPub = "pub-9212888811032637";
   const customPub = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID
     ? process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID.replace("ca-", "")
-    : "";
-  const customLine = customPub ? `google.com, ${customPub}, DIRECT, f08c47fec0942fa0\n` : "";
+    : defaultPub;
+  const customLine = `google.com, ${customPub}, DIRECT, f08c47fec0942fa0\n`;
 
   const adsTxt = `OWNERDOMAIN=arcadiagames.app
 CONTACT=contact@arcadiagames.app

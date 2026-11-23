@@ -9,7 +9,7 @@ type AdBannerProps = {
   className?: string;
 };
 
-const DEFAULT_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5519830896693885";
+const DEFAULT_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9212888811032637";
 
 export default function AdBanner({
   slot = "1234567890",

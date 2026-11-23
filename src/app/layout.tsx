@@ -51,16 +51,15 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const categories = await getNavCategories().catch(() => []);
-  const adsenseId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5519830896693885";
+  const adsenseId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9212888811032637";
 
   return (
     <html lang="en" className={display.variable + " " + body.variable}>
       <head>
-        <Script
+        <script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
           crossOrigin="anonymous"
-          strategy="lazyOnload"
         />
       </head>
       <body className="min-h-screen bg-ink font-body text-fg antialiased flex flex-col">

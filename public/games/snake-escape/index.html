@@ -306,41 +306,93 @@ function hideModal(){ modal.hidden=true; sheet.innerHTML=''; }
 let toastTimer=null;
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('on'),2200); }
 
-// ===================== STORE (guest in memory / signed-in via Supabase) =====================
+// ===================== STORE (guest in memory & localStorage / signed-in via Supabase) =====================
 const Store = {
   sb:null, user:null,
   st:{ coins:CONFIG.START_COINS, frontier:1, adsLeft:CONFIG.LIMIT.adsPerDay, skipsLeft:CONFIG.LIMIT.skipsPerDay },
   lastAd:0,
   isUser(){ return !!this.user; },
-  resetGuest(){ this.st={coins:CONFIG.START_COINS,frontier:1,adsLeft:CONFIG.LIMIT.adsPerDay,skipsLeft:CONFIG.LIMIT.skipsPerDay}; this.lastAd=0; },
-  apply(d){ this.st={coins:d.coins,frontier:d.current_level,adsLeft:d.ads_left,skipsLeft:d.skips_left}; },
+  saveLocal(){
+    try{ localStorage.setItem('se_state', JSON.stringify({ coins:this.st.coins, frontier:this.st.frontier, adsLeft:this.st.adsLeft, skipsLeft:this.st.skipsLeft })); }catch(e){}
+  },
+  loadLocal(){
+    try{
+      const raw = localStorage.getItem('se_state');
+      if(raw){
+        const d = JSON.parse(raw);
+        if(d && typeof d.frontier === 'number' && d.frontier >= 1){
+          this.st.frontier = Math.max(this.st.frontier, d.frontier);
+          if(typeof d.coins === 'number') this.st.coins = Math.max(this.st.coins, d.coins);
+          return true;
+        }
+      }
+    }catch(e){}
+    return false;
+  },
+  resetGuest(){
+    this.st={coins:CONFIG.START_COINS,frontier:1,adsLeft:CONFIG.LIMIT.adsPerDay,skipsLeft:CONFIG.LIMIT.skipsPerDay};
+    this.lastAd=0;
+    this.loadLocal();
+  },
+  apply(d){
+    this.st={coins:d.coins,frontier:d.current_level,adsLeft:d.ads_left,skipsLeft:d.skips_left};
+    this.saveLocal();
+  },
   async rpc(name,args){
     const r=await this.sb.rpc(name,args||{});
     if(r.error) throw new Error((r.error.message||'error').trim());
     return r.data;
   },
-  async begin(level){ if(this.isUser()) this.apply(await this.rpc('snake_begin_level',{p_level:level})); },
+  async begin(level){
+    if(this.isUser()){
+      try { this.apply(await this.rpc('gp_begin',{p_game:'snake',p_level:level})); }
+      catch(e){ this.apply(await this.rpc('snake_begin_level',{p_level:level})); }
+    }
+  },
   async useItem(item){
-    if(this.isUser()){ this.apply(await this.rpc('snake_use_item',{p_item:item})); return; }
+    if(this.isUser()){
+      try { this.apply(await this.rpc('gp_use_item',{p_game:'snake',p_item:item})); }
+      catch(e){ this.apply(await this.rpc('snake_use_item',{p_item:item})); }
+      return;
+    }
     const c=CONFIG.COST[item]; if(this.st.coins<c) throw new Error('not_enough_coins'); this.st.coins-=c;
+    this.saveLocal();
   },
   async complete(level,perfect){
-    if(this.isUser()){ const d=await this.rpc('snake_complete_level',{p_level:level,p_perfect:perfect}); this.apply(d); return d.awarded||0; }
+    if(this.isUser()){
+      let d;
+      try { d=await this.rpc('gp_complete',{p_game:'snake',p_level:level,p_perfect:perfect}); }
+      catch(e){ d=await this.rpc('snake_complete_level',{p_level:level,p_perfect:perfect}); }
+      this.apply(d);
+      return d.awarded||0;
+    }
     if(level!==this.st.frontier) return 0;
-    const a=rewardFor(level,perfect); this.st.coins+=a; this.st.frontier++; return a;
+    const a=rewardFor(level,perfect); this.st.coins+=a; this.st.frontier++;
+    this.saveLocal();
+    return a;
   },
   async skip(level){
-    if(this.isUser()){ this.apply(await this.rpc('snake_skip_level',{p_level:level})); return; }
+    if(this.isUser()){
+      try { this.apply(await this.rpc('gp_skip',{p_game:'snake',p_level:level})); }
+      catch(e){ this.apply(await this.rpc('snake_skip_level',{p_level:level})); }
+      return;
+    }
     if(level!==this.st.frontier) throw new Error('bad_level');
     if(this.st.skipsLeft<=0) throw new Error('skip_limit');
     if(this.st.coins<CONFIG.COST.skip) throw new Error('not_enough_coins');
     this.st.coins-=CONFIG.COST.skip; this.st.skipsLeft--; this.st.frontier++;
+    this.saveLocal();
   },
   async claimAd(){
-    if(this.isUser()){ this.apply(await this.rpc('snake_claim_ad')); return; }
+    if(this.isUser()){
+      try { this.apply(await this.rpc('wallet_claim_ad',{p_game:'snake'})); }
+      catch(e){ this.apply(await this.rpc('snake_claim_ad')); }
+      return;
+    }
     if(this.st.adsLeft<=0) throw new Error('ad_cap');
     if(Date.now()-this.lastAd<CONFIG.AD_COOLDOWN_MS) throw new Error('ad_cooldown');
     this.lastAd=Date.now(); this.st.adsLeft--; this.st.coins+=CONFIG.AD_REWARD;
+    this.saveLocal();
   }
 };
 
@@ -629,7 +681,12 @@ function openAccount(){
 }
 async function onSignedIn(user){
   Store.user=user;
-  try{ Store.apply(await Store.rpc('snake_get_player')); }
+  try{
+    let data;
+    try { data = await Store.rpc('gp_get', { p_game:'snake' }); }
+    catch(e){ data = await Store.rpc('snake_get_player'); }
+    Store.apply(data);
+  }
   catch(e){ Store.user=null; toast(errText(e)); updateHUD(); return; }
   startLevel(Store.st.frontier,false);
 }
@@ -668,7 +725,8 @@ function howTo(){
 }
 window.addEventListener('resize',layout);
 try{ Snd.on=localStorage.getItem('se_sound')!=='0'; }catch(e){}
-layout(); startLevel(1,false); requestAnimationFrame(frame);
+Store.loadLocal();
+layout(); startLevel(Store.st.frontier || 1,false); requestAnimationFrame(frame);
 let seen=false; try{ seen=localStorage.getItem('se_help')==='1'; }catch(e){}
 if(!seen) howTo();
 initAuth();

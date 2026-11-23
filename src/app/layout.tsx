@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import FxLayer from "@/components/FxLayer";
+import { AuthProvider } from "@/context/AuthContext";
+import AuthModal from "@/components/AuthModal";
 import { getNavCategories } from "@/lib/queries";
 import "./globals.css";
 
@@ -52,9 +54,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={display.variable + " " + body.variable}>
       <body className="min-h-screen bg-ink font-body text-fg antialiased flex flex-col">
-        <FxLayer />
-        <Navbar categories={categories} />
-        <main className="flex-1">{children}</main>
+        <AuthProvider>
+          <FxLayer />
+          <Navbar categories={categories} />
+          <AuthModal />
+          <main className="flex-1">{children}</main>
+        </AuthProvider>
         <footer className="mt-20 border-t border-edge bg-panel/50 py-8 text-center text-xs text-mute">
           <div className="mx-auto max-w-[1600px] px-4 space-y-1.5">
             <p className="font-display font-bold text-fg">ARCADIA GAMES (ARCADIAGAMES.APP)</p>

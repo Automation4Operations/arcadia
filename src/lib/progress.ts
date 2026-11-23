@@ -1,3 +1,5 @@
+import { supabase } from "./supabaseClient";
+
 export type Progress = {
   xp: number;
   plays: number;
@@ -26,7 +28,7 @@ function yesterdayKey(): string {
   return dayKey(d);
 }
 
-function empty(): Progress {
+export function emptyProgress(): Progress {
   return {
     xp: 0,
     plays: 0,
@@ -39,20 +41,95 @@ function empty(): Progress {
 }
 
 export function loadProgress(): Progress {
-  if (typeof window === "undefined") return empty();
+  if (typeof window === "undefined") return emptyProgress();
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return empty();
-    return { ...empty(), ...JSON.parse(raw) };
+    if (!raw) return emptyProgress();
+    const parsed = JSON.parse(raw);
+    return { ...emptyProgress(), ...parsed };
   } catch {
-    return empty();
+    return emptyProgress();
   }
 }
 
-function save(p: Progress) {
+export function saveProgress(p: Progress) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.setItem(KEY, JSON.stringify(p));
+    window.dispatchEvent(new CustomEvent("arcadia:progress-updated", { detail: p }));
   } catch {}
+
+  // Asynchronously sync to Cloud if signed in
+  saveToCloud(p).catch(() => {});
+}
+
+async function saveToCloud(p: Progress) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("profiles").update({ progress: p, updated_at: new Date().toISOString() }).eq("id", user.id);
+  } catch {}
+}
+
+export function mergeProgress(local: Progress, remote: Partial<Progress> | null | undefined): Progress {
+  if (!remote) return local;
+  const uniqueSet = new Set([...(local.uniqueGames || []), ...(remote.uniqueGames || [])]);
+  const uniqueGames = Array.from(uniqueSet).slice(-1000);
+
+  const localXp = typeof local.xp === "number" ? local.xp : 0;
+  const remoteXp = typeof remote.xp === "number" ? remote.xp : 0;
+
+  const todayStr = dayKey();
+  let today = local.today?.day === todayStr ? local.today : { day: todayStr, games: [], claimed: false };
+  if (remote.today?.day === todayStr) {
+    const combinedGames = Array.from(new Set([...today.games, ...(remote.today.games || [])]));
+    today = {
+      day: todayStr,
+      games: combinedGames,
+      claimed: today.claimed || Boolean(remote.today.claimed),
+    };
+  }
+
+  return {
+    xp: Math.max(localXp, remoteXp),
+    plays: Math.max(local.plays || 0, remote.plays || 0),
+    uniqueGames,
+    streak: Math.max(local.streak || 0, remote.streak || 0),
+    bestStreak: Math.max(local.bestStreak || 0, remote.bestStreak || 0),
+    lastDay: localXp >= remoteXp ? (local.lastDay || remote.lastDay || "") : (remote.lastDay || local.lastDay || ""),
+    today,
+  };
+}
+
+/** Syncs local and remote progress. Loads from Supabase and merges without losing any XP. */
+export async function syncCloudProgress(userId?: string): Promise<Progress> {
+  const currentLocal = loadProgress();
+  if (typeof window === "undefined") return currentLocal;
+
+  try {
+    let targetUid = userId;
+    if (!targetUid) {
+      const { data: { user } } = await supabase.auth.getUser();
+      targetUid = user?.id;
+    }
+    if (!targetUid) return currentLocal;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("progress")
+      .eq("id", targetUid)
+      .maybeSingle();
+
+    const merged = mergeProgress(currentLocal, data?.progress);
+    localStorage.setItem(KEY, JSON.stringify(merged));
+    window.dispatchEvent(new CustomEvent("arcadia:progress-updated", { detail: merged }));
+
+    // Send merged data back to ensure cloud is up to date with any guest play
+    await supabase.from("profiles").update({ progress: merged, updated_at: new Date().toISOString() }).eq("id", targetUid);
+    return merged;
+  } catch {
+    return currentLocal;
+  }
 }
 
 /** Level math: level 1 -> 2 needs 100 XP, level 2 -> 3 needs 200 XP, and so on */
@@ -125,6 +202,6 @@ export function recordPlay(slug: string): number {
 
   p.plays += 1;
   p.xp += gained;
-  save(p);
+  saveProgress(p);
   return gained;
 }

@@ -6,6 +6,8 @@ import { useEffect, useRef, useState, FormEvent, Suspense } from "react";
 import VaultDrawer from "./VaultDrawer";
 import { readRecent } from "@/lib/recent";
 import ArcadiaLogo from "./ArcadiaLogo";
+import { useAuth } from "@/context/AuthContext";
+import { levelInfo, loadProgress } from "@/lib/progress";
 
 export type CategoryItem = {
   id?: string | number;
@@ -41,6 +43,18 @@ function NavbarInner({ categories = [] }: NavbarProps) {
   const [showSuggest, setShowSuggest] = useState(false);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const [recentCount, setRecentCount] = useState(0);
+  const { user, openAuthModal } = useAuth();
+  const [playerLevel, setPlayerLevel] = useState(1);
+
+  useEffect(() => {
+    const update = () => {
+      const p = loadProgress();
+      setPlayerLevel(levelInfo(p.xp).level);
+    };
+    update();
+    window.addEventListener("arcadia:progress-updated", update);
+    return () => window.removeEventListener("arcadia:progress-updated", update);
+  }, []);
 
   const desktopSearchRef = useRef<HTMLInputElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
@@ -306,11 +320,25 @@ function NavbarInner({ categories = [] }: NavbarProps) {
 
             <Link
               href="/profile"
-              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:ring-arcade"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:ring-arcade hover:scale-105"
             >
-              <span>👤</span>
-              <span>Me</span>
+              <span className="flex h-5 w-5 items-center justify-center rounded-md bg-ink text-[10px] font-black text-arcade ring-1 ring-arcade/40">
+                L{playerLevel}
+              </span>
+              <span className="hidden xl:inline">{user ? "Cloud Synced" : "Me"}</span>
+              <span className="xl:hidden">Me</span>
             </Link>
+
+            {!user && (
+              <button
+                type="button"
+                onClick={openAuthModal}
+                className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-ink px-3 py-2 text-xs font-extrabold text-arcade ring-1 ring-edge hover:ring-arcade hover:scale-105 transition cursor-pointer"
+              >
+                <span>☁️</span>
+                <span>Sync</span>
+              </button>
+            )}
 
             <Link
               href="/about"
@@ -428,6 +456,31 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             </form>
 
             <div className="no-scrollbar mt-4 flex-1 space-y-5 overflow-y-auto pr-1">
+              {/* Profile Level & Sync Banner */}
+              <div className="rounded-2xl bg-ink p-3 ring-1 ring-edge flex items-center justify-between">
+                <Link href="/profile" onClick={close} className="flex items-center gap-2.5">
+                  <div className="flex h-10 w-10 flex-col items-center justify-center rounded-xl bg-panel text-xs font-black text-arcade ring-1 ring-arcade">
+                    L{playerLevel}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-fg">{user ? (user.email ? user.email.split("@")[0] : "Player") : "Guest Player"}</p>
+                    <p className="text-[10px] text-mute">{user ? "☁️ Synced to Cloud" : "💾 Auto-saved on device"}</p>
+                  </div>
+                </Link>
+                {!user && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      close();
+                      openAuthModal();
+                    }}
+                    className="rounded-lg bg-arcade px-2.5 py-1.5 text-[11px] font-extrabold text-ink cursor-pointer"
+                  >
+                    Sync
+                  </button>
+                )}
+              </div>
+
               {/* Home */}
               <Link href="/" onClick={close} className={itemClass(pathname === "/")}>
                 <span className="flex items-center gap-2.5">

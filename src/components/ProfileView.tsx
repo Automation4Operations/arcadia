@@ -13,12 +13,21 @@ import {
   titleFor,
   type Progress,
 } from "@/lib/progress";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProfileView() {
   const [p, setP] = useState<Progress | null>(null);
+  const { user, openAuthModal, signOut } = useAuth();
 
   useEffect(() => {
     setP(loadProgress());
+    const onUpdate = (e: Event) => {
+      const custom = e as CustomEvent<Progress>;
+      if (custom.detail) setP(custom.detail);
+      else setP(loadProgress());
+    };
+    window.addEventListener("arcadia:progress-updated", onUpdate);
+    return () => window.removeEventListener("arcadia:progress-updated", onUpdate);
   }, []);
 
   if (!p) {
@@ -35,6 +44,52 @@ export default function ProfileView() {
 
   return (
     <div className="space-y-6">
+      {/* Account Cloud Sync Banner */}
+      <section className="rounded-2xl border border-edge bg-panel/70 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+        {user ? (
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30 text-lg">
+              ☁️
+            </div>
+            <div>
+              <p className="text-xs font-bold text-fg">Cloud Progress Synced</p>
+              <p className="text-[11px] text-mute">{user.email || "Google Account"} · Auto-saved across all laptops & devices</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-arcade/10 text-arcade ring-1 ring-arcade/30 text-lg">
+              💾
+            </div>
+            <div>
+              <p className="text-xs font-bold text-fg">Auto-saved on this device (Level {level})</p>
+              <p className="text-[11px] text-mute">Playing on another laptop or system? Link your account to sync instantly.</p>
+            </div>
+          </div>
+        )}
+
+        <div>
+          {user ? (
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="rounded-xl bg-ink px-3.5 py-2 text-xs font-bold text-mute ring-1 ring-edge hover:text-fg hover:ring-red-500/50 transition cursor-pointer"
+            >
+              Sign Out
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={openAuthModal}
+              className="inline-flex items-center gap-2 rounded-xl bg-arcade px-4 py-2 text-xs font-extrabold text-ink shadow-md shadow-arcade/20 hover:brightness-110 active:scale-95 transition cursor-pointer"
+            >
+              <span>☁️</span>
+              <span>Sync with Cloud</span>
+            </button>
+          )}
+        </div>
+      </section>
+
       {/* Level card */}
       <section className="relative overflow-hidden rounded-3xl bg-panel p-6 ring-1 ring-edge sm:p-8">
         <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-arcade/20 blur-3xl" />
@@ -131,7 +186,7 @@ export default function ProfileView() {
       </section>
 
       <p className="text-center text-xs text-mute">
-        Your progress is saved on this device. Accounts and leaderboards are coming soon!
+        ⚡ Progress is automatically saved locally and synced to the cloud when signed in.
       </p>
     </div>
   );

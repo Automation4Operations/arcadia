@@ -377,7 +377,15 @@ const Store = {
   lastAd:0,
   isUser(){ return !!this.user; },
   saveLocal(){
-    try{ localStorage.setItem('se_state', JSON.stringify({ coins:this.st.coins, frontier:this.st.frontier, adsLeft:this.st.adsLeft, skipsLeft:this.st.skipsLeft })); }catch(e){}
+    try{
+      const state = { coins:this.st.coins, frontier:this.st.frontier, adsLeft:this.st.adsLeft, skipsLeft:this.st.skipsLeft };
+      localStorage.setItem('se_state', JSON.stringify(state));
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'arcadia:game-state', slug: 'snake-escape', data: state }, '*');
+        }
+      } catch(e){}
+    }catch(e){}
   },
   loadLocal(){
     try{
@@ -643,10 +651,10 @@ async function onWin(){
   showModal(`<h2>Level cleared!</h2>
     ${awarded>0?`<p class="big">+${awarded} coins</p>`:'<p class="big">&#10003;</p>'}
     <p>${awarded>0?(perfect?'Perfect clear bonus included!':''):(note||'Already cleared before, so no coins this time.')}</p>
-    ${guest?'<p class="tiny">Playing as a guest: progress is not saved.</p>':''}
+    ${guest?'<p class="tiny">Progress saved on this device.</p>':''}
     <button id="mNext" class="btn primary">Next level</button>
     <button id="mAgain" class="btn">Replay</button>
-    ${guest?'<button id="mSign" class="btn ghost">Sign in to save progress</button>':''}`,()=>{
+    ${guest?'<button id="mSign" class="btn ghost">☁️ Cloud Sync to All Devices</button>':''}`,()=>{
     $('mNext').onclick=async()=>{
       const nxt=S.n+1;
       if(S.clears%CONFIG.INTERSTITIAL_EVERY===0&&Ads.enabled){ await Ads.interstitial(); }

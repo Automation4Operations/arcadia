@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { pushRecent } from "@/lib/recent";
-import { recordPlay } from "@/lib/progress";
+import { recordPlay, saveGameState } from "@/lib/progress";
 import { formatCount } from "@/lib/format";
 
 type GameObj = {
@@ -84,6 +84,19 @@ export default function GamePlayer(props: Props) {
     } catch {}
   }, [voteKey]);
 
+  /* Listen for in-game state saves from iframes (e.g. level completion) */
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      try {
+        if (e.data && e.data.type === "arcadia:game-state" && e.data.slug) {
+          saveGameState(e.data.slug, e.data.data);
+        }
+      } catch {}
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
   /* Track real browser fullscreen on/off */
   useEffect(() => {
     const onChange = () => {
@@ -147,6 +160,7 @@ export default function GamePlayer(props: Props) {
     if (!slug) return;
     pushRecent({ slug, title, thumbnailUrl });
     recordPlay(slug);
+    saveGameState(slug, { lastPlayed: Date.now(), title });
     fetch("/api/play", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -312,7 +326,7 @@ export default function GamePlayer(props: Props) {
               } catch {}
             }}
             className="h-full w-full border-0"
-            allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; picture-in-picture *; pointer-lock *; web-share *; xr-spatial-tracking *; screen-wake-lock *"
+            allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; picture-in-picture *; pointer-lock *; web-share *; xr-spatial-tracking *; screen-wake-lock *; storage-access *; attribution-reporting *"
             allowFullScreen
             referrerPolicy="no-referrer-when-downgrade"
           />

@@ -13,6 +13,18 @@ export default function SignUpPage() {
   const [statusMsg, setStatusMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const handleGoogleClick = async () => {
+    setStatusMsg(null);
+    try {
+      await signInWithGoogle();
+    } catch {
+      setStatusMsg({
+        ok: false,
+        text: "Google Sign-In is being configured. Please use Email & Password below.",
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || submitting) return;
@@ -28,7 +40,7 @@ export default function SignUpPage() {
       setStatusMsg({
         ok: true,
         text: isSignUp
-          ? "Account created! Check your email to confirm, or continue playing."
+          ? "Account created! You are now signed in and your progress is cloud-saved."
           : "Welcome back! Your game progress is now synced.",
       });
     }
@@ -131,7 +143,7 @@ export default function SignUpPage() {
               {/* Google Button */}
               <button
                 type="button"
-                onClick={() => signInWithGoogle()}
+                onClick={handleGoogleClick}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-gray-900 transition hover:bg-gray-100 cursor-pointer shadow-sm"
               >
                 <span>Google</span>

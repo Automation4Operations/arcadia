@@ -74,7 +74,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (res.error) return { error: res.error };
     if (res.data.user) {
       await syncCloudProgress(res.data.user.id);
-      setIsAuthModalOpen(false);
     }
     return { error: null };
   };
@@ -84,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (res.error) return { error: res.error };
     if (res.data.user) {
       await syncCloudProgress(res.data.user.id);
-      setIsAuthModalOpen(false);
     }
     return { error: null };
   };

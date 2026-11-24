@@ -12,6 +12,15 @@ export default function AuthModal() {
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const handleGoogleClick = async () => {
+    setError(null);
+    try {
+      await signInWithGoogle();
+    } catch {
+      setError("Google Sign-In is being configured. Please use Email & Password below.");
+    }
+  };
+
   if (!isAuthModalOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,17 +33,22 @@ export default function AuthModal() {
       if (mode === "signin") {
         const res = await signInWithEmail(email.trim(), password);
         if (res.error) {
-          setError(res.error.message.includes("Invalid login") ? "Incorrect email or password." : res.error.message);
+          setError(
+            res.error.message.includes("Invalid login")
+              ? "Incorrect email or password."
+              : res.error.message
+          );
         } else {
-          closeAuthModal();
+          setSuccess("Welcome back! Your game level and XP are synced.");
+          setTimeout(() => closeAuthModal(), 1000);
         }
       } else {
         const res = await signUpWithEmail(email.trim(), password);
         if (res.error) {
           setError(res.error.message);
         } else {
-          setSuccess("Account created! You are now signed in and your level is synced.");
-          setTimeout(() => closeAuthModal(), 1500);
+          setSuccess("Account created! You are now logged in and progress is cloud-saved.");
+          setTimeout(() => closeAuthModal(), 1200);
         }
       }
     } catch (err: unknown) {
@@ -106,7 +120,7 @@ export default function AuthModal() {
         <div className="mt-5">
           <button
             type="button"
-            onClick={signInWithGoogle}
+            onClick={handleGoogleClick}
             className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink py-2.5 text-xs font-bold text-fg ring-1 ring-edge hover:ring-arcade hover:scale-[1.01] active:scale-[0.99] transition cursor-pointer"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">

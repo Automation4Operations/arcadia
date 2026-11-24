@@ -8,9 +8,11 @@ export type Progress = {
   bestStreak: number;
   lastDay: string;
   today: { day: string; games: string[]; claimed: boolean };
+  gameStates?: Record<string, { updatedAt: number; data: any }>;
 };
 
 const KEY = "arcadia:progress:v1";
+const GUEST_MAX_SAVED_GAMES = 5;
 export const DAILY_GOAL = 3;
 export const DAILY_BONUS = 50;
 
@@ -90,6 +92,19 @@ export function mergeProgress(local: Progress, remote: Partial<Progress> | null 
     };
   }
 
+  // Merge individual game state saves
+  const mergedGameStates: Record<string, { updatedAt: number; data: any }> = {
+    ...(local.gameStates || {}),
+  };
+  if (remote.gameStates) {
+    for (const [slug, remoteState] of Object.entries(remote.gameStates)) {
+      const localState = mergedGameStates[slug];
+      if (!localState || (remoteState?.updatedAt || 0) > (localState.updatedAt || 0)) {
+        mergedGameStates[slug] = remoteState;
+      }
+    }
+  }
+
   return {
     xp: Math.max(localXp, remoteXp),
     plays: Math.max(local.plays || 0, remote.plays || 0),
@@ -98,7 +113,47 @@ export function mergeProgress(local: Progress, remote: Partial<Progress> | null 
     bestStreak: Math.max(local.bestStreak || 0, remote.bestStreak || 0),
     lastDay: localXp >= remoteXp ? (local.lastDay || remote.lastDay || "") : (remote.lastDay || local.lastDay || ""),
     today,
+    gameStates: mergedGameStates,
   };
+}
+
+/** Save individual game progress state (levels, coins, settings) */
+export async function saveGameState(slug: string, stateData: any) {
+  if (typeof window === "undefined" || !slug) return;
+  const p = loadProgress();
+  if (!p.gameStates) p.gameStates = {};
+
+  p.gameStates[slug] = {
+    updatedAt: Date.now(),
+    data: stateData,
+  };
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      // Guest: silently restrict local cache to latest 5 games to avoid filling browser memory
+      const entries = Object.entries(p.gameStates).sort(
+        (a, b) => (b[1]?.updatedAt || 0) - (a[1]?.updatedAt || 0)
+      );
+      if (entries.length > GUEST_MAX_SAVED_GAMES) {
+        p.gameStates = Object.fromEntries(entries.slice(0, GUEST_MAX_SAVED_GAMES));
+      }
+      localStorage.setItem(KEY, JSON.stringify(p));
+      window.dispatchEvent(new CustomEvent("arcadia:progress-updated", { detail: p }));
+      return;
+    }
+
+    // Logged in: save and upload to Supabase cloud
+    saveProgress(p);
+  } catch {
+    localStorage.setItem(KEY, JSON.stringify(p));
+  }
+}
+
+/** Get saved state for a specific game */
+export function getGameState(slug: string): any | null {
+  const p = loadProgress();
+  return p.gameStates?.[slug]?.data ?? null;
 }
 
 /** Syncs local and remote progress. Loads from Supabase and merges without losing any XP. */
@@ -123,6 +178,14 @@ export async function syncCloudProgress(userId?: string): Promise<Progress> {
     const merged = mergeProgress(currentLocal, data?.progress);
     localStorage.setItem(KEY, JSON.stringify(merged));
     window.dispatchEvent(new CustomEvent("arcadia:progress-updated", { detail: merged }));
+
+    // If Snake Escape state was synced from cloud, restore its specific local key on this new device
+    const snakeState = merged.gameStates?.["snake-escape"]?.data || merged.gameStates?.["snake"]?.data;
+    if (snakeState) {
+      try {
+        localStorage.setItem("se_state", JSON.stringify(snakeState));
+      } catch {}
+    }
 
     // Send merged data back to ensure cloud is up to date with any guest play
     await supabase.from("profiles").update({ progress: merged, updated_at: new Date().toISOString() }).eq("id", targetUid);

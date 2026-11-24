@@ -345,12 +345,7 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               </button>
             )}
 
-            <Link
-              href="/about"
-              className="hidden lg:inline-flex items-center rounded-xl bg-panel px-3 py-2 text-xs font-bold text-mute ring-1 ring-edge transition-all hover:text-fg hover:ring-arcade/60 whitespace-nowrap shrink-0"
-            >
-              About &amp; DMCA
-            </Link>
+
           </div>
         </div>
         {/* Category pill bar (swipe sideways on phones) */}

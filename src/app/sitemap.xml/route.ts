@@ -18,6 +18,11 @@ export async function GET() {
 
   const urls = [
     `<url><loc>${BASE}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
+    `<url><loc>${BASE}/games</loc><changefreq>daily</changefreq><priority>0.9</priority></url>`,
+    `<url><loc>${BASE}/scores</loc><changefreq>daily</changefreq><priority>0.8</priority></url>`,
+    `<url><loc>${BASE}/reviews</loc><changefreq>daily</changefreq><priority>0.8</priority></url>`,
+    `<url><loc>${BASE}/help</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`,
+    `<url><loc>${BASE}/signup</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`,
     `<url><loc>${BASE}/about</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>`,
     ...(cats ?? []).map(
       (c) =>

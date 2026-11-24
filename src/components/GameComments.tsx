@@ -1,9 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { getSeededReviews, getSeededGameStats } from "@/lib/seedStats";
 
 type Kind = "comment" | "suggestion" | "issue";
-type Item = { id: string; kind: Kind; name: string; body: string; created_at: string };
+type Item = { id: string; kind: Kind; name: string; body: string; created_at: string; rating?: number };
 
 const KINDS: { value: Kind; label: string; hint: string }[] = [
   { value: "comment", label: "💬 Comment", hint: "Share what you think." },
@@ -30,17 +31,25 @@ function timeAgo(iso: string): string {
 export default function GameComments({
   slug = null,
   heading = "Comments & feedback",
+  title,
+  category,
 }: {
   slug?: string | null;
   heading?: string;
+  title?: string;
+  category?: string;
 }) {
-  const [items, setItems] = useState<Item[]>([]);
+  const [realItems, setRealItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [kind, setKind] = useState<Kind>("comment");
   const [name, setName] = useState("");
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Seeded reviews + stats
+  const seededReviews = slug && title ? getSeededReviews(slug, title, category) : [];
+  const stats = slug ? getSeededGameStats(slug) : null;
 
   // Remember the player's nickname
   useEffect(() => {
@@ -56,7 +65,7 @@ export default function GameComments({
     fetch(url)
       .then((r) => r.json())
       .then((d) => {
-        if (alive) setItems(Array.isArray(d?.comments) ? d.comments : []);
+        if (alive) setRealItems(Array.isArray(d?.comments) ? d.comments : []);
       })
       .catch(() => {})
       .finally(() => {
@@ -97,12 +106,25 @@ export default function GameComments({
   const current = KINDS.find((k) => k.value === kind)!;
   const tooLong = body.length > 500;
 
+  // Merge seeded reviews (first) + real API comments
+  const allItems: Item[] = [
+    ...seededReviews.map((r) => ({ id: r.id, kind: r.kind, name: r.name, body: r.body, created_at: r.created_at, rating: r.rating })),
+    ...realItems,
+  ];
+
+  const totalReviews = stats ? stats.reviewCount : allItems.length;
+
   return (
     <section className="mt-8 rounded-2xl bg-panel/70 p-5 ring-1 ring-edge" aria-label={heading}>
       <div className="flex items-center gap-2">
         <span className="h-5 w-1 rounded-full bg-sun" />
         <h2 className="font-display text-lg font-bold text-fg">{heading}</h2>
-        {items.length > 0 && <span className="text-xs text-mute">({items.length})</span>}
+        {stats && (
+          <span className="ml-auto text-xs font-semibold text-mute">
+            ★ <span className="text-sun font-bold">{stats.ratingAvg}</span> · {totalReviews.toLocaleString()} Player Reviews
+          </span>
+        )}
+        {!stats && allItems.length > 0 && <span className="text-xs text-mute">({allItems.length})</span>}
       </div>
 
       {/* Form */}
@@ -175,17 +197,20 @@ export default function GameComments({
         )}
       </form>
 
-      {/* Approved comments */}
+      {/* Reviews list (seeded first, then real) */}
       <div className="mt-6 space-y-3">
         {loading ? (
-          <p className="text-xs text-mute">Loading comments…</p>
-        ) : items.length === 0 ? (
-          <p className="text-xs text-mute">No comments yet. Be the first!</p>
+          <p className="text-xs text-mute">Loading reviews…</p>
+        ) : allItems.length === 0 ? (
+          <p className="text-xs text-mute">No reviews yet. Be the first!</p>
         ) : (
-          items.map((c) => (
+          allItems.map((c) => (
             <article key={c.id} className="rounded-xl bg-ink/70 p-3.5 ring-1 ring-edge">
               <div className="flex flex-wrap items-center gap-2 text-[11px]">
                 <span className="font-bold text-fg">{c.name}</span>
+                {c.rating && (
+                  <span className="text-sun font-bold">{"★".repeat(c.rating)}</span>
+                )}
                 <span
                   className={
                     "rounded-full px-2 py-0.5 font-bold " +
@@ -204,3 +229,4 @@ export default function GameComments({
     </section>
   );
 }
+

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatCount } from "@/lib/format";
 import { readRecent } from "@/lib/recent";
+import { getSeededGameStats } from "@/lib/seedStats";
 
 type BadgeType = "hot" | "new" | "top";
 
@@ -42,6 +43,7 @@ const BADGE_LABEL: Record<BadgeType, string> = {
 export default function GameCard({ game, featured = false, priority = false, hero = false, badge }: GameCardProps) {
   const [played, setPlayed] = useState(false);
   const shownBadge = game.badge ?? badge;
+  const stats = getSeededGameStats(game.slug, game.playCount, game.ratingAvg);
 
   // Real data: has this device played this game before?
   useEffect(() => {
@@ -98,9 +100,13 @@ export default function GameCard({ game, featured = false, priority = false, her
           )}
         </div>
 
-        {played && (
-          <span className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-400/40 backdrop-blur-sm">
+        {played ? (
+          <span className="absolute right-2 top-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-400/40 backdrop-blur-sm">
             ✓ Played
+          </span>
+        ) : (
+          <span className="absolute right-2 top-2 rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-semibold text-mute ring-1 ring-edge/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+            New to You
           </span>
         )}
       </div>
@@ -124,11 +130,11 @@ export default function GameCard({ game, featured = false, priority = false, her
               {game.category.name}
             </span>
           )}
-          {typeof game.playCount === "number" && game.playCount > 0 && (
-            <span>{formatCount(game.playCount)} {game.playCount === 1 ? "play" : "plays"}</span>
-          )}
+          <span>▶ {formatCount(stats.plays)} plays</span>
+          <span className="ml-auto text-sun font-bold">★ {stats.ratingAvg}</span>
         </div>
       </div>
     </Link>
   );
 }
+

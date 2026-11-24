@@ -7,6 +7,7 @@ import GameComments from "@/components/GameComments";
 import AdBanner from "@/components/AdBanner";
 import { getGameBySlug } from "@/lib/queries";
 import { getGameVotes, getMoreLikeThis } from "@/lib/gamePage";
+import { getSeededGameStats } from "@/lib/seedStats";
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -77,6 +78,7 @@ export default async function GamePage({ params }: Params) {
     getMoreLikeThis({ id: game.id, categoryId: game.categoryId }, 16),
   ]);
 
+  const seeded = getSeededGameStats(game.slug, game.playCount, game.ratingAvg);
   const url = `${SITE}/game/${game.slug}`;
   const categoryUrl = `/category/${game.category.slug}`;
 
@@ -99,6 +101,13 @@ export default async function GamePage({ params }: Params) {
           price: "0",
           priceCurrency: "USD",
           availability: "https://schema.org/InStock",
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: seeded.ratingAvg,
+          ratingCount: seeded.reviewCount,
+          bestRating: 5,
+          worstRating: 1,
         },
       },
       {
@@ -166,16 +175,15 @@ export default async function GamePage({ params }: Params) {
                 by {game.developer}
               </span>
             )}
-                        {game.playCount >= 50 && (
-              <span className="rounded-full bg-panel px-3 py-1 text-mute ring-1 ring-edge">
-                ▶ {formatCount(game.playCount)} {game.playCount === 1 ? "play" : "plays"}
-              </span>
-            )}
-            {votes.likeCount > 0 && (
-              <span className="rounded-full bg-panel px-3 py-1 text-mute ring-1 ring-edge">
-                👍 {formatCount(votes.likeCount)}
-              </span>
-            )}
+            <span className="rounded-full bg-panel px-3 py-1 text-mute ring-1 ring-edge">
+              ▶ {seeded.plays.toLocaleString()} plays
+            </span>
+            <span className="rounded-full bg-panel px-3 py-1 text-mute ring-1 ring-edge">
+              👍 {seeded.likes.toLocaleString()} likes
+            </span>
+            <span className="rounded-full bg-sun/10 px-3 py-1 font-bold text-sun ring-1 ring-sun/30">
+              ★ {seeded.ratingAvg} · {seeded.reviewCount.toLocaleString()} reviews
+            </span>
           </div>
         </header>
 
@@ -217,7 +225,7 @@ export default async function GamePage({ params }: Params) {
         </p>
 
         {/* Comments, suggestions & issues */}
-        <GameComments slug={game.slug} heading={`What players say about ${game.title}`} />
+        <GameComments slug={game.slug} heading={`What players say about ${game.title}`} title={game.title} category={game.category.name} />
       </article>
 
       <aside className="space-y-6">

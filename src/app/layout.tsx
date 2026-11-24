@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Script from "next/script";
-import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import FxLayer from "@/components/FxLayer";
 import { AuthProvider } from "@/context/AuthContext";
@@ -8,8 +7,9 @@ import AuthModal from "@/components/AuthModal";
 import { getNavCategories } from "@/lib/queries";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display" });
-const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
+const display = Outfit({ subsets: ["latin"], variable: "--font-display" });
+const body = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-body" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   icons: {
@@ -34,8 +34,21 @@ export const metadata: Metadata = {
     "free online games",
     "browser games",
     "unblocked games",
+    "unblocked games 76",
+    "unblocked games wtf",
     "multiplayer games",
     "3d webgl games",
+    "io games",
+    "2 player games",
+    "games to play at school",
+    "free games no download",
+    "html5 games",
+    "online games free",
+    "cool math games",
+    "battle royale browser game",
+    "shooting games online",
+    "racing games online",
+    "puzzle games free",
   ],
   alternates: {
     canonical: "https://arcadiagames.app",
@@ -54,7 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const adsenseId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9212888811032637";
 
   return (
-    <html lang="en" className={display.variable + " " + body.variable}>
+    <html lang="en" className={display.variable + " " + body.variable + " " + mono.variable}>
       <head>
         <script
           async
@@ -69,22 +82,64 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <AuthModal />
           <main className="flex-1">{children}</main>
         </AuthProvider>
-        <footer className="mt-20 border-t border-edge bg-panel/50 py-8 text-center text-xs text-mute">
-          <div className="mx-auto max-w-[1600px] px-4 space-y-1.5">
-            <p className="font-display font-bold text-fg">ARCADIA GAMES (ARCADIAGAMES.APP)</p>
-            <p>
-              Play free HTML5 & 3D browser games online. All games and trademarks are property of their respective creators and distributed via authorized publisher feeds.
-            </p>
-            <p className="text-fg/80">
-              DMCA / Copyright Takedown & Business Inquiries:{" "}
-              <a
-                href="mailto:contact@arcadiagames.app"
-                className="font-semibold text-arcade-soft hover:underline"
-              >
-                contact@arcadiagames.app
-              </a>{" "}
-              (or use the in-game <strong>Report</strong> button for instant review).
-            </p>
+        <footer className="mt-20 border-t border-edge bg-panel/50 py-10 text-xs text-mute">
+          <div className="mx-auto max-w-[1600px] px-4 space-y-6">
+            {/* Nav links */}
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="space-y-2">
+                <p className="font-display font-extrabold text-fg uppercase tracking-widest text-[11px]">Explore</p>
+                <ul className="space-y-1.5">
+                  <li><a href="/" className="hover:text-fg transition">🏠 Home</a></li>
+                  <li><a href="/games" className="hover:text-fg transition">🎮 All Games</a></li>
+                  <li><a href="/scores" className="hover:text-fg transition">🏆 Scores</a></li>
+                  <li><a href="/reviews" className="hover:text-fg transition">⭐ Reviews</a></li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <p className="font-display font-extrabold text-fg uppercase tracking-widest text-[11px]">Collections</p>
+                <ul className="space-y-1.5">
+                  <li><a href="/collection/trending-now" className="hover:text-fg transition">🔥 Trending Now</a></li>
+                  <li><a href="/collection/3d" className="hover:text-fg transition">🧊 3D Games</a></li>
+                  <li><a href="/collection/multiplayer" className="hover:text-fg transition">🌍 Multiplayer</a></li>
+                  <li><a href="/collection/zombie" className="hover:text-fg transition">🧟 Zombie</a></li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <p className="font-display font-extrabold text-fg uppercase tracking-widest text-[11px]">Categories</p>
+                <ul className="space-y-1.5">
+                  <li><a href="/category/shooting" className="hover:text-fg transition">🔫 Shooting</a></li>
+                  <li><a href="/category/driving" className="hover:text-fg transition">🚗 Driving</a></li>
+                  <li><a href="/category/io" className="hover:text-fg transition">⚡ .io Games</a></li>
+                  <li><a href="/category/puzzle" className="hover:text-fg transition">🧩 Puzzle</a></li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <p className="font-display font-extrabold text-fg uppercase tracking-widest text-[11px]">Info</p>
+                <ul className="space-y-1.5">
+                  <li><a href="/about" className="hover:text-fg transition">🛡️ About &amp; DMCA</a></li>
+                  <li><a href="/help" className="hover:text-fg transition">❓ Help</a></li>
+                  <li><a href="/signup" className="hover:text-fg transition">☁️ Cloud Save</a></li>
+                  <li><a href="/feedback" className="hover:text-fg transition">💬 Feedback</a></li>
+                </ul>
+              </div>
+            </div>
+            {/* Legal */}
+            <div className="border-t border-edge pt-4 text-center space-y-1.5">
+              <p className="font-display font-bold text-fg">ARCADIA GAMES (ARCADIAGAMES.APP)</p>
+              <p>
+                Play free HTML5 &amp; 3D browser games online. All games and trademarks are property of their respective creators and distributed via authorized publisher feeds.
+              </p>
+              <p className="text-fg/80">
+                DMCA / Copyright Takedown &amp; Business Inquiries:{" "}
+                <a
+                  href="mailto:contact@arcadiagames.app"
+                  className="font-semibold text-arcade-soft hover:underline"
+                >
+                  contact@arcadiagames.app
+                </a>{" "}
+                (or use the in-game <strong>Report</strong> button for instant review).
+              </p>
+            </div>
           </div>
         </footer>
       </body>

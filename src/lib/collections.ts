@@ -12,6 +12,38 @@ export type Collection = {
 
 export const COLLECTIONS: Collection[] = [
   {
+    slug: "trending-now",
+    name: "Trending Now",
+    icon: "🔥",
+    seoName: "Trending Games",
+    intro:
+      "The hottest games everyone is playing right now. Updated daily based on play counts and player ratings — jump in before the lobbies fill up.",
+  },
+  {
+    slug: "latest-games",
+    name: "Latest Games",
+    icon: "✨",
+    seoName: "Latest Games",
+    intro:
+      "Fresh games added this week. Be among the first to try brand-new titles across every genre — racing, shooting, puzzle, .io, and more.",
+  },
+  {
+    slug: "live-multiplayer",
+    name: "Live Multiplayer",
+    icon: "🌐",
+    seoName: "Live Multiplayer Games",
+    intro:
+      "Real players, real matches, right now. Jump into live .io arenas, battle royales and team games with zero download — just click and play.",
+  },
+  {
+    slug: "unblocked-hits",
+    name: "Unblocked Hits",
+    icon: "🚫",
+    seoName: "Unblocked Games",
+    intro:
+      "Top-rated unblocked games that work at school or work. No Flash, no installs — 100% browser-based fun that runs anywhere.",
+  },
+  {
     slug: "sort-puzzle",
     name: "Sort Puzzles",
     icon: "🧪",
@@ -76,26 +108,77 @@ function toCard(r: any): GameCardData {
   };
 }
 
-/** All published games in a collection, most played first */
+/** All published games in a collection, most played first — with fallbacks for new collections */
 export async function getCollectionGames(tagSlug: string): Promise<GameCardData[]> {
   const db = getSupabase();
   try {
+    // Try tag-based query first
     const { data: tag } = await db.from("tags").select("id").eq("slug", tagSlug).maybeSingle();
-    if (!tag) return [];
 
-    const { data: links } = await db.from("game_tags").select("game_id").eq("tag_id", (tag as any).id);
-    const ids = (links ?? []).map((l: any) => l.game_id);
-    if (ids.length === 0) return [];
+    if (tag) {
+      const { data: links } = await db.from("game_tags").select("game_id").eq("tag_id", (tag as any).id);
+      const ids = (links ?? []).map((l: any) => l.game_id);
+      if (ids.length > 0) {
+        const { data: rows } = await db
+          .from("games")
+          .select(COLUMNS)
+          .eq("is_published", true)
+          .in("id", ids)
+          .order("play_count", { ascending: false })
+          .limit(200);
+        if ((rows ?? []).length > 0) return (rows ?? []).map(toCard);
+      }
+    }
 
-    const { data: rows } = await db
-      .from("games")
-      .select(COLUMNS)
-      .eq("is_published", true)
-      .in("id", ids)
-      .order("play_count", { ascending: false })
-      .limit(200);
+    // Fallback queries for new collections without DB tags
+    if (tagSlug === "trending-now") {
+      const { data: rows } = await db
+        .from("games")
+        .select(COLUMNS)
+        .eq("is_published", true)
+        .eq("is_featured", true)
+        .order("play_count", { ascending: false })
+        .limit(100);
+      return (rows ?? []).map(toCard);
+    }
 
-    return (rows ?? []).map(toCard);
+    if (tagSlug === "latest-games") {
+      const { data: rows } = await db
+        .from("games")
+        .select(COLUMNS)
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return (rows ?? []).map(toCard);
+    }
+
+    if (tagSlug === "live-multiplayer") {
+      // Try category slug "io" then "multiplayer"
+      const { data: cats } = await db.from("categories").select("id").in("slug", ["io", "multiplayer"]);
+      const catIds = (cats ?? []).map((c: any) => c.id);
+      if (catIds.length > 0) {
+        const { data: rows } = await db
+          .from("games")
+          .select(COLUMNS)
+          .eq("is_published", true)
+          .in("category_id", catIds)
+          .order("play_count", { ascending: false })
+          .limit(100);
+        return (rows ?? []).map(toCard);
+      }
+    }
+
+    if (tagSlug === "unblocked-hits") {
+      const { data: rows } = await db
+        .from("games")
+        .select(COLUMNS)
+        .eq("is_published", true)
+        .order("play_count", { ascending: false })
+        .limit(100);
+      return (rows ?? []).map(toCard);
+    }
+
+    return [];
   } catch {
     return [];
   }

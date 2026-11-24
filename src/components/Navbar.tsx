@@ -23,6 +23,10 @@ type NavbarProps = {
 type Suggestion = { slug: string; title: string; thumbnailUrl: string };
 
 const COLLECTIONS = [
+  { slug: "trending-now", name: "Trending Now", icon: "🔥" },
+  { slug: "latest-games", name: "Latest Games", icon: "✨" },
+  { slug: "live-multiplayer", name: "Live Multiplayer", icon: "🌐" },
+  { slug: "unblocked-hits", name: "Unblocked Hits", icon: "🚫" },
   { slug: "sort-puzzle", name: "Sort Puzzles", icon: "🧪" },
   { slug: "3d", name: "3D Games", icon: "🧊" },
   { slug: "2-player", name: "2 Player", icon: "👥" },
@@ -340,11 +344,24 @@ function NavbarInner({ categories = [] }: NavbarProps) {
               </button>
             )}
 
+            {/* Quick nav links for desktop */}
+            <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-bold text-mute">
+              <Link href="/games" className="rounded-xl px-2.5 py-1.5 hover:text-fg hover:bg-panel transition">
+                🎮 All Games
+              </Link>
+              <Link href="/scores" className="rounded-xl px-2.5 py-1.5 hover:text-fg hover:bg-panel transition">
+                🏆 Scores
+              </Link>
+              <Link href="/reviews" className="rounded-xl px-2.5 py-1.5 hover:text-fg hover:bg-panel transition">
+                ⭐ Reviews
+              </Link>
+            </div>
+
             <Link
               href="/about"
               className="hidden lg:inline-flex items-center rounded-xl bg-panel px-3 py-2 text-xs font-bold text-mute ring-1 ring-edge transition-all hover:text-fg hover:ring-arcade/60"
             >
-              About & DMCA
+              About &amp; DMCA
             </Link>
           </div>
         </div>
@@ -481,18 +498,43 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                 )}
               </div>
 
-              {/* Home */}
-              <Link href="/" onClick={close} className={itemClass(pathname === "/")}>
-                <span className="flex items-center gap-2.5">
-                  <span className="text-base">🏠</span>
-                  <span>All Games (Home)</span>
-                </span>
-              </Link>
+              {/* 1. Explore */}
+              <div className="space-y-1">
+                <p className="px-2 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-arcade">
+                  Explore
+                </p>
+                <Link href="/" onClick={close} className={itemClass(pathname === "/")}>
+                  <span className="flex items-center gap-2.5">
+                    <span className="text-base">🏠</span>
+                    <span>Home</span>
+                  </span>
+                </Link>
+                <Link href="/games" onClick={close} className={itemClass(pathname === "/games")}>
+                  <span className="flex items-center gap-2.5">
+                    <span className="text-base">🎮</span>
+                    <span>All Games</span>
+                  </span>
+                </Link>
+                <Link href="/scores" onClick={close} className={itemClass(pathname === "/scores")}>
+                  <span className="flex items-center gap-2.5">
+                    <span className="text-base">🏆</span>
+                    <span>Scores & Leaderboard</span>
+                  </span>
+                </Link>
+                <Link href="/reviews" onClick={close} className={itemClass(pathname === "/reviews")}>
+                  <span className="flex items-center gap-2.5">
+                    <span className="text-base">⭐</span>
+                    <span>Player Reviews</span>
+                  </span>
+                </Link>
+              </div>
 
-              {/* Collections */}
+              <div className="section-divider my-2" />
+
+              {/* 2. Collections */}
               <div className="space-y-1.5">
                 <p className="px-2 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-sun">
-                  Collections
+                  Trending Collections
                 </p>
                 {COLLECTIONS.map((c) => (
                   <Link
@@ -510,10 +552,12 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                 ))}
               </div>
 
-              {/* Categories */}
+              <div className="section-divider my-2" />
+
+              {/* 3. Categories */}
               <div className="space-y-1.5">
                 <p className="px-2 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-mute">
-                  Categories
+                  Game Categories
                 </p>
                 {categories.length === 0 && (
                   <p className="px-2 text-xs text-mute">Categories could not load. Please refresh the page.</p>
@@ -532,6 +576,39 @@ function NavbarInner({ categories = [] }: NavbarProps) {
                     <span className="text-[10px] text-arcade opacity-0 group-hover:opacity-100">→</span>
                   </Link>
                 ))}
+              </div>
+
+              <div className="section-divider my-2" />
+
+              {/* 4. Info & Account */}
+              <div className="space-y-1 text-xs">
+                <p className="px-2 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-mute">
+                  Info &amp; Account
+                </p>
+                <Link href="/about" onClick={close} className={itemClass(pathname === "/about")}>
+                  <span className="flex items-center gap-2.5">
+                    <span>🛡️</span>
+                    <span>About &amp; DMCA</span>
+                  </span>
+                </Link>
+                <Link href="/help" onClick={close} className={itemClass(pathname === "/help")}>
+                  <span className="flex items-center gap-2.5">
+                    <span>❓</span>
+                    <span>Help &amp; FAQ</span>
+                  </span>
+                </Link>
+                <Link href="/signup" onClick={close} className={itemClass(pathname === "/signup")}>
+                  <span className="flex items-center gap-2.5">
+                    <span>☁️</span>
+                    <span>Sign Up / Cloud Save</span>
+                  </span>
+                </Link>
+                <Link href="/feedback" onClick={close} className={itemClass(pathname === "/feedback")}>
+                  <span className="flex items-center gap-2.5">
+                    <span>💬</span>
+                    <span>Feedback</span>
+                  </span>
+                </Link>
               </div>
             </div>
 

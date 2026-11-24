@@ -4,6 +4,7 @@ import type { GameCardData } from "@/lib/queries";
 
 type Props = {
   title: string;
+  subtitle?: string;
   games: GameCardData[];
   href?: string;
   icon?: string | null;
@@ -16,6 +17,7 @@ type Props = {
 
 export default function GameGrid({
   title,
+  subtitle,
   games,
   href,
   icon,
@@ -33,7 +35,7 @@ export default function GameGrid({
 
   return (
     <section aria-labelledby={"grid-" + title} className="fade-up mt-10">
-      <div className="mb-4 flex items-center justify-between border-b border-edge/60 pb-2.5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-edge/60 pb-2.5">
         <div className="flex items-center gap-2.5">
           {icon ? (
             <span
@@ -43,12 +45,20 @@ export default function GameGrid({
               {icon}
             </span>
           ) : null}
-          <h2
-            id={"grid-" + title}
-            className="font-display text-xl font-extrabold tracking-tight text-fg sm:text-2xl"
-          >
-            {title}
-          </h2>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2
+                id={"grid-" + title}
+                className="font-display text-xl font-extrabold tracking-tight text-fg sm:text-2xl"
+              >
+                {title}
+              </h2>
+              <span className="rounded-full bg-panel px-2 py-0.5 text-[10px] font-bold text-mute ring-1 ring-edge">
+                {games.length}
+              </span>
+            </div>
+            {subtitle && <p className="text-xs text-mute mt-0.5">{subtitle}</p>}
+          </div>
         </div>
         {href ? (
           <Link

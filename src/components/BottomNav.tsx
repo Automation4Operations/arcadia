@@ -4,10 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
-function fire(name: string) {
-  window.dispatchEvent(new Event(name));
-}
-
 export default function BottomNav() {
   const pathname = usePathname() || "/";
 
@@ -31,18 +27,18 @@ export default function BottomNav() {
         <span className="text-lg leading-none">🏠</span>
         Home
       </Link>
-      <button type="button" onClick={() => fire("arcadia:open-menu")} className={`${tab} ${idle}`}>
-        <span className="text-lg leading-none">☰</span>
-        Menu
-      </button>
-      <button type="button" onClick={() => fire("arcadia:open-search")} className={`${tab} ${idle}`}>
-        <span className="text-lg leading-none">🔍</span>
-        Search
-      </button>
-      <button type="button" onClick={() => fire("arcadia:open-vault")} className={`${tab} ${idle}`}>
-        <span className="text-lg leading-none">⚡</span>
-        Vault
-      </button>
+      <Link href="/games" className={`${tab} ${pathname === "/games" ? active : idle}`}>
+        <span className="text-lg leading-none">🎮</span>
+        All
+      </Link>
+      <Link href="/scores" className={`${tab} ${pathname === "/scores" ? active : idle}`}>
+        <span className="text-lg leading-none">🏆</span>
+        Scores
+      </Link>
+      <Link href="/reviews" className={`${tab} ${pathname === "/reviews" ? active : idle}`}>
+        <span className="text-lg leading-none">⭐</span>
+        Reviews
+      </Link>
       <Link href="/profile" className={`${tab} ${pathname === "/profile" ? active : idle}`}>
         <span className="text-lg leading-none">👤</span>
         Me
@@ -50,3 +46,4 @@ export default function BottomNav() {
     </nav>
   );
 }
+

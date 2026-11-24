@@ -295,7 +295,22 @@ html, body {
   to { transform: translate3d(6vmax, 4vmax, 0) scale(1.15); }
 }
 
-/* ===== Hide scrollbars (category pills, drawers) ===== */
+/* ===== AdSense Dark Theme & Blank White Fix ===== */
+ins.adsbygoogle {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+ins.adsbygoogle iframe {
+  background: transparent !important;
+  background-color: transparent !important;
+  color-scheme: dark !important;
+}
+ins.adsbygoogle[data-ad-status="unfilled"] {
+  display: none !important;
+}
+.ad-slot-box:has(ins[data-ad-status="unfilled"]) {
+  display: none !important;
+}
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;

@@ -83,7 +83,7 @@ export default async function HomePage() {
   };
 
   return (
-    <main className="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-[1440px] space-y-10 px-4 py-6 sm:px-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -91,8 +91,8 @@ export default async function HomePage() {
         }}
       />
 
-      {/* Trending Tags Bar */}
-      <section aria-label="Trending search tags" className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      {/* Trending Tags Bar - Centered & Balanced */}
+      <section aria-label="Trending search tags" className="flex flex-wrap items-center justify-center gap-2 py-1">
         {TRENDING_TAGS.map((tag) => (
           <Link
             key={tag.href}

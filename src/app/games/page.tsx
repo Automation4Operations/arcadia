@@ -21,7 +21,7 @@ export default async function GamesPage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-[1440px] space-y-6 px-4 py-6 sm:px-6">
       {/* Header */}
       <div className="rounded-3xl bg-panel/60 p-6 ring-1 ring-edge sm:p-8">
         <h1 className="font-display text-3xl font-black text-fg sm:text-4xl">

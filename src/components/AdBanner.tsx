@@ -43,7 +43,7 @@ export default function AdBanner({
 
   return (
     <div
-      className={`relative my-4 overflow-hidden rounded-2xl border border-edge/60 bg-panel/40 p-2.5 text-center flex flex-col items-center justify-center backdrop-blur-sm transition-all hover:border-arcade/30 ${styleMap[format]} ${className}`}
+      className={`ad-slot-box relative my-6 overflow-hidden rounded-2xl border border-edge/60 bg-panel/60 p-3 text-center flex flex-col items-center justify-center backdrop-blur-sm transition-all hover:border-arcade/30 ${styleMap[format]} ${className}`}
     >
       <span className="mb-1 text-[9px] font-black uppercase tracking-widest text-mute/50 select-none">
         Advertisement
@@ -53,7 +53,7 @@ export default function AdBanner({
         <ins
           ref={adRef}
           className="adsbygoogle block w-full"
-          style={{ display: "block" }}
+          style={{ display: "block", backgroundColor: "transparent" }}
           data-ad-client={client}
           data-ad-slot={slot}
           data-ad-format={format === "auto" ? "auto" : undefined}

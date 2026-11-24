@@ -49,7 +49,7 @@ export default async function CategoryPage({ params }: Params) {
   const games = await searchGames({ category: slug, take: 250 });
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 pb-16">
+    <div className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-6">
       <CategoryChips categories={categories} active={slug} />
       <header className="fade-up mt-8">
         <h1 className="font-display text-3xl font-black text-fg sm:text-4xl">

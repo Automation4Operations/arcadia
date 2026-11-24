@@ -83,7 +83,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main className="flex-1">{children}</main>
         </AuthProvider>
         <footer className="mt-20 border-t border-edge bg-panel/50 py-10 text-xs text-mute">
-          <div className="mx-auto max-w-[1600px] px-4 space-y-6">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 space-y-6">
             {/* Nav links */}
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div className="space-y-2">

@@ -18,7 +18,7 @@ export default async function ReviewsPage() {
   const topGames = await getTrending(20);
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6">
+    <main className="mx-auto max-w-[1440px] space-y-8 px-4 py-8 sm:px-6">
       <div className="rounded-3xl bg-panel/60 p-6 ring-1 ring-edge sm:p-8">
         <h1 className="font-display text-3xl font-black text-fg sm:text-4xl">
           ⭐ Player Reviews &amp; Ratings

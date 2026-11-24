@@ -122,7 +122,7 @@ export default async function GamePage({ params }: Params) {
   };
 
   return (
-    <div className="mx-auto grid max-w-[1600px] gap-6 px-3 py-4 sm:px-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8 lg:py-6">
+    <div className="mx-auto grid max-w-[1440px] gap-6 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8 lg:py-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}

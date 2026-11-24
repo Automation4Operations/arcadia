@@ -276,45 +276,47 @@ function NavbarInner({ categories = [] }: NavbarProps) {
             </div>
           </form>
 
-          {/* Right: quick action buttons */}
-          <div className="flex items-center gap-2">
+          {/* Right: navigation & action buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Direct Page Links */}
+            <div className="hidden xl:flex items-center gap-1 text-xs font-bold text-mute">
+              <Link
+                href="/games"
+                className="rounded-xl px-2.5 py-2 hover:text-fg hover:bg-panel transition whitespace-nowrap"
+              >
+                🎮 Games
+              </Link>
+              <Link
+                href="/scores"
+                className="rounded-xl px-2.5 py-2 hover:text-fg hover:bg-panel transition whitespace-nowrap"
+              >
+                🏆 Scores
+              </Link>
+              <Link
+                href="/reviews"
+                className="rounded-xl px-2.5 py-2 hover:text-fg hover:bg-panel transition whitespace-nowrap"
+              >
+                ⭐ Reviews
+              </Link>
+            </div>
+
             <a
               href="/api/random"
               rel="nofollow"
               aria-label="Play a random game"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-arcade px-3 py-2 text-xs font-extrabold text-ink ring-1 ring-arcade transition-all hover:scale-105 hover:brightness-110 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-arcade px-3 py-2 text-xs font-extrabold text-ink ring-1 ring-arcade transition-all hover:scale-105 hover:brightness-110 active:scale-95 whitespace-nowrap"
             >
               <span>🎲</span>
               <span className="hidden sm:inline">Random</span>
             </a>
 
-            <a
-              href="/api/random?mode=quick"
-              rel="nofollow"
-              aria-label="Quick Break: a random quick casual game"
-              title="Quick Break: a short puzzle or arcade game"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:scale-105 hover:ring-sun hover:text-sun active:scale-95"
-            >
-              <span>☕</span>
-              <span className="hidden lg:inline">Quick Break</span>
-            </a>
-            <Link
-              href="/collection/3d"
-              className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-pink-500/20 px-3 py-2 text-xs font-extrabold text-sun ring-1 ring-sun/40 transition-all hover:scale-105 hover:ring-sun"
-            >
-              <span>🧊</span>
-              <span>Explore 3D</span>
-            </Link>
-
             <button
               type="button"
               onClick={() => setVaultOpen(true)}
-              className="group hidden md:flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:bg-arcade hover:text-ink hover:ring-arcade cursor-pointer"
+              className="group hidden lg:flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:bg-arcade hover:text-ink hover:ring-arcade cursor-pointer whitespace-nowrap"
             >
-              <span>⚡</span>
               <span>🕹️</span>
-              <span className="xl:hidden">Recent</span>
-              <span className="hidden xl:inline">Recently Played</span>
+              <span className="2xl:inline hidden">Recent</span>
               {recentCount > 0 && (
                 <span className="rounded-full bg-arcade px-1.5 text-[10px] font-black text-ink group-hover:bg-ink group-hover:text-arcade">
                   {recentCount}
@@ -324,42 +326,28 @@ function NavbarInner({ categories = [] }: NavbarProps) {
 
             <Link
               href="/profile"
-              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:ring-arcade hover:scale-105"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-panel px-3 py-2 text-xs font-extrabold text-fg ring-1 ring-edge transition-all hover:ring-arcade hover:scale-105 whitespace-nowrap"
             >
               <span className="flex h-5 w-5 items-center justify-center rounded-md bg-ink text-[10px] font-black text-arcade ring-1 ring-arcade/40">
                 L{playerLevel}
               </span>
-              <span className="hidden xl:inline">{user ? "Cloud Synced" : "Me"}</span>
-              <span className="xl:hidden">Me</span>
+              <span>{user ? "Profile" : "Me"}</span>
             </Link>
 
             {!user && (
               <button
                 type="button"
                 onClick={openAuthModal}
-                className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-ink px-3 py-2 text-xs font-extrabold text-arcade ring-1 ring-edge hover:ring-arcade hover:scale-105 transition cursor-pointer"
+                className="hidden xl:inline-flex items-center gap-1 rounded-xl bg-ink px-2.5 py-2 text-xs font-extrabold text-arcade ring-1 ring-edge hover:ring-arcade transition cursor-pointer whitespace-nowrap"
               >
                 <span>☁️</span>
                 <span>Sync</span>
               </button>
             )}
 
-            {/* Quick nav links for desktop */}
-            <div className="hidden 2xl:flex items-center gap-1.5 text-xs font-bold text-mute">
-              <Link href="/games" className="rounded-xl px-2.5 py-1.5 hover:text-fg hover:bg-panel transition">
-                🎮 All Games
-              </Link>
-              <Link href="/scores" className="rounded-xl px-2.5 py-1.5 hover:text-fg hover:bg-panel transition">
-                🏆 Scores
-              </Link>
-              <Link href="/reviews" className="rounded-xl px-2.5 py-1.5 hover:text-fg hover:bg-panel transition">
-                ⭐ Reviews
-              </Link>
-            </div>
-
             <Link
               href="/about"
-              className="hidden lg:inline-flex items-center rounded-xl bg-panel px-3 py-2 text-xs font-bold text-mute ring-1 ring-edge transition-all hover:text-fg hover:ring-arcade/60"
+              className="hidden lg:inline-flex items-center rounded-xl bg-panel px-3 py-2 text-xs font-bold text-mute ring-1 ring-edge transition-all hover:text-fg hover:ring-arcade/60 whitespace-nowrap shrink-0"
             >
               About &amp; DMCA
             </Link>

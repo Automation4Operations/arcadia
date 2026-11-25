@@ -3,6 +3,7 @@
 export type SeededGameStats = {
   plays: number;
   likes: number;
+  dislikes: number;
   reviewCount: number;
   ratingAvg: number;
 };
@@ -40,20 +41,37 @@ function rng(slug: string, salt: string, min: number, max: number): number {
   return Math.round(min + r * (max - min));
 }
 
-/** Returns realistic stats for any game, deterministically, all under 1000 */
+/** Returns realistic stats for any game, deterministically.
+ *  If realPlays > 0, likes/dislikes scale proportionally to it (5:1 ratio).
+ *  Otherwise falls back to a seeded static number under 1000. */
 export function getSeededGameStats(
   slug: string,
   realPlays = 0,
   realRating = 0
 ): SeededGameStats {
-  const plays = rng(slug, "plays", 118, 976);
-  const likes = rng(slug, "likes", 104, 933);
-  const reviewCount = rng(slug, "reviews", 101, 864);
+  // Variance factors — unique per game slug
+  const likeFraction = 0.55 + seeded(hash(slug + "lf")) * 0.20; // 55–75% of plays
+  const dislikeFraction = likeFraction / 5;                       // 1 dislike per 5 likes
+
+  let plays: number;
+  let likes: number;
+  let dislikes: number;
+
+  if (realPlays > 0) {
+    plays = realPlays;
+    likes = Math.max(1, Math.round(plays * likeFraction));
+    dislikes = Math.max(0, Math.round(plays * dislikeFraction));
+  } else {
+    plays = rng(slug, "plays", 118, 976);
+    likes = Math.max(1, Math.round(plays * likeFraction));
+    dislikes = Math.max(0, Math.round(plays * dislikeFraction));
+  }
+
+  const reviewCount = Math.max(1, Math.round(plays * (0.08 + seeded(hash(slug + "rc")) * 0.12)));
   const rawRating = 4.3 + seeded(hash(slug + "rating")) * 0.6; // 4.3–4.9
   const ratingAvg = realRating > 0 ? Math.min(4.9, Math.max(4.3, realRating)) : Math.round(rawRating * 10) / 10;
 
-  void realPlays; // We show seeded plays to keep all games consistent under 1000
-  return { plays, likes, reviewCount, ratingAvg };
+  return { plays, likes, dislikes, reviewCount, ratingAvg };
 }
 
 const GAMER_NAMES = [

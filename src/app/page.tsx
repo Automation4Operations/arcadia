@@ -243,6 +243,26 @@ export default async function HomePage() {
           bento
         />
       ))}
+
+      {/* SEO Keyword-Rich Footer Section — boosts search rankings */}
+      <section className="rounded-3xl bg-panel/40 p-6 ring-1 ring-edge sm:p-8">
+        <h2 className="font-display text-2xl font-black text-fg mb-2">Why Play on Arcadia Games?</h2>
+        <p className="text-sm text-mute mb-5">
+          The best free online gaming experience — no downloads, no registration, just instant fun.
+        </p>
+        <ul className="grid gap-2.5 sm:grid-cols-2 text-sm">
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Free online games</strong> <span className="text-mute">— no download, no sign-up ever required</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Unblocked games</strong> <span className="text-mute">— play at school, work, or on any network</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">HTML5 &amp; 3D WebGL games</strong> <span className="text-mute">— runs instantly in any modern browser</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">2 player games</strong> <span className="text-mute">— share one keyboard or screen with a friend</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Live .io multiplayer games</strong> <span className="text-mute">— battle real players from around the world</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Shooting, racing &amp; puzzle games</strong> <span className="text-mute">— hundreds of genres in one place</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Mobile-friendly</strong> <span className="text-mute">— fully optimized for phone and tablet touch</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Cloud save progress</strong> <span className="text-mute">— sync your XP and levels across all devices</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-sun">🏆</span><span><strong className="text-fg">New games every week</strong> <span className="text-mute">— fresh releases added regularly, always free</span></span></li>
+          <li className="flex items-start gap-2"><span className="mt-0.5 text-sun">🏆</span><span><strong className="text-fg">Top games of 2025</strong> <span className="text-mute">— curated picks including trending &amp; viral hits</span></span></li>
+        </ul>
+      </section>
     </main>
   );
 }

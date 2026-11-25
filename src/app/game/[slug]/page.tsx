@@ -179,7 +179,7 @@ export default async function GamePage({ params }: Params) {
               ▶ {seeded.plays.toLocaleString()} plays
             </span>
             <span className="rounded-full bg-panel px-3 py-1 text-mute ring-1 ring-edge">
-              👍 {seeded.likes.toLocaleString()} likes
+              👍 {seeded.likes.toLocaleString()} · 👎 {seeded.dislikes.toLocaleString()}
             </span>
             <span className="rounded-full bg-sun/10 px-3 py-1 font-bold text-sun ring-1 ring-sun/30">
               ★ {seeded.ratingAvg} · {seeded.reviewCount.toLocaleString()} reviews

@@ -11,17 +11,28 @@ type AdBannerProps = {
 
 const DEFAULT_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9212888811032637";
 
+const SLOT_BY_FORMAT: Record<NonNullable<AdBannerProps["format"]>, string | undefined> = {
+  auto: process.env.NEXT_PUBLIC_ADSENSE_SLOT_AUTO,
+  horizontal: process.env.NEXT_PUBLIC_ADSENSE_SLOT_HORIZONTAL || process.env.NEXT_PUBLIC_ADSENSE_SLOT_AUTO,
+  rectangle: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RECTANGLE || process.env.NEXT_PUBLIC_ADSENSE_SLOT_AUTO,
+  vertical: process.env.NEXT_PUBLIC_ADSENSE_SLOT_VERTICAL || process.env.NEXT_PUBLIC_ADSENSE_SLOT_AUTO,
+};
+
 export default function AdBanner({
-  slot = "1234567890",
+  slot,
   client = DEFAULT_CLIENT,
   format = "auto",
   className = "",
 }: AdBannerProps) {
   const adRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
-  const [adFilled, setAdFilled] = useState(false);
+  const [adUnfilled, setAdUnfilled] = useState(false);
 
-  const isLive = client && client.startsWith("ca-pub-") && client !== "ca-pub-XXXXXXXXXXXXXXXX";
+  const resolvedSlot = slot || SLOT_BY_FORMAT[format] || "";
+  const isValidSlot = /^\d{6,}$/.test(resolvedSlot) && resolvedSlot !== "1234567890";
+  const isLive = Boolean(
+    client && client.startsWith("ca-pub-") && client !== "ca-pub-XXXXXXXXXXXXXXXX" && isValidSlot
+  );
 
   useEffect(() => {
     if (!isLive || pushed.current) return;
@@ -35,14 +46,17 @@ export default function AdBanner({
     }
   }, [isLive]);
 
-  // Watch the ins element for AdSense filling it
+  // Hide only AFTER AdSense explicitly marks the slot as unfilled (never before, or width=0 blocks filling)
   useEffect(() => {
     const ins = adRef.current;
     if (!ins) return;
-    const observer = new MutationObserver(() => {
+    const sync = () => {
       const status = ins.getAttribute("data-ad-status");
-      setAdFilled(status === "filled");
-    });
+      if (status === "unfilled") setAdUnfilled(true);
+      else if (status === "filled") setAdUnfilled(false);
+    };
+    sync();
+    const observer = new MutationObserver(sync);
     observer.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
     return () => observer.disconnect();
   }, []);
@@ -54,13 +68,11 @@ export default function AdBanner({
     vertical: "w-[160px] min-h-[600px] hidden xl:flex",
   };
 
-  // Don't render anything until ad is filled (avoids white box)
-  if (!isLive) return null;
+  if (!isLive || adUnfilled) return null;
 
   return (
     <div
       className={`ad-slot-box relative my-6 overflow-hidden rounded-2xl border border-edge/60 bg-panel/60 p-3 text-center flex flex-col items-center justify-center backdrop-blur-sm transition-all hover:border-arcade/30 ${styleMap[format]} ${className}`}
-      style={{ display: adFilled ? undefined : "none" }}
     >
       <span className="mb-1 text-[9px] font-black uppercase tracking-widest text-mute/50 select-none">
         Advertisement
@@ -70,7 +82,7 @@ export default function AdBanner({
         className="adsbygoogle block w-full"
         style={{ display: "block", backgroundColor: "transparent" }}
         data-ad-client={client}
-        data-ad-slot={slot}
+        data-ad-slot={resolvedSlot}
         data-ad-format={format === "auto" ? "auto" : undefined}
         data-full-width-responsive="true"
       />

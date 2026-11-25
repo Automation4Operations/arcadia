@@ -27,24 +27,46 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || submitting) return;
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password || submitting) return;
     setSubmitting(true);
     setStatusMsg(null);
 
-    const fn = isSignUp ? signUpWithEmail : signInWithEmail;
-    const res = await fn(email, password);
-
-    if (res.error) {
-      setStatusMsg({ ok: false, text: (res.error as any).message || String(res.error) });
-    } else {
+    try {
+      if (isSignUp) {
+        const res = await signUpWithEmail(cleanEmail, password);
+        if (res.error) {
+          setStatusMsg({ ok: false, text: res.error.message || String(res.error) });
+        } else if (res.needsEmailConfirm) {
+          setStatusMsg({
+            ok: true,
+            text: "Account created! Check your email inbox to confirm your address, then log in.",
+          });
+        } else {
+          setStatusMsg({
+            ok: true,
+            text: "Account created! You are now signed in and your progress is cloud-saved.",
+          });
+        }
+      } else {
+        const res = await signInWithEmail(cleanEmail, password);
+        if (res.error) {
+          setStatusMsg({ ok: false, text: res.error.message || String(res.error) });
+        } else {
+          setStatusMsg({
+            ok: true,
+            text: "Welcome back! Your game progress is now synced.",
+          });
+        }
+      }
+    } catch (err: unknown) {
       setStatusMsg({
-        ok: true,
-        text: isSignUp
-          ? "Account created! You are now signed in and your progress is cloud-saved."
-          : "Welcome back! Your game progress is now synced.",
+        ok: false,
+        text: err instanceof Error ? err.message : "Authentication failed. Please try again.",
       });
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   return (

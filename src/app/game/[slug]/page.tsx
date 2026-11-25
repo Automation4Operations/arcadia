@@ -152,8 +152,8 @@ export default async function GamePage({ params }: Params) {
             iframeUrl: game.iframeUrl,
             width: game.width,
             height: game.height,
-            likeCount: votes.likeCount,
-            dislikeCount: votes.dislikeCount,
+            likeCount: Math.max(votes.likeCount, seeded.likes),
+            dislikeCount: Math.max(votes.dislikeCount, seeded.dislikes),
           }}
         />
 

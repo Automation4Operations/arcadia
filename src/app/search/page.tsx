@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdBanner from "@/components/AdBanner";
 import GameGrid from "@/components/GameGrid";
 import { getAllCategories, getPopularTags, searchGames } from "@/lib/queries";
 
@@ -65,6 +66,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           No games here yet. Try another category or a different keyword.
         </p>
       )}
+
+      <AdBanner format="auto" className="mt-8" />
     </div>
   );
 }

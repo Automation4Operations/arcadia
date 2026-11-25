@@ -46,6 +46,8 @@ export default function AuthModal() {
         const res = await signUpWithEmail(email.trim(), password);
         if (res.error) {
           setError(res.error.message);
+        } else if (res.needsEmailConfirm) {
+          setSuccess("Account created! Please check your email inbox to confirm, then sign in.");
         } else {
           setSuccess("Account created! You are now logged in and progress is cloud-saved.");
           setTimeout(() => closeAuthModal(), 1200);

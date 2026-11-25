@@ -13,7 +13,7 @@ type AuthContextType = {
   openAuthModal: () => void;
   closeAuthModal: () => void;
   signInWithEmail: (email: string, pass: string) => Promise<{ error: Error | null }>;
-  signUpWithEmail: (email: string, pass: string) => Promise<{ error: Error | null }>;
+  signUpWithEmail: (email: string, pass: string) => Promise<{ error: Error | null; needsEmailConfirm?: boolean }>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -58,6 +58,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (event === "SIGNED_IN" && newSession?.user?.id) {
         syncCloudProgress(newSession.user.id).catch(() => {});
+        if (typeof window !== "undefined" && window.location.hash.includes("access_token=")) {
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
       }
     });
 
@@ -73,27 +76,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const res = await supabase.auth.signInWithPassword({ email, password: pass });
     if (res.error) return { error: res.error };
     if (res.data.user) {
-      await syncCloudProgress(res.data.user.id);
+      syncCloudProgress(res.data.user.id).catch(() => {});
     }
     return { error: null };
   };
 
   const signUpWithEmail = async (email: string, pass: string) => {
-    const res = await supabase.auth.signUp({ email, password: pass });
+    const res = await supabase.auth.signUp({
+      email,
+      password: pass,
+      options: {
+        emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/signup` : undefined,
+      },
+    });
     if (res.error) return { error: res.error };
-    if (res.data.user) {
-      await syncCloudProgress(res.data.user.id);
+    if (res.data.user && res.data.session) {
+      syncCloudProgress(res.data.user.id).catch(() => {});
     }
-    return { error: null };
+    return { error: null, needsEmailConfirm: Boolean(res.data.user && !res.data.session) };
   };
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+        redirectTo: typeof window !== "undefined" ? `${window.location.origin}/signup` : undefined,
       },
     });
+    if (error) throw error;
   };
 
   const signOut = async () => {

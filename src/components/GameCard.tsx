@@ -130,7 +130,8 @@ export default function GameCard({ game, featured = false, priority = false, her
               {game.category.name}
             </span>
           )}
-          <span>▶ {formatCount(stats.plays)} plays</span>
+          <span>▶ {formatCount(stats.plays)}</span>
+          <span>👍 {formatCount(stats.likes)}</span>
           <span className="ml-auto text-sun font-bold">★ {stats.ratingAvg}</span>
         </div>
       </div>

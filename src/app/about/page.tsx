@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "About Us & DMCA Compliance | Arcadia Games",
@@ -82,6 +83,8 @@ export default function AboutPage() {
           </Link>
         </div>
       </div>
+
+      <AdBanner format="auto" className="mt-8" />
     </main>
   );
 }

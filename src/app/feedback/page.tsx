@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdBanner from "@/components/AdBanner";
 import GameComments from "@/components/GameComments";
 
 export const metadata: Metadata = {
@@ -50,6 +51,8 @@ export default function FeedbackPage() {
           Problem with one specific game? Use the comment box on that game&apos;s page so we know which one.
         </p>
       </header>
+
+      <AdBanner format="auto" className="my-6" />
 
       <GameComments slug={null} heading="Community feedback" />
     </div>

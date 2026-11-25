@@ -22,9 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const label = roundedGameLabel(total);
 
   const title = label
-    ? `Arcadia Games – Play ${label} Free Online Games, No Download`
-    : "Arcadia Games – Free Online Games, No Download";
-  const description = `Play ${label || "hundreds of"} free online games instantly on Arcadia Games – shooters, racing, .io battles, puzzles & 2-player fun. No download, no sign-up, on phone or PC.`;
+    ? `Arcadia Games – Play ${label} Free Online Games, Multiplayer & .io`
+    : "Arcadia Games – Free Online Gaming Website, No Download";
+  const description = `Play ${label || "hundreds of"} free online games on Arcadia Games (ArcadiaGames.app) — multiplayer .io games, action, brain puzzles, online chess, ludo, racing & 3D WebGL. No download!`;
 
   return {
     title: { absolute: title },
@@ -90,6 +90,23 @@ export default async function HomePage() {
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
+
+      {/* Primary SEO H1 & Semantic Intro */}
+      <header className="rounded-3xl bg-panel/60 px-5 py-5 ring-1 ring-edge sm:px-8 sm:py-6">
+        <h1 className="font-display text-2xl font-black tracking-tight text-fg sm:text-4xl">
+          Arcadia Games — Free Online Games, Multiplayer, .io, Action &amp; Brain Games
+        </h1>
+        <p className="mt-2 max-w-4xl text-xs leading-relaxed text-mute sm:text-sm">
+          Welcome to <strong className="text-fg">Arcadia Games (ArcadiaGames.app)</strong>, your instant{" "}
+          <strong className="text-fg">online gaming website</strong> with {roundedGameLabel(total) || "hundreds of"} free browser games. Play{" "}
+          <Link href="/category/io" className="text-arcade hover:underline">multiplayer .io games</Link>,{" "}
+          <Link href="/category/action" className="text-arcade hover:underline">action games</Link>,{" "}
+          <Link href="/category/puzzle" className="text-arcade hover:underline">brain &amp; sort puzzles</Link>,{" "}
+          <Link href="/category/board" className="text-arcade hover:underline">online chess &amp; ludo</Link>,{" "}
+          <Link href="/category/driving" className="text-arcade hover:underline">3D driving</Link>, and{" "}
+          <Link href="/collection/2-player" className="text-arcade hover:underline">2 player unblocked games</Link> — zero downloads, no sign-up required.
+        </p>
+      </header>
 
       {/* Trending Tags Bar - Centered & Balanced */}
       <section aria-label="Trending search tags" className="flex flex-wrap items-center justify-center gap-2 py-1">
@@ -244,24 +261,46 @@ export default async function HomePage() {
         />
       ))}
 
-      {/* SEO Keyword-Rich Footer Section — boosts search rankings */}
-      <section className="rounded-3xl bg-panel/40 p-6 ring-1 ring-edge sm:p-8">
-        <h2 className="font-display text-2xl font-black text-fg mb-2">Why Play on Arcadia Games?</h2>
-        <p className="text-sm text-mute mb-5">
-          The best free online gaming experience — no downloads, no registration, just instant fun.
-        </p>
-        <ul className="grid gap-2.5 sm:grid-cols-2 text-sm">
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Free online games</strong> <span className="text-mute">— no download, no sign-up ever required</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Unblocked games</strong> <span className="text-mute">— play at school, work, or on any network</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">HTML5 &amp; 3D WebGL games</strong> <span className="text-mute">— runs instantly in any modern browser</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">2 player games</strong> <span className="text-mute">— share one keyboard or screen with a friend</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Live .io multiplayer games</strong> <span className="text-mute">— battle real players from around the world</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Shooting, racing &amp; puzzle games</strong> <span className="text-mute">— hundreds of genres in one place</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Mobile-friendly</strong> <span className="text-mute">— fully optimized for phone and tablet touch</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Cloud save progress</strong> <span className="text-mute">— sync your XP and levels across all devices</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-sun">🏆</span><span><strong className="text-fg">New games every week</strong> <span className="text-mute">— fresh releases added regularly, always free</span></span></li>
-          <li className="flex items-start gap-2"><span className="mt-0.5 text-sun">🏆</span><span><strong className="text-fg">Top games of 2025</strong> <span className="text-mute">— curated picks including trending &amp; viral hits</span></span></li>
-        </ul>
+      {/* SEO Keyword-Rich Footer Section — boosts search rankings & internal linking */}
+      <section className="rounded-3xl bg-panel/40 p-6 ring-1 ring-edge sm:p-8 space-y-6">
+        <div>
+          <h2 className="font-display text-2xl font-black text-fg mb-2">
+            Why Play Free Online Games on Arcadia Games?
+          </h2>
+          <p className="text-sm text-mute mb-5">
+            ArcadiaGames.app is built as a fast, free <strong className="text-fg">online gaming website</strong> — play instant HTML5 &amp; 3D WebGL games on desktop, Chromebook, or mobile with no downloads.
+          </p>
+          <ul className="grid gap-2.5 sm:grid-cols-2 text-sm">
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Free online games &amp; browser games</strong> <span className="text-mute">— no download, no installation, instant play</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Unblocked games for school &amp; work</strong> <span className="text-mute">— lightweight HTML5 games that load fast anywhere</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Live multiplayer &amp; .io arena games</strong> <span className="text-mute">— compete online in real time against players worldwide</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Brain games, puzzle, chess &amp; ludo</strong> <span className="text-mute">— train your mind with sort puzzles, mahjong, chess &amp; board classics</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Action, shooting &amp; stickman games</strong> <span className="text-mute">— fast-paced combat, sniper challenges, and 3D FPS arenas</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">2 player &amp; co-op games</strong> <span className="text-mute">— share a keyboard or challenge a friend on the same screen</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Driving, racing &amp; simulator games</strong> <span className="text-mute">— realistic 3D car stunts, truck driving &amp; parking sims</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Cloud save progress &amp; XP</strong> <span className="text-mute">— save your level, streak, and game progress across devices</span></span></li>
+          </ul>
+        </div>
+
+        <div className="border-t border-edge pt-5">
+          <h2 className="font-display text-lg font-extrabold text-fg mb-3">
+            Popular Game Categories &amp; Trending Collections
+          </h2>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <Link href="/collection/trending-now" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🔥 Trending Online Games</Link>
+            <Link href="/collection/live-multiplayer" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🌐 Multiplayer Games</Link>
+            <Link href="/category/io" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">⚡ .io Games</Link>
+            <Link href="/category/action" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">💥 Action Games</Link>
+            <Link href="/category/puzzle" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🧠 Brain &amp; Puzzle Games</Link>
+            <Link href="/category/board" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">♟️ Chess, Ludo &amp; Board Games</Link>
+            <Link href="/category/shooting" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🎯 Shooting Games</Link>
+            <Link href="/category/driving" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🏎️ Car &amp; Driving Games</Link>
+            <Link href="/category/stickman" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🥷 Stickman Games</Link>
+            <Link href="/collection/2-player" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">👥 2 Player Games</Link>
+            <Link href="/collection/3d" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🧊 3D WebGL Games</Link>
+            <Link href="/games" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-arcade ring-1 ring-arcade/40 hover:bg-arcade hover:text-ink">🎮 Full Games Directory</Link>
+          </div>
+        </div>
       </section>
     </main>
   );

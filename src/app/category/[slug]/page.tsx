@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import CategoryChips from "@/components/CategoryChips";
 import GameGrid from "@/components/GameGrid";
@@ -53,7 +54,7 @@ export default async function CategoryPage({ params }: Params) {
       <CategoryChips categories={categories} active={slug} />
       <header className="fade-up mt-8">
         <h1 className="font-display text-3xl font-black text-fg sm:text-4xl">
-          {category.name} Games
+          Play Free {category.name} Games Online
         </h1>
         <p className="mt-2 max-w-3xl text-mute">
           {content
@@ -74,6 +75,12 @@ export default async function CategoryPage({ params }: Params) {
               {text}
             </p>
           ))}
+          <div className="mt-5 flex flex-wrap gap-2 border-t border-edge pt-4 text-xs">
+            <Link href="/games" className="rounded-lg bg-ink px-3 py-1.5 font-semibold text-arcade ring-1 ring-edge hover:ring-arcade">All Online Games</Link>
+            <Link href="/collection/trending-now" className="rounded-lg bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-fg">Trending Now</Link>
+            <Link href="/collection/2-player" className="rounded-lg bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-fg">2 Player Games</Link>
+            <Link href="/collection/3d" className="rounded-lg bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-fg">3D WebGL Games</Link>
+          </div>
         </section>
       )}
     </div>

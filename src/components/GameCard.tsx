@@ -67,7 +67,7 @@ export default function GameCard({ game, featured = false, priority = false, her
       >
         <Image
           src={game.thumbnailUrl}
-          alt={game.title}
+          alt={`${game.title} — Play Free Online${game.category?.name ? ` ${game.category.name}` : ""} Game`}
           fill
           priority={priority}
           sizes={hero ? "(max-width: 640px) 100vw, 40vw" : featured ? "(max-width: 768px) 100vw, 320px" : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"}

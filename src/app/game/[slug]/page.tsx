@@ -41,9 +41,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!game) return { title: "Game not found", robots: { index: false } };
 
   const url = `${SITE}/game/${game.slug}`;
-  const title = game.seoTitle || `${game.title} - Play Free Online`;
-    const description = shortText(
-    `Play ${game.title} free in your browser – no download or sign-up needed. ${cleanText(game.description)}`,
+  const title =
+    game.seoTitle || `Play ${game.title} Free Online — No Download (${game.category.name})`;
+  const description = shortText(
+    `Play ${game.title} free online on Arcadia Games! Instant ${game.category.name.toLowerCase()} browser game — no download, no sign-up, play on PC & mobile. ${cleanText(game.description)}`,
     158
   );
 
@@ -217,12 +218,21 @@ export default async function GamePage({ params }: Params) {
           </ul>
         )}
 
-        <p className="mt-6 text-sm text-mute">
-          Love {game.category.name.toLowerCase()} games?{" "}
-          <Link href={categoryUrl} className="font-semibold text-arcade hover:underline">
-            Browse all {game.category.name} games →
+        <div className="mt-6 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-mute font-semibold">Explore more:</span>
+          <Link href={categoryUrl} className="rounded-xl bg-panel px-3 py-1.5 font-semibold text-arcade ring-1 ring-edge hover:ring-arcade">
+            Free {game.category.name} Games
           </Link>
-        </p>
+          <Link href="/collection/trending-now" className="rounded-xl bg-panel px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-fg">
+            Trending Online Games
+          </Link>
+          <Link href="/collection/live-multiplayer" className="rounded-xl bg-panel px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-fg">
+            Multiplayer &amp; .io Games
+          </Link>
+          <Link href="/games" className="rounded-xl bg-panel px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-fg">
+            All Browser Games
+          </Link>
+        </div>
 
         {/* Comments, suggestions & issues */}
         <GameComments slug={game.slug} heading={`What players say about ${game.title}`} title={game.title} category={game.category.name} />

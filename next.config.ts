@@ -6,6 +6,15 @@ initOpenNextCloudflareForDev();
 const config: NextConfig = {
   // Thumbnails are pre-sized WebP files served from Cloudflare R2's CDN, so no image optimizer is needed.
   images: { unoptimized: true },
+  async redirects() {
+    return [
+      {
+        source: "/games/:slug",
+        destination: "/game/:slug",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

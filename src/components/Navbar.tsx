@@ -26,7 +26,7 @@ const COLLECTIONS = [
   { slug: "trending-now", name: "Trending Now", icon: "🔥" },
   { slug: "latest-games", name: "Latest Games", icon: "✨" },
   { slug: "live-multiplayer", name: "Live Multiplayer", icon: "🌐" },
-  { slug: "unblocked-hits", name: "Unblocked Hits", icon: "🚫" },
+  { slug: "unblocked-hits", name: "Works on Chromebook", icon: "💻" },
   { slug: "sort-puzzle", name: "Sort Puzzles", icon: "🧪" },
   { slug: "3d", name: "3D Games", icon: "🧊" },
   { slug: "2-player", name: "2 Player", icon: "👥" },

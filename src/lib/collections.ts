@@ -37,11 +37,11 @@ export const COLLECTIONS: Collection[] = [
   },
   {
     slug: "unblocked-hits",
-    name: "Unblocked Hits",
-    icon: "🚫",
-    seoName: "Unblocked Games",
+    name: "Works on Chromebook",
+    icon: "💻",
+    seoName: "Browser Games for Chromebook",
     intro:
-      "Top-rated unblocked games that work at school or work. No Flash, no installs — 100% browser-based fun that runs anywhere.",
+      "Lightweight, fast-loading HTML5 games that work smoothly on Chromebook, school laptops, and low-end PCs. No Flash, no installs — instant browser play.",
   },
   {
     slug: "sort-puzzle",

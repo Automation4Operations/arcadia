@@ -29,8 +29,8 @@ const FAQS = [
     a: "Most loading issues are caused by aggressive ad blockers or outdated browser caches. Try: 1) Disabling strict tracker blocking for arcadiagames.app, 2) Hard-refreshing the page (Ctrl + Shift + R or Cmd + Shift + R), or 3) Trying Chrome, Edge, or Safari.",
   },
   {
-    q: "Can I play these games at school or work (unblocked)?",
-    a: "Yes! Check our Unblocked Hits collection (/collection/unblocked-hits) for lightweight, high-performance browser games that work smoothly across most school and office networks.",
+    q: "Can I play these games on a Chromebook or school/work laptop?",
+    a: "Yes! Check our Works on Chromebook collection (/collection/unblocked-hits) for lightweight, high-performance browser games that run smoothly without downloads.",
   },
   {
     q: "How do I report a bug, broken game, or copyright issue?",

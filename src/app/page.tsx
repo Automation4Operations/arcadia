@@ -104,7 +104,7 @@ export default async function HomePage() {
           <Link href="/category/puzzle" className="text-arcade hover:underline">brain &amp; sort puzzles</Link>,{" "}
           <Link href="/category/board" className="text-arcade hover:underline">online chess &amp; ludo</Link>,{" "}
           <Link href="/category/driving" className="text-arcade hover:underline">3D driving</Link>, and{" "}
-          <Link href="/collection/2-player" className="text-arcade hover:underline">2 player unblocked games</Link> — zero downloads, no sign-up required.
+          <Link href="/collection/2-player" className="text-arcade hover:underline">2 player browser games</Link> — zero downloads, no sign-up required.
         </p>
       </header>
 
@@ -272,7 +272,7 @@ export default async function HomePage() {
           </p>
           <ul className="grid gap-2.5 sm:grid-cols-2 text-sm">
             <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Free online games &amp; browser games</strong> <span className="text-mute">— no download, no installation, instant play</span></span></li>
-            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Unblocked games for school &amp; work</strong> <span className="text-mute">— lightweight HTML5 games that load fast anywhere</span></span></li>
+            <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Works on Chromebook &amp; low-end PCs</strong> <span className="text-mute">— lightweight HTML5 games that load fast anywhere</span></span></li>
             <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Live multiplayer &amp; .io arena games</strong> <span className="text-mute">— compete online in real time against players worldwide</span></span></li>
             <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Brain games, puzzle, chess &amp; ludo</strong> <span className="text-mute">— train your mind with sort puzzles, mahjong, chess &amp; board classics</span></span></li>
             <li className="flex items-start gap-2"><span className="mt-0.5 text-arcade">✅</span><span><strong className="text-fg">Action, shooting &amp; stickman games</strong> <span className="text-mute">— fast-paced combat, sniper challenges, and 3D FPS arenas</span></span></li>
@@ -298,6 +298,7 @@ export default async function HomePage() {
             <Link href="/category/stickman" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🥷 Stickman Games</Link>
             <Link href="/collection/2-player" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">👥 2 Player Games</Link>
             <Link href="/collection/3d" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">🧊 3D WebGL Games</Link>
+            <Link href="/guides" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-mute ring-1 ring-edge hover:text-arcade hover:ring-arcade">📘 Gaming Guides</Link>
             <Link href="/games" className="rounded-xl bg-ink px-3 py-1.5 font-semibold text-arcade ring-1 ring-arcade/40 hover:bg-arcade hover:text-ink">🎮 Full Games Directory</Link>
           </div>
         </div>

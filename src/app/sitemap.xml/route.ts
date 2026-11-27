@@ -1,5 +1,6 @@
 import { getSupabase } from "@/lib/supabase";
 import { COLLECTIONS } from "@/lib/collections";
+import { GUIDES } from "@/lib/guidesData";
 
 export const revalidate = 3600;
 
@@ -20,6 +21,7 @@ export async function GET() {
   const urls = [
     `<url><loc>${BASE}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
     `<url><loc>${BASE}/games</loc><changefreq>daily</changefreq><priority>0.9</priority></url>`,
+    `<url><loc>${BASE}/guides</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
     `<url><loc>${BASE}/scores</loc><changefreq>daily</changefreq><priority>0.8</priority></url>`,
     `<url><loc>${BASE}/reviews</loc><changefreq>daily</changefreq><priority>0.8</priority></url>`,
     `<url><loc>${BASE}/help</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`,
@@ -32,6 +34,10 @@ export async function GET() {
     ...COLLECTIONS.map(
       (c) =>
         `<url><loc>${BASE}/collection/${c.slug}</loc><changefreq>daily</changefreq><priority>0.8</priority></url>`,
+    ),
+    ...GUIDES.map(
+      (g) =>
+        `<url><loc>${BASE}/guides/${g.slug}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
     ),
     ...(games ?? []).map(
       (g) =>

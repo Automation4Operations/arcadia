@@ -83,6 +83,12 @@ export default async function GamePage({ params }: Params) {
   const url = `${SITE}/game/${game.slug}`;
   const categoryUrl = `/category/${game.category.slug}`;
 
+  const totalRealVotes = votes.likeCount + votes.dislikeCount;
+  const realRatingValue =
+    totalRealVotes >= 5
+      ? Number((1 + 4 * (votes.likeCount / totalRealVotes)).toFixed(1))
+      : null;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -103,13 +109,17 @@ export default async function GamePage({ params }: Params) {
           priceCurrency: "USD",
           availability: "https://schema.org/InStock",
         },
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: seeded.ratingAvg,
-          ratingCount: seeded.reviewCount,
-          bestRating: 5,
-          worstRating: 1,
-        },
+        ...(realRatingValue !== null
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: realRatingValue,
+                ratingCount: totalRealVotes,
+                bestRating: 5,
+                worstRating: 1,
+              },
+            }
+          : {}),
       },
       {
         "@type": "BreadcrumbList",

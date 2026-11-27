@@ -68,7 +68,7 @@ export default function AdBanner({
     vertical: "w-[160px] min-h-[600px] hidden xl:flex",
   };
 
-  if (adUnfilled) return null;
+  if (!isLive || adUnfilled) return null;
 
   return (
     <div
@@ -78,21 +78,15 @@ export default function AdBanner({
       <span className="mb-1 text-[9px] font-black uppercase tracking-widest text-mute/50 select-none">
         Advertisement
       </span>
-      {isLive ? (
-        <ins
-          ref={adRef}
-          className="adsbygoogle block w-full"
-          style={{ display: "block", backgroundColor: "transparent" }}
-          data-ad-client={client}
-          data-ad-slot={resolvedSlot}
-          data-ad-format={format === "auto" ? "auto" : undefined}
-          data-full-width-responsive="true"
-        />
-      ) : (
-        <div className="flex w-full items-center justify-center py-4 text-[11px] font-semibold text-mute/60 select-none">
-          Google AdSense Space ({format})
-        </div>
-      )}
+      <ins
+        ref={adRef}
+        className="adsbygoogle block w-full"
+        style={{ display: "block", backgroundColor: "transparent" }}
+        data-ad-client={client}
+        data-ad-slot={resolvedSlot}
+        data-ad-format={format === "auto" ? "auto" : undefined}
+        data-full-width-responsive="true"
+      />
     </div>
   );
 }

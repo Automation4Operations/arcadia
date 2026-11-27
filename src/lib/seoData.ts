@@ -3,7 +3,7 @@
 export const TRENDING_KEYWORDS: string[] = [
   "free online games",
   "play games online no download",
-  "unblocked games",
+  "chromebook browser games",
   "live multiplayer games",
   "latest trending browser games",
   "2 player online games",
@@ -27,7 +27,7 @@ export const TRENDING_TAGS: { label: string; href: string; badge?: string }[] = 
   { label: "🔥 Trending Now", href: "/collection/trending-now", badge: "HOT" },
   { label: "⚡ Live Multiplayer", href: "/collection/multiplayer" },
   { label: "🌍 Latest Games", href: "/collection/latest-games", badge: "NEW" },
-  { label: "🚫 Unblocked Hits", href: "/collection/unblocked-hits" },
+  { label: "💻 Works on Chromebook", href: "/collection/unblocked-hits" },
   { label: "🧊 3D WebGL", href: "/collection/3d" },
   { label: "👥 2 Player", href: "/collection/2-player" },
   { label: "🧪 Sort Puzzles", href: "/collection/sort-puzzle" },
@@ -44,7 +44,7 @@ export const TRENDING_QUOTES: { quote: string; tag: string; href: string }[] = [
   { quote: "No download. No sign-up. Just play.", tag: "Instant Play", href: "/" },
   { quote: "Drop into live battles with players worldwide.", tag: "Multiplayer", href: "/collection/multiplayer" },
   { quote: "The freshest HTML5 & 3D games, every week.", tag: "New Releases", href: "/collection/latest-games" },
-  { quote: "Unblocked. Unlimited. Free.", tag: "Unblocked Games", href: "/collection/unblocked-hits" },
+  { quote: "Works on Chromebook. Free. Instant.", tag: "Chromebook Games", href: "/collection/unblocked-hits" },
   { quote: "1 phone, 2 players, infinite fun.", tag: "2 Player", href: "/collection/2-player" },
 ];
 

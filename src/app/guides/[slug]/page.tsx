@@ -105,6 +105,14 @@ export default async function GuideDetailPage({ params }: Params) {
         </div>
       </header>
 
+      {/* LLM SEO Quick Summary Answer */}
+      <section className="rounded-2xl bg-arcade/10 p-5 ring-1 ring-arcade/30">
+        <h2 className="font-display text-sm font-extrabold uppercase tracking-wider text-arcade mb-1.5">
+          Quick Summary
+        </h2>
+        <p className="text-sm leading-relaxed text-fg">{guide.quickSummary}</p>
+      </section>
+
       {/* Comparison Table */}
       <section className="overflow-x-auto rounded-2xl bg-panel p-5 ring-1 ring-edge">
         <h2 className="font-display text-lg font-extrabold text-fg mb-3">
@@ -172,6 +180,23 @@ export default async function GuideDetailPage({ params }: Params) {
           ))}
         </ul>
       </section>
+
+      {/* FAQs */}
+      {guide.faqs.length > 0 && (
+        <section className="rounded-2xl bg-panel p-6 ring-1 ring-edge">
+          <h2 className="font-display text-xl font-extrabold text-fg mb-3">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-3">
+            {guide.faqs.map((faq, i) => (
+              <details key={i} className="rounded-xl bg-ink/70 p-4 ring-1 ring-edge">
+                <summary className="cursor-pointer text-sm font-bold text-fg">{faq.q}</summary>
+                <p className="mt-2 text-xs leading-relaxed text-mute">{faq.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Other Guides */}
       <section className="border-t border-edge pt-6">
